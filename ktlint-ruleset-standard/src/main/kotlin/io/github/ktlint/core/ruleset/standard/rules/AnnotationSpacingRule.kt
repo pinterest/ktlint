@@ -34,10 +34,6 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 @SinceKtlint("0.39", EXPERIMENTAL)
 @SinceKtlint("0.46", STABLE)
 public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
-    private companion object {
-        const val ERROR_MESSAGE = "Annotations should occur immediately before the annotated construct"
-    }
-
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
@@ -53,20 +49,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 .toList()
                 .ifEmpty { return }
 
-        // Join the nodes that immediately follow the annotations (whitespace), then add the final whitespace
-        // if it's not a child of root. This happens when a new line separates the annotations from the annotated
-        // construct. In the following example, there are no whitespace children of root, but root's next sibling is the
-        // new line whitespace.
-        //
-        //      @JvmField
-        //      val s: Any
-        //
-        val whiteSpaces =
-            (annotations.asSequence().map { it.nextSibling } + node.nextSibling)
-                .filterNotNull()
-                .filter { it.isWhiteSpace }
-                .take(annotations.size)
-                .toList()
+        fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(annotations, node, emit)
 
         val next =
             node.nextSiblingWithAtLeastOneOf(
@@ -86,45 +69,66 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                     }
                 },
             )
-        if (next != null) {
-            if (next.isPartOfComment) {
-                emit(node.endOffset, ERROR_MESSAGE, true)
-                    .ifAutocorrectAllowed {
-                        // Special-case autocorrection when the annotation is separated from the annotated construct
-                        // by a comment: we need to swap the order of the comment and the annotation
-                        // Remove the annotation and the following whitespace
-                        val eolComment = node.nextSibling { it.isCommentOnSameLineAsPrevLeaf() }
-                        if (eolComment != null) {
-                            eolComment.prevSibling { it.isWhiteSpace }?.remove()
-                            eolComment.nextSibling { it.isWhiteSpace }?.remove()
-                            eolComment.remove()
-                        } else {
-                            node.nextSibling { it.isWhiteSpace }?.remove()
-                        }
-                        node.remove()
-
-                        // Insert the annotation prior to the annotated construct
-                        val beforeAnchor = next.nextCodeSibling
-                        next
-                            .parent!!
-                            .apply {
-                                addChild(node, beforeAnchor)
-                                if (eolComment != null) {
-                                    addChild(PsiWhiteSpaceImpl(" "), beforeAnchor)
-                                    addChild(eolComment, beforeAnchor)
-                                }
-                                addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
-                            }
-                    }
-            }
-        }
-        if (whiteSpaces.any { it.containsMultipleNewlines() }) {
-            emit(node.endOffset, ERROR_MESSAGE, true)
+        if (next != null && next.isPartOfComment) {
+            emit(node.endOffset, "Annotations should occur immediately before the annotated construct", true)
                 .ifAutocorrectAllowed {
-                    removeIntraLineBreaks(node, annotations.last())
-                    removeExtraLineBreaks(node)
+                    // Special-case autocorrection when the annotation is separated from the annotated construct
+                    // by a comment: we need to swap the order of the comment and the annotation
+                    // Remove the annotation and the following whitespace
+                    val eolComment = node.nextSibling { it.isCommentOnSameLineAsPrevLeaf() }
+                    if (eolComment != null) {
+                        eolComment.prevSibling { it.isWhiteSpace }?.remove()
+                        eolComment.nextSibling { it.isWhiteSpace }?.remove()
+                        eolComment.remove()
+                    } else {
+                        node.nextSibling { it.isWhiteSpace }?.remove()
+                    }
+                    node.remove()
+
+                    // Insert the annotation prior to the annotated construct
+                    val beforeAnchor = next.nextCodeSibling
+                    next
+                        .parent!!
+                        .apply {
+                            addChild(node, beforeAnchor)
+                            if (eolComment != null) {
+                                addChild(PsiWhiteSpaceImpl(" "), beforeAnchor)
+                                addChild(eolComment, beforeAnchor)
+                            }
+                            addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
+                        }
                 }
         }
+    }
+
+    private fun fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(
+        annotations: List<ASTNode>,
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        // Join the nodes that immediately follow the annotations (whitespace), then add the final whitespace
+        // if it's not a child of root. This happens when a new line separates the annotations from the annotated
+        // construct. In the following example, there are no whitespace children of root, but root's next sibling is the
+        // new line whitespace.
+        //
+        //      @JvmField
+        //      val s: Any
+        //
+        val whiteSpaces =
+            (annotations.asSequence().map { it.nextSibling } + node.nextSibling)
+                .filterNotNull()
+                .filter { it.isWhiteSpace }
+                .take(annotations.size)
+                .toList()
+        whiteSpaces
+            .filter { it.containsMultipleNewlines() }
+            .forEach {
+                emit(it.startOffset + 1, "No blank line(s) expected between annotation and annotated construct", true)
+                    .ifAutocorrectAllowed {
+                        removeIntraLineBreaks(node, annotations.last())
+                        removeExtraLineBreaks(node)
+                    }
+            }
     }
 
     private fun ASTNode.containsMultipleNewlines() = text.count { it == '\n' } > 1
