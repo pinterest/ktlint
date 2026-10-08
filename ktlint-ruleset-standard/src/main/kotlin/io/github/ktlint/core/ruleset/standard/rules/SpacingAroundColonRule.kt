@@ -59,62 +59,13 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                 emit(prevLeaf.startOffset, "Unexpected newline before \":\"", true)
                     .ifAutocorrectAllowed {
                         val parentType = node.parent?.elementType
-                        val prevNonCodeElements =
-                            node
-                                .siblings(forward = false)
-                                .takeWhile { !it.isCode }
-                                .toList()
-                                .reversed()
                         when {
                             parentType == PROPERTY || parentType == FUN -> {
-                                node
-                                    .siblings(forward = true)
-                                    .firstOrNull { it.elementType == EQ }
-                                    ?.nextSibling
-                                    ?.let { nextSibling ->
-                                        prevNonCodeElements.forEach {
-                                            node.parent?.addChild(it, nextSibling)
-                                        }
-                                        if (nextSibling.isWhiteSpace) {
-                                            nextSibling.remove()
-                                        }
-                                        Unit
-                                    }
-                                val blockElement =
-                                    node
-                                        .siblings(forward = true)
-                                        .firstOrNull { it.elementType == BLOCK }
-                                if (blockElement != null) {
-                                    val before =
-                                        blockElement
-                                            .firstChildNode
-                                            .nextSibling
-                                    prevNonCodeElements
-                                        .let {
-                                            if (it.first().isWhiteSpace) {
-                                                it.first().remove()
-                                                it.drop(1)
-                                            }
-                                            if (it.last().isWhiteSpaceWithNewline) {
-                                                it.last().remove()
-                                                it.dropLast(1)
-                                            } else {
-                                                it
-                                            }
-                                        }.forEach {
-                                            blockElement.addChild(it, before)
-                                        }
-                                }
+                                removeUnexpectedNewlineBeforeColonInPropertyOrFunctionDeclaration(node)
                             }
 
                             prevLeaf.prevLeaf?.isPartOfComment == true -> {
-                                val nextLeaf = node.nextLeaf
-                                prevNonCodeElements.forEach {
-                                    node.parent?.addChild(it, nextLeaf)
-                                }
-                                if (nextLeaf != null && nextLeaf.isWhiteSpace) {
-                                    nextLeaf.remove()
-                                }
+                                node.removeUnexpectedNewlineBetweenCommentAndColon()
                             }
 
                             else -> {
@@ -129,6 +80,61 @@ public class SpacingAroundColonRule : StandardRule("colon-spacing") {
                         }
                     }
             }
+    }
+
+    private fun removeUnexpectedNewlineBeforeColonInPropertyOrFunctionDeclaration(node: ASTNode) {
+        node
+            .siblings(forward = true)
+            .firstOrNull { it.elementType == EQ }
+            ?.nextSibling
+            ?.let { nextSibling ->
+                previousNonCodeSiblings(node).forEach {
+                    node.parent?.addChild(it, nextSibling)
+                }
+                if (nextSibling.isWhiteSpace) {
+                    nextSibling.remove()
+                }
+            }
+        val blockElement =
+            node
+                .siblings(forward = true)
+                .firstOrNull { it.elementType == BLOCK }
+        if (blockElement != null) {
+            val before =
+                blockElement
+                    .firstChildNode
+                    .nextSibling
+            previousNonCodeSiblings(node)
+                .let {
+                    if (it.first().isWhiteSpace) {
+                        it.first().remove()
+                        it.drop(1)
+                    }
+                    if (it.last().isWhiteSpaceWithNewline) {
+                        it.last().remove()
+                        it.dropLast(1)
+                    } else {
+                        it
+                    }
+                }.forEach {
+                    blockElement.addChild(it, before)
+                }
+        }
+    }
+
+    private fun previousNonCodeSiblings(node: ASTNode): List<ASTNode> =
+        node
+            .siblings(forward = false)
+            .takeWhile { !it.isCode }
+            .toList()
+            .reversed()
+
+    private fun ASTNode.removeUnexpectedNewlineBetweenCommentAndColon() {
+        require(elementType == COLON)
+        val beforeAnchor = nextLeaf
+        previousNonCodeSiblings(this)
+            .forEach { parent?.addChild(it, beforeAnchor) }
+        beforeAnchor.takeIf { it.isWhiteSpace }?.remove()
     }
 
     private fun removeUnexpectedSpacingAround(

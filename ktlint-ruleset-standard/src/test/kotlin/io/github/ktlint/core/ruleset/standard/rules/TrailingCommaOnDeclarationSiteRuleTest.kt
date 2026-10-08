@@ -1,17 +1,14 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.ruleset.standard.rules.TrailingCommaOnDeclarationSiteRule.Companion.TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY
+import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRule
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import io.github.ktlint.core.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class TrailingCommaOnDeclarationSiteRuleTest {
-    private val trailingCommaOnDeclarationSiteRuleAssertThat =
-        assertThatRuleBuilder { TrailingCommaOnDeclarationSiteRule() }
-            // Unit tests becomes more readable when properly indented
-            .addAdditionalRuleProvider { IndentationRule() }
-            .assertThat()
+    private val trailingCommaOnDeclarationSiteRuleAssertThat = assertThatRule { TrailingCommaOnDeclarationSiteRule() }
 
     @Test
     fun `Given property allow trailing comma on declaration site is not set then remove trailing commas`() {

@@ -186,15 +186,16 @@ public class IndentationRule :
             indentContextStack.addLast(startNoIndentZone(node))
         }
 
+        visitNode(node, emit)
+    }
+
+    @Suppress("LongMethod")
+    private fun visitNode(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
         when {
             node.isWhiteSpaceWithNewline -> {
-                line++
-                if (indentContextStack.peekLast()?.activated == false) {
-                    val lastIndentContext = indentContextStack.removeLast()
-                    indentContextStack.addLast(
-                        lastIndentContext.copy(activated = true),
-                    )
-                }
                 visitNewLineIndentation(node, emit)
             }
 
@@ -202,38 +203,12 @@ public class IndentationRule :
                 node.elementType == LONG_STRING_TEMPLATE_ENTRY ||
                 node.elementType == STRING_TEMPLATE ||
                 node.elementType == VALUE_ARGUMENT_LIST -> {
-                startIndentContext(
-                    fromAstNode = node,
-                    lastChildIndent = "",
-                )
+                startIndentContext(fromAstNode = node, lastChildIndent = "")
             }
 
             (node.elementType == SUPER_TYPE_LIST && !node.isPrecededByComment()) ||
                 (node.isPartOfComment && node.nextCodeSibling?.elementType == SUPER_TYPE_LIST) -> {
-                if (codeStyle == KTLINT_OFFICIAL) {
-                    val superTypeList =
-                        if (node.isPartOfComment) {
-                            node.nextCodeLeaf!!
-                        } else {
-                            node
-                        }
-                    if (superTypeList.isPartOfClassWithAMultilinePrimaryConstructor()) {
-                        // Contrary to the default IntelliJ IDEA formatter, indent the super type call entry so that it looks better in case it
-                        // is followed by another super type:
-                        //      class Foo(
-                        //          val bar1: Bar,
-                        //          val bar2: Bar,
-                        //      ) : FooBar(
-                        //              bar1,
-                        //              bar2
-                        //          ),
-                        //          BarFoo,
-                        startIndentContext(
-                            fromAstNode = node,
-                            activated = true,
-                        )
-                    }
-                }
+                visitSuperTypeList(node)
             }
 
             node.elementType == VALUE_ARGUMENT -> {
@@ -245,32 +220,14 @@ public class IndentationRule :
             }
 
             node.elementType == PARENTHESIZED -> {
-                if (codeStyle == KTLINT_OFFICIAL) {
-                    // Contrary to the IntelliJ IDEA default formatter, do not indent the closing RPAR
-                    startIndentContext(
-                        fromAstNode = node,
-                        lastChildIndent = "",
-                    )
-                } else if (node.parent?.parent?.elementType != IF) {
-                    startIndentContext(node)
-                }
+                visitParenthesized(node)
             }
 
-            node.elementType == TYPE_ARGUMENT_LIST ||
-                node.elementType == TYPE_PARAMETER_LIST -> {
-                if (codeStyle == KTLINT_OFFICIAL) {
-                    // Contrary to the IntelliJ IDEA default formatter, do not indent the closing angle bracket
-                    startIndentContext(
-                        fromAstNode = node,
-                        lastChildIndent = "",
-                    )
-                } else {
-                    startIndentContext(node)
-                }
+            node.elementType == TYPE_ARGUMENT_LIST || node.elementType == TYPE_PARAMETER_LIST -> {
+                visitTypeList(node)
             }
 
-            node.elementType == BINARY_WITH_TYPE ||
-                node.elementType == USER_TYPE -> {
+            node.elementType == BINARY_WITH_TYPE || node.elementType == USER_TYPE -> {
                 startIndentContext(node)
             }
 
@@ -283,10 +240,7 @@ public class IndentationRule :
             node.elementType == DELEGATED_SUPER_TYPE_ENTRY ||
                 node.elementType == ANNOTATED_EXPRESSION ||
                 node.elementType == TYPE_REFERENCE -> {
-                startIndentContext(
-                    fromAstNode = node,
-                    childIndent = "",
-                )
+                startIndentContext(fromAstNode = node, childIndent = "")
             }
 
             node.elementType == IF -> {
@@ -297,12 +251,8 @@ public class IndentationRule :
                 visitLbrace(node)
             }
 
-            node.elementType == VALUE_PARAMETER_LIST &&
-                node.parent?.elementType != FUNCTION_LITERAL -> {
-                startIndentContext(
-                    fromAstNode = node,
-                    lastChildIndent = "",
-                )
+            node.elementType == VALUE_PARAMETER_LIST && node.parent?.elementType != FUNCTION_LITERAL -> {
+                startIndentContext(fromAstNode = node, lastChildIndent = "")
             }
 
             node.elementType == LPAR &&
@@ -331,32 +281,14 @@ public class IndentationRule :
             }
 
             node.elementType in CHAINABLE_EXPRESSION -> {
-                if (codeStyle == KTLINT_OFFICIAL && node.isDotQualifiedExpressionInArrayAccessCall()) {
-                    // Issue 1540: Deviate and fix from incorrect formatting in IntelliJ IDEA formatting and produce following:
-                    // val fooBar2 = foo
-                    //    .bar[0] {
-                    //        "foobar"
-                    //    }
-                    startIndentContext(
-                        fromAstNode = node.parent!!,
-                        toAstNode = node.parent!!.parent!!.lastChildLeafOrSelf,
-                    )
-                } else if (node.prevCodeSibling.isElvisOperator()) {
-                    startIndentContext(node)
-                } else if (node.parent?.elementType in CHAINABLE_EXPRESSION) {
-                    // Multiple dot qualified expressions and/or safe expression on the same line should not increase the indent level
-                } else {
-                    startIndentContext(node)
-                }
+                visitChainableExpression(node)
             }
 
-            node.elementType == IDENTIFIER &&
-                node.parent?.elementType == PROPERTY -> {
+            node.elementType == IDENTIFIER && node.parent?.elementType == PROPERTY -> {
                 visitIdentifierInProperty(node)
             }
 
-            node.elementType == LITERAL_STRING_TEMPLATE_ENTRY &&
-                node.nextCodeSibling?.elementType == CLOSING_QUOTE -> {
+            node.elementType == LITERAL_STRING_TEMPLATE_ENTRY && node.nextCodeSibling?.elementType == CLOSING_QUOTE -> {
                 visitWhiteSpaceBeforeClosingQuote(node, emit)
             }
 
@@ -368,8 +300,7 @@ public class IndentationRule :
                 visitWhenEntry(node)
             }
 
-            node.elementType == WHERE_KEYWORD &&
-                node.nextCodeSibling?.elementType == TYPE_CONSTRAINT_LIST -> {
+            node.elementType == WHERE_KEYWORD && node.nextCodeSibling?.elementType == TYPE_CONSTRAINT_LIST -> {
                 visitWhereKeywordBeforeTypeConstraintList(node)
             }
 
@@ -377,13 +308,11 @@ public class IndentationRule :
                 visitKdoc(node)
             }
 
-            node.elementType == PROPERTY_ACCESSOR ||
-                node.elementType == TYPEALIAS -> {
+            node.elementType == PROPERTY_ACCESSOR || node.elementType == TYPEALIAS -> {
                 visitPropertyAccessor(node)
             }
 
-            node.elementType == FOR ||
-                node.elementType == WHILE -> {
+            node.elementType == FOR || node.elementType == WHILE -> {
                 visitConditionalLoop(node)
             }
 
@@ -406,6 +335,71 @@ public class IndentationRule :
             else -> {
                 LOGGER.trace { "No processing for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}" }
             }
+        }
+    }
+
+    private fun visitSuperTypeList(node: ASTNode) {
+        if (codeStyle == KTLINT_OFFICIAL) {
+            val superTypeList =
+                if (node.isPartOfComment) {
+                    node.nextCodeLeaf!!
+                } else {
+                    node
+                }
+            if (superTypeList.isPartOfClassWithAMultilinePrimaryConstructor()) {
+                // Contrary to the default IntelliJ IDEA formatter, indent the super type call entry so that it looks better in case it
+                // is followed by another super type:
+                //      class Foo(
+                //          val bar1: Bar,
+                //          val bar2: Bar,
+                //      ) : FooBar(
+                //              bar1,
+                //              bar2
+                //          ),
+                //          BarFoo,
+                startIndentContext(
+                    fromAstNode = node,
+                    activated = true,
+                )
+            }
+        }
+    }
+
+    private fun visitParenthesized(node: ASTNode) {
+        if (codeStyle == KTLINT_OFFICIAL) {
+            // Contrary to the IntelliJ IDEA default formatter, do not indent the closing RPAR
+            startIndentContext(fromAstNode = node, lastChildIndent = "")
+        } else if (node.parent?.parent?.elementType != IF) {
+            startIndentContext(node)
+        }
+    }
+
+    private fun visitTypeList(node: ASTNode) {
+        if (codeStyle == KTLINT_OFFICIAL) {
+            // Contrary to the IntelliJ IDEA default formatter, do not indent the closing angle bracket
+            startIndentContext(fromAstNode = node, lastChildIndent = "")
+        } else {
+            startIndentContext(node)
+        }
+    }
+
+    private fun visitChainableExpression(node: ASTNode) {
+        if (codeStyle == KTLINT_OFFICIAL && node.isDotQualifiedExpressionInArrayAccessCall()) {
+            // Issue 1540: Deviate and fix from incorrect formatting in IntelliJ IDEA formatting and produce following:
+            // val fooBar2 = foo
+            //    .bar[0] {
+            //        "foobar"
+            //    }
+            startIndentContext(
+                fromAstNode = node.parent!!,
+                toAstNode = node.parent!!.parent!!.lastChildLeafOrSelf,
+            )
+        } else if (node.prevCodeSibling.isElvisOperator()) {
+            startIndentContext(node)
+        } else if (node.parent?.elementType in CHAINABLE_EXPRESSION) {
+            // Multiple dot qualified expressions and/or safe expression on the same line should not increase the indent level
+        } else {
+            startIndentContext(node)
         }
     }
 
@@ -1141,6 +1135,14 @@ public class IndentationRule :
         node: ASTNode,
         emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
+        line++
+        if (indentContextStack.peekLast()?.activated == false) {
+            val lastIndentContext = indentContextStack.removeLast()
+            indentContextStack.addLast(
+                lastIndentContext.copy(activated = true),
+            )
+        }
+
         if (node.ignoreIndent()) {
             return
         }

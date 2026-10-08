@@ -25,6 +25,7 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_ARGUMENT_LIS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.WHEN_ENTRY
+import io.github.ktlint.core.rule.engine.core.api.IndentConfig
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -32,6 +33,8 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.children
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
+import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.hasModifier
 import io.github.ktlint.core.rule.engine.core.api.hasNewLineInClosedRange
 import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
@@ -72,12 +75,23 @@ import org.jetbrains.kotlin.psi.psiUtil.children
 public class TrailingCommaOnDeclarationSiteRule :
     StandardRule(
         id = "trailing-comma-on-declaration-site",
-        usesEditorConfigProperties = setOf(TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY),
+        usesEditorConfigProperties =
+            setOf(
+                INDENT_SIZE_PROPERTY,
+                INDENT_STYLE_PROPERTY,
+                TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY,
+            ),
     ) {
     private var allowTrailingComma = TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY.defaultValue
+    private var indentConfig = IndentConfig.DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         allowTrailingComma = editorConfig[TRAILING_COMMA_ON_DECLARATION_SITE_PROPERTY]
+        indentConfig =
+            IndentConfig(
+                indentStyle = editorConfig[INDENT_STYLE_PROPERTY],
+                tabWidth = editorConfig[INDENT_SIZE_PROPERTY],
+            )
     }
 
     override fun beforeVisitChildNodes(
@@ -295,71 +309,93 @@ public class TrailingCommaOnDeclarationSiteRule :
 
             TrailingCommaState.MISSING -> {
                 if (isTrailingCommaAllowed) {
-                    val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
-                    val addNewLine = !(leafBeforeArrowOrNull?.isWhiteSpaceWithNewline ?: true)
-                    val prevNode = inspectNode.prevCodeLeaf!!
-                    if (addNewLine) {
-                        emit(
-                            prevNode.startOffset + prevNode.textLength,
-                            "Missing trailing comma and newline before \"${inspectNode.text}\"",
-                            true,
-                        )
-                    } else {
-                        emit(
-                            prevNode.startOffset + prevNode.textLength,
-                            "Missing trailing comma before \"${inspectNode.text}\"",
-                            true,
-                        )
-                    }.ifAutocorrectAllowed {
-                        if (addNewLine) {
-                            val indent = prevNode.parent!!.indent
-                            if (leafBeforeArrowOrNull.isWhiteSpace) {
-                                leafBeforeArrowOrNull.replaceTextWith(indent)
-                            } else {
-                                inspectNode
-                                    .prevCodeLeaf
-                                    ?.nextLeaf
-                                    ?.let { before ->
-                                        before.parent?.addChild(PsiWhiteSpaceImpl(indent), before)
-                                    }
-                            }
-                        }
-
-                        if (inspectNode.parent?.elementType == ENUM_ENTRY) {
-                            val parentIndent =
-                                (prevNode.parent?.prevLeaf?.takeIf { it.isWhiteSpace })?.text
-                                    ?: prevNode.indent
-                            inspectNode
-                                .parent
-                                ?.apply {
-                                    addChild(LeafPsiElement(COMMA, ","), inspectNode)
-                                    addChild(PsiWhiteSpaceImpl(parentIndent), null)
-                                    addChild(LeafPsiElement(SEMICOLON, ";"), null)
-                                }
-                            inspectNode.remove()
-                        } else {
-                            inspectNode
-                                .prevCodeLeaf
-                                ?.nextLeaf
-                                ?.let { before ->
-                                    before.parent?.addChild(LeafPsiElement(COMMA, ","), before)
-                                }
-                        }
-                    }
+                    addTrailingComma(inspectNode, emit)
                 }
             }
 
             TrailingCommaState.REDUNDANT -> {
-                emit(
-                    trailingCommaNode!!.startOffset,
-                    "Unnecessary trailing comma before \"${inspectNode.text}\"",
-                    true,
-                ).ifAutocorrectAllowed { trailingCommaNode.remove() }
+                trailingCommaNode?.removeRedundantTrailingComma(inspectNode, emit)
             }
 
             TrailingCommaState.NOT_EXISTS -> {
             }
         }
+    }
+
+    private fun ASTNode.addTrailingComma(
+        inspectNode: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        val leafBeforeArrowOrNull = leafBeforeArrowOrNull()
+        val addNewLine = !(leafBeforeArrowOrNull?.isWhiteSpaceWithNewline ?: true)
+        val prevNode = inspectNode.prevCodeLeaf!!
+        val violationMessage =
+            if (addNewLine) {
+                "Missing trailing comma and newline before \"${inspectNode.text}\""
+            } else {
+                "Missing trailing comma before \"${inspectNode.text}\""
+            }
+        emit(prevNode.startOffset + prevNode.textLength, violationMessage, true)
+            .ifAutocorrectAllowed {
+                if (addNewLine) {
+                    addNewLineChild(inspectNode, leafBeforeArrowOrNull)
+                }
+
+                addTrailingCommaChild(inspectNode)
+            }
+    }
+
+    private fun addNewLineChild(
+        inspectNode: ASTNode,
+        leafBeforeArrowOrNull: ASTNode,
+    ) {
+        if (leafBeforeArrowOrNull.isWhiteSpace) {
+            val indent =
+                if (inspectNode.parent?.elementType == FUNCTION_LITERAL) {
+                    indentConfig.siblingIndentOf(inspectNode)
+                } else {
+                    indentConfig.parentIndentOf(inspectNode)
+                }
+            leafBeforeArrowOrNull.replaceTextWith(indent)
+        } else {
+            inspectNode
+                .prevCodeLeaf
+                ?.nextLeaf
+                ?.let { before ->
+                    before.parent?.addChild(
+                        PsiWhiteSpaceImpl(indentConfig.siblingIndentOf(inspectNode.parent!!)),
+                        before,
+                    )
+                }
+        }
+    }
+
+    private fun addTrailingCommaChild(inspectNode: ASTNode) {
+        if (inspectNode.parent?.elementType == ENUM_ENTRY) {
+            inspectNode
+                .parent
+                ?.apply {
+                    addChild(LeafPsiElement(COMMA, ","), inspectNode)
+                    addChild(PsiWhiteSpaceImpl(indentConfig.siblingIndentOf(this)), null)
+                    addChild(LeafPsiElement(SEMICOLON, ";"), null)
+                }
+            inspectNode.remove()
+        } else {
+            inspectNode
+                .prevCodeLeaf
+                ?.nextLeaf
+                ?.let { before ->
+                    before.parent?.addChild(LeafPsiElement(COMMA, ","), before)
+                }
+        }
+    }
+
+    private fun ASTNode.removeRedundantTrailingComma(
+        inspectNode: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        emit(startOffset, "Unnecessary trailing comma before \"${inspectNode.text}\"", true)
+            .ifAutocorrectAllowed { this.remove() }
     }
 
     private fun ASTNode.isMultiline(): Boolean =
