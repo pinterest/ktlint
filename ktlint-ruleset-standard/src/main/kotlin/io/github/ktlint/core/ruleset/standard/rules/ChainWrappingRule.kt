@@ -57,9 +57,6 @@ public class ChainWrappingRule :
                 INDENT_STYLE_PROPERTY,
             ),
     ) {
-    private val sameLineTokens = TokenSet.create(MUL, DIV, PERC, ANDAND, OROR)
-    private val prefixTokens = TokenSet.create(PLUS, MINUS)
-    private val nextLineTokens = TokenSet.create(DOT, SAFE_ACCESS, ELVIS)
     private var indentConfig = DEFAULT_INDENT_CONFIG
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
@@ -74,96 +71,105 @@ public class ChainWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val elementType = node.elementType
-        if (nextLineTokens.contains(elementType)) {
-            if (node.isPartOfComment) {
-                return
-            }
-            val nextLeaf = node.nextCodeLeaf?.prevLeaf
-            if (nextLeaf.isWhiteSpaceWithNewline && !node.isElvisOperatorAndComment()) {
-                emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
-                    .ifAutocorrectAllowed {
-                        // rewriting
-                        // <prevLeaf><node="."><nextLeaf="\n"> to
-                        // <prevLeaf><delete space if any><nextLeaf="\n"><node="."><space if needed>
-                        // (or)
-                        // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
-                        // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
-                        if (node.elementType == ELVIS) {
-                            node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
-                            node.upsertWhitespaceAfterMe(" ")
-                        } else {
-                            node.remove()
-                            (nextLeaf as LeafElement).rawInsertAfterMe(node as LeafElement)
-                        }
-                    }
-            }
-        } else if (sameLineTokens.contains(elementType) || prefixTokens.contains(elementType)) {
-            if (node.isPartOfComment) {
-                return
-            }
-            val prevLeaf = node.prevLeaf
-            if (node.isPartOfSpread()) {
-                // Allow:
-                //    fn(
-                //        *typedArray<...>()
-                //    )
-                return
-            }
-            if (prefixTokens.contains(elementType) && node.isInPrefixPosition()) {
-                // Allow:
-                //    fn(
-                //        -42
-                //    )
-                return
-            }
-
-            if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline) {
-                emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
-                    .ifAutocorrectAllowed {
-                        // rewriting
-                        // <insertionPoint><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
-                        // <insertionPoint><prevLeaf=" "><node="&&"><nextLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                        // (or)
-                        // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
-                        // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                        val nextLeaf = node.nextLeaf
-                        val whiteSpaceToBeDeleted =
-                            when {
-                                nextLeaf.isWhiteSpaceWithNewline -> {
-                                    // Node is preceded and followed by whitespace. Prefer to remove the whitespace before the node as this will
-                                    // change the indent of the next line
-                                    prevLeaf
-                                }
-
-                                nextLeaf.isWhiteSpaceWithoutNewline -> {
-                                    nextLeaf
-                                }
-
-                                else -> {
-                                    null
-                                }
-                            }
-
-                        val parent = node.parent
-                        if (parent?.elementType == OPERATION_REFERENCE) {
-                            val insertBeforeSibling =
-                                parent
-                                    .prevCodeSibling
-                                    ?.nextSibling
-                            parent.remove()
-                            insertBeforeSibling?.parent?.addChild(parent, insertBeforeSibling)
-                            parent.upsertWhitespaceBeforeMe(" ")
-                        } else {
-                            val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
-                            (node as LeafPsiElement).remove()
-                            insertionPoint.rawInsertAfterMe(node)
-                            (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
-                        }
-                        whiteSpaceToBeDeleted?.remove()
-                    }
+        if (!node.isPartOfComment) {
+            when (node.elementType) {
+                in NEXT_LINE_TOKENS -> fixChainOperatorWhichMayNotBeUsedAtEndOfLine(node, emit)
+                in SAME_LINE_TOKENS, in PREFIX_TOKENS -> fixChainOperatorWhichMayNotUsedAtStartOfLine(node, emit)
             }
         }
+    }
+
+    private fun fixChainOperatorWhichMayNotBeUsedAtEndOfLine(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        val nextLeaf = node.nextCodeLeaf?.prevLeaf
+        if (nextLeaf.isWhiteSpaceWithNewline && !node.isElvisOperatorAndComment()) {
+            emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
+                .ifAutocorrectAllowed {
+                    // rewriting
+                    // <prevLeaf><node="."><nextLeaf="\n"> to
+                    // <prevLeaf><delete space if any><nextLeaf="\n"><node="."><space if needed>
+                    // (or)
+                    // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
+                    // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
+                    if (node.elementType == ELVIS) {
+                        node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                        node.upsertWhitespaceAfterMe(" ")
+                    } else {
+                        node.remove()
+                        (nextLeaf as LeafElement).rawInsertAfterMe(node as LeafElement)
+                    }
+                }
+        }
+    }
+
+    private fun fixChainOperatorWhichMayNotUsedAtStartOfLine(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ): Boolean {
+        if (node.isPartOfSpread()) {
+            // Allow:
+            //    fn(
+            //        *typedArray<...>()
+            //    )
+            return true
+        }
+        if (PREFIX_TOKENS.contains(node.elementType) && node.isInPrefixPosition()) {
+            // Allow:
+            //    fn(
+            //        -42
+            //    )
+            return true
+        }
+
+        val prevLeaf = node.prevLeaf
+        if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline) {
+            emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
+                .ifAutocorrectAllowed {
+                    // rewriting
+                    // <insertionPoint><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
+                    // <insertionPoint><prevLeaf=" "><node="&&"><nextLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
+                    // (or)
+                    // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
+                    // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
+                    val nextLeaf = node.nextLeaf
+                    val whiteSpaceToBeDeleted =
+                        when {
+                            nextLeaf.isWhiteSpaceWithNewline -> {
+                                // Node is preceded and followed by whitespace. Prefer to remove the whitespace before the node as this will
+                                // change the indent of the next line
+                                prevLeaf
+                            }
+
+                            nextLeaf.isWhiteSpaceWithoutNewline -> {
+                                nextLeaf
+                            }
+
+                            else -> {
+                                null
+                            }
+                        }
+
+                    val parent = node.parent
+                    if (parent?.elementType == OPERATION_REFERENCE) {
+                        val insertBeforeSibling =
+                            parent
+                                .prevCodeSibling
+                                ?.nextSibling
+                        parent.remove()
+                        insertBeforeSibling?.parent?.addChild(parent, insertBeforeSibling)
+                        parent.upsertWhitespaceBeforeMe(" ")
+                    } else {
+                        val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
+                        (node as LeafPsiElement).remove()
+                        insertionPoint.rawInsertAfterMe(node)
+                        (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
+                    }
+                    whiteSpaceToBeDeleted?.remove()
+                }
+        }
+        return false
     }
 
     private fun ASTNode.isPartOfSpread() =
@@ -183,6 +189,12 @@ public class ChainWrappingRule :
     private fun ASTNode.isElvisOperatorAndComment(): Boolean =
         elementType == ELVIS &&
             leaves().takeWhile { it.isWhiteSpaceWithoutNewline || it.isPartOfComment }.any()
+
+    private companion object {
+        val NEXT_LINE_TOKENS = TokenSet.create(DOT, SAFE_ACCESS, ELVIS)
+        val SAME_LINE_TOKENS = TokenSet.create(MUL, DIV, PERC, ANDAND, OROR)
+        val PREFIX_TOKENS = TokenSet.create(PLUS, MINUS)
+    }
 }
 
 public val CHAIN_WRAPPING_RULE_ID: RuleId = ChainWrappingRule().ruleId

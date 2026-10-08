@@ -4,6 +4,8 @@ import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRule
 import io.github.ktlint.core.test.LintViolation
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 
 class ChainWrappingRuleTest {
     private val chainWrappingRuleAssertThat = assertThatRule { ChainWrappingRule() }
@@ -49,14 +51,23 @@ class ChainWrappingRuleTest {
             .isFormattedAs(formattedCode)
     }
 
-    @Test
-    fun `Given a newline after an plus operator`() {
+    @ParameterizedTest(name = "Operator: {0}")
+    @ValueSource(strings = ["+", "-", "/", "*", "%"])
+    fun `Given a newline after an arithmetic operator`(operator: String) {
         val code =
             """
-            val foo = 1 +
+            val foo1 = 1 $operator
                 2
+            val foo2 = (1 $operator
+                2)
+            // Invalid Kotlin code
+            // val foo3 = 1
+            //    $operator 2
+            val foo4 = (1
+                $operator 2)
             """.trimIndent()
-        chainWrappingRuleAssertThat(code).hasNoLintViolations()
+        chainWrappingRuleAssertThat(code)
+            .hasLintViolation(9, 5, "Line must not begin with \"$operator\"")
     }
 
     @Test
