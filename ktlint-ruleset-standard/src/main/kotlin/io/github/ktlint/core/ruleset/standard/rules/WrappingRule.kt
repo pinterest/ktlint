@@ -133,7 +133,7 @@ public class WrappingRule :
     ) {
         when (node.elementType) {
             BLOCK -> beforeVisitBlock(node, emit)
-            LPAR, LBRACKET -> rearrangeBlock(node, emit)
+            LPAR, LBRACE, LBRACKET -> rearrangeBlock(node, emit)
             SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, emit)
             VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, emit)
             TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST -> rearrangeTypeArgumentList(node, emit)
@@ -210,55 +210,8 @@ public class WrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val closingElementType = MATCHING_RTOKEN_MAP[node.elementType]
-        var newlineInBetween = false
-        var parameterListInBetween = false
-        var numberOfArgs = 0
-        var firstArg: ASTNode? = null
-        // matching ), ] or }
-        val closingElement =
-            node.nextSibling {
-                val isValueArgument = it.elementType == VALUE_ARGUMENT
-                val hasLineBreak = if (isValueArgument) it.hasLineBreak(LAMBDA_EXPRESSION, FUN) else it.hasLineBreak()
-                newlineInBetween = newlineInBetween || hasLineBreak
-                parameterListInBetween = parameterListInBetween || it.elementType == VALUE_PARAMETER_LIST
-                if (isValueArgument) {
-                    numberOfArgs++
-                    firstArg = it
-                }
-                it.elementType == closingElementType
-            }!!
-        val canKeepOnOneLine =
-            !newlineInBetween ||
-                // keep { p ->
-                // }
-                (node.elementType == LBRACE && parameterListInBetween) ||
-                // keep ({
-                // }) and (object : C {
-                // })
-                (
-                    numberOfArgs == 1 &&
-                        firstArg
-                            ?.firstChildNode
-                            ?.elementType
-                            ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
-                )
-        if (canKeepOnOneLine) {
-            return
-        }
-        if (node.isPartOfForLoopConditionWithMultilineExpression()) {
-            // keep:
-            // for (foo in listOf(
-            //     "foo-1",
-            //     "foo-2"
-            // )) { ... }
-            // but reject:
-            // for (
-            //     foo in listOf(
-            //         "foo-1",
-            //         "foo-2"
-            //     )
-            // ) { ... }
+        val closingElement = node.findMatchingClosingElement()
+        if (node.shouldNotRearrangeBlock(closingElement)) {
             return
         }
         if (!isFollowedByNewline(node) &&
@@ -278,6 +231,57 @@ public class WrappingRule :
             requireNewlineBeforeLeaf(closingElement, emit, indentConfig.parentIndentOf(node))
         }
     }
+
+    private fun ASTNode.shouldNotRearrangeBlock(closingElement: ASTNode): Boolean =
+        hasNoDisallowedNewlines(closingElement) ||
+            containsMultilineValueParameterList(this) ||
+            hasSingleValueArgument(OBJECT_LITERAL, LAMBDA_EXPRESSION) ||
+            isPartOfForLoopConditionWithMultilineExpression()
+
+    private fun ASTNode.findMatchingClosingElement(): ASTNode {
+        val closingElementType =
+            when (elementType) {
+                LPAR -> RPAR
+                LBRACE -> RBRACE
+                LBRACKET -> RBRACKET
+                LT -> GT
+                else -> error("Unexpected element type $elementType")
+            }
+        return requireNotNull(nextSibling { it.elementType == closingElementType })
+    }
+
+    private fun ASTNode.hasNoDisallowedNewlines(closingElement: ASTNode): Boolean =
+        siblings()
+            .takeWhile { it != closingElement }
+            .none {
+                if (it.elementType == VALUE_ARGUMENT) {
+                    it.hasLineBreak(LAMBDA_EXPRESSION, FUN)
+                } else {
+                    it.hasLineBreak()
+                }
+            }
+
+    private fun containsMultilineValueParameterList(node: ASTNode): Boolean =
+        // keep
+        //     { p ->
+        //     }
+        node.elementType == LBRACE && node.siblings().any { it.elementType == VALUE_PARAMETER_LIST }
+
+    private fun ASTNode.hasSingleValueArgument(vararg elementTypes: IElementType): Boolean =
+        // keep
+        //     (object : C {
+        //     })
+        // and
+        //     ({
+        //     })
+        siblings()
+            .filter { it.elementType == VALUE_ARGUMENT }
+            .takeIf { it.count() == 1 }
+            ?.first()
+            ?.firstChildNode
+            ?.elementType
+            ?.let { it in elementTypes }
+            ?: false
 
     private fun isFollowedByNewline(node: ASTNode): Boolean =
         node

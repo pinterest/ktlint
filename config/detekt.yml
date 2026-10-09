@@ -30,8 +30,6 @@ complexity:
     excludes:
       # Allow long methods in test classes as extracting logic from tests to functions might reduce readability
       - '**/*Test.kt'
-  CyclomaticComplexMethod:
-    active: false
 
 naming:
   # Already enforced by ktlint rule `standard:enum-entry-name-case`
