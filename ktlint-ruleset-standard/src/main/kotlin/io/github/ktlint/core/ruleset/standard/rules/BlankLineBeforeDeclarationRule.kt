@@ -1,6 +1,7 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
+import io.github.ktlint.core.rule.engine.core.api.ElementType
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS_BODY
@@ -15,7 +16,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RETURN_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_ARGUMENT
-import io.github.ktlint.core.rule.engine.core.api.ElementType.WHEN
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
@@ -70,88 +70,7 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isFirstCodeSiblingInClassBody()) {
-            // No blank line between class signature and first declaration in class body:
-            //   class Foo {
-            //      fun bar() {}
-            //   }
-            //   class Foo {
-            //      class bar
-            //   }
-            return
-        }
-
-        if (node.isFirstCodeSiblingInBlock()) {
-            // No blank line between opening brace of block and first code sibling in class body:
-            //   fun foo() {
-            //      class Bar
-            //   }
-            //   val foo = {
-            //      fun bar() {}
-            //   }
-            return
-        }
-
-        if (node.isFirstCodeSiblingInBodyOfFunctionLiteral()) {
-            // No blank line between opening brace of function literal and declaration as first code sibling:
-            //   val foo = {
-            //      fun bar() {}
-            //   }
-            //   val foo = { _ ->
-            //      fun bar() {}
-            //   }
-            return
-        }
-
-        if (node.isConsecutiveProperty()) {
-            // Allow consecutive properties:
-            //   val foo = "foo"
-            //   val bar = "bar"
-            return
-        }
-
-        if (node.isLocalProperty()) {
-            // Allow:
-            //   fun foo() {
-            //       bar()
-            //       val foobar = "foobar"
-            //   }
-            return
-        }
-
-        if (node.elementType == PROPERTY && node.parent?.elementType == WHEN) {
-            // Allow:
-            //   when(val foo = foo()) {
-            //       ...
-            //   }
-            return
-        }
-
-        if (node.elementType == FUN &&
-            (node.prevCodeSibling?.elementType == EQ || node.prevCodeSibling?.elementType == RETURN_KEYWORD)
-        ) {
-            // Allow:
-            //   val foo =
-            //       fun(): String {
-            //           return "foo"
-            //       }
-            return
-        }
-
-        if (node.elementType == FUN && node.parent?.elementType == VALUE_ARGUMENT) {
-            // Allow:
-            //   val foo1 = foo2(fun() = 42)
-            return
-        }
-
-        if (node.elementType == OBJECT_DECLARATION && node.parent?.elementType == OBJECT_LITERAL) {
-            // Allow:
-            //   fun foo() =
-            //      object : Foo() {
-            //          // some declarations
-            //      }
-            return
-        }
+        if (node.allowBlankLineBeforeDeclaration()) return
 
         node
             .takeIf { it.isDeclaration }
@@ -164,8 +83,26 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
             }
     }
 
+    private fun ASTNode.allowBlankLineBeforeDeclaration(): Boolean =
+        isFirstCodeSiblingInClassBody() ||
+            isFirstCodeSiblingInBlock() ||
+            isFirstCodeSiblingInBodyOfFunctionLiteral() ||
+            isConsecutiveProperty() ||
+            isLocalProperty() ||
+            isWhenWithProperty() ||
+            isFunctionDeclaredAsProperty() ||
+            isFunctionAsValueArgument() ||
+            isFunctionReturningObjectDeclaration()
+
     private fun ASTNode?.isBlankLine() = this == null || text.startsWith("\n\n")
 
+    // No blank line between class signature and first declaration in class body:
+    //   class Foo {
+    //      fun bar() {}
+    //   }
+    //   class Foo {
+    //      class bar
+    //   }
     private fun ASTNode.isFirstCodeSiblingInClassBody() =
         this ==
             parent
@@ -173,6 +110,13 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
                 ?.findChildByType(LBRACE)
                 ?.nextCodeSibling
 
+    // No blank line between opening brace of block and first code sibling in class body:
+    //   fun foo() {
+    //      class Bar
+    //   }
+    //   val foo = {
+    //      fun bar() {}
+    //   }
     private fun ASTNode.isFirstCodeSiblingInBlock() =
         this ==
             parent
@@ -180,6 +124,13 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
                 ?.findChildByType(LBRACE)
                 ?.nextCodeSibling
 
+    // No blank line between opening brace of function literal and declaration as first code sibling:
+    //   val foo = {
+    //      fun bar() {}
+    //   }
+    //   val foo = { _ ->
+    //      fun bar() {}
+    //   }
     private fun ASTNode.isFirstCodeSiblingInBodyOfFunctionLiteral() =
         this ==
             parent
@@ -190,17 +141,52 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
                 ?.children
                 ?.firstOrNull { isCode }
 
+    // Allow consecutive properties:
+    //   val foo = "foo"
+    //   val bar = "bar"
     private fun ASTNode.isConsecutiveProperty() =
         takeIf { it.propertyRelated() }
             ?.prevCodeSibling
             ?.let { it.propertyRelated() || it.parent!!.propertyRelated() }
             ?: false
 
+    // Allow:
+    //   fun foo() {
+    //       bar()
+    //       val foobar = "foobar"
+    //   }
     private fun ASTNode.isLocalProperty() =
         takeIf { it.propertyRelated() }
             ?.parent
             ?.let { it.elementType == BLOCK }
             ?: false
+
+    // Allow:
+    //   when(val foo = foo()) {
+    //       ...
+    //   }
+    private fun ASTNode.isWhenWithProperty(): Boolean = this.elementType == PROPERTY && parent?.elementType == ElementType.WHEN
+
+    // Allow:
+    //   val foo =
+    //       fun(): String {
+    //           return "foo"
+    //       }
+    private fun ASTNode.isFunctionDeclaredAsProperty(): Boolean =
+        this.elementType == FUN &&
+            (prevCodeSibling?.elementType == EQ || prevCodeSibling?.elementType == RETURN_KEYWORD)
+
+    // Allow:
+    //   val foo1 = foo2(fun() = 42)
+    private fun ASTNode.isFunctionAsValueArgument(): Boolean = this.elementType == FUN && parent?.elementType == VALUE_ARGUMENT
+
+    // Allow:
+    //   fun foo() =
+    //      object : Foo() {
+    //          // some declarations
+    //      }
+    private fun ASTNode.isFunctionReturningObjectDeclaration(): Boolean =
+        this.elementType == OBJECT_DECLARATION && parent?.elementType == OBJECT_LITERAL
 
     private fun ASTNode.propertyRelated() = elementType == PROPERTY || elementType == PROPERTY_ACCESSOR
 }

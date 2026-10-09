@@ -25,6 +25,7 @@ import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.leavesBackwardsIncludingSelf
 import io.github.ktlint.core.rule.engine.core.api.leavesForwardsIncludingSelf
+import io.github.ktlint.core.rule.engine.core.api.parent
 import io.github.ktlint.core.rule.engine.core.api.prevLeaf
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceAfterMe
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -83,9 +84,42 @@ public class PropertyWrappingRule :
     ) {
         require(node.elementType == PROPERTY)
 
-        val baseIndentLength = node.indentWithoutNewlinePrefix.length
+        val fromNode = findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node)
 
-        // Find the first node after the indenting whitespace on the same line as the identifier
+        node
+            .findChildByType(COLON)
+            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
+            ?.let { colon ->
+                requireNewlineAfterLeaf(colon, emit)
+                return
+            }
+
+        node
+            .findChildByType(TYPE_REFERENCE)
+            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
+            ?.let { typeReference ->
+                requireNewlineBeforeLeaf(typeReference, emit)
+                return
+            }
+
+        node
+            .findChildByType(EQ)
+            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
+            ?.let { equal ->
+                requireNewlineAfterLeaf(equal, emit)
+                return
+            }
+
+        node
+            .findChildByType(CALL_EXPRESSION)
+            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
+            ?.let { callExpression ->
+                requireNewlineBeforeLeaf(callExpression, emit)
+                return
+            }
+    }
+
+    private fun findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node: ASTNode): ASTNode {
         val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf
         val fromNode =
             node
@@ -93,50 +127,12 @@ public class PropertyWrappingRule :
                 ?.leavesBackwardsIncludingSelf
                 ?.firstOrNull { it.prevLeaf.isWhiteSpaceWithNewline || it == nodeFirstChildLeafOrSelf }
                 ?: node
-
-        node
-            .findChildByType(COLON)
-            ?.let { colon ->
-                if (colon.hasNoMaxLineLengthSuppression() &&
-                    baseIndentLength + fromNode.sumOfTextLengthUntil(colon) > maxLineLength
-                ) {
-                    fromNode.sumOfTextLengthUntil(colon)
-                    requireNewlineAfterLeaf(colon, emit)
-                    return
-                }
-            }
-
-        node
-            .findChildByType(TYPE_REFERENCE)
-            ?.let { typeReference ->
-                if (typeReference.hasNoMaxLineLengthSuppression() &&
-                    baseIndentLength + fromNode.sumOfTextLengthUntil(typeReference) > maxLineLength
-                ) {
-                    requireNewlineBeforeLeaf(typeReference, emit)
-                    return
-                }
-            }
-
-        node
-            .findChildByType(EQ)
-            ?.let { equal ->
-                if (equal.hasNoMaxLineLengthSuppression() && baseIndentLength + fromNode.sumOfTextLengthUntil(equal) > maxLineLength) {
-                    requireNewlineAfterLeaf(equal, emit)
-                    return
-                }
-            }
-
-        node
-            .findChildByType(CALL_EXPRESSION)
-            ?.let { callExpression ->
-                if (callExpression.hasNoMaxLineLengthSuppression() &&
-                    baseIndentLength + fromNode.sumOfTextLengthUntil(callExpression) > maxLineLength
-                ) {
-                    requireNewlineBeforeLeaf(callExpression, emit)
-                    return
-                }
-            }
+        return fromNode
     }
+
+    private fun ASTNode.doesNotFitOnSameLineAs(fromNode: ASTNode): Boolean =
+        hasNoMaxLineLengthSuppression() &&
+            parent!!.indentWithoutNewlinePrefix.length + fromNode.sumOfTextLengthUntil(this) > maxLineLength
 
     private fun ASTNode.sumOfTextLengthUntil(astNode: ASTNode): Int {
         val stopAtLeaf = astNode.lastChildLeafOrSelf
@@ -155,7 +151,7 @@ public class PropertyWrappingRule :
             true,
         ).also { autocorrectDecision ->
             LOGGER.trace {
-                "$line: " + (if (autocorrectDecision == NO_AUTOCORRECT) "would have " else "") + "inserted newline before ${node.text}"
+                "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline before ${node.text}"
             }
         }.ifAutocorrectAllowed {
             node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))

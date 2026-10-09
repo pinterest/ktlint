@@ -1,6 +1,7 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
+import io.github.ktlint.core.rule.engine.core.api.ElementType
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
@@ -62,72 +63,81 @@ public class MultiLineIfElseRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType != THEN && node.elementType != ELSE) {
-            return
+        if (node.elementType == THEN || node.elementType == ELSE) {
+            visitElseOrThen(node, emit)
         }
+    }
 
-        // Ignore when already wrapped in a block
-        if (node.firstChildNode?.elementType == BLOCK) {
-            return
+    private fun visitElseOrThen(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        if (node.wrapInBlock()) {
+            emit(node.firstChildNode.startOffset, "Missing { ... }", true)
+                .ifAutocorrectAllowed {
+                    autocorrect(node)
+                }
         }
+    }
 
-        if (node.elementType == ELSE &&
-            node.firstChildNode?.elementType == BINARY_EXPRESSION &&
-            node.firstChildNode.firstChildNode?.elementType == IF
-        ) {
-            // Allow
-            // val foo2 = if (bar1) {
-            //     "bar1"
-            // } else if (bar2) {
-            //     null
-            // } else {
-            //     null
-            // } ?: "something-else"
-            return
-        }
+    private fun ASTNode.wrapInBlock() =
+        !isWrappedInBlock() &&
+            !elseIfFollowedByBinaryExpression() &&
+            !elseIfFollowedByDotQualifiedExpression() &&
+            !isSimpleSingleLineIfStatement()
 
-        if (node.elementType == ELSE &&
-            node.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION &&
-            node.firstChildNode.firstChildNode?.elementType == IF
-        ) {
-            // Allow
-            // val foo = if (bar1) {
-            //     "bar1"
-            // } else if (bar2) {
-            //     "bar2"
-            // } else {
-            //     "bar3"
-            // }.plus("foo")
-            return
-        }
+    private fun ASTNode.isWrappedInBlock(): Boolean = this.firstChildNode?.elementType == BLOCK
 
-        if (!node.prevSibling!!.textContains('\n')) {
-            if (node.firstChildNode == null) {
+    // Allow
+    // val foo2 = if (bar1) {
+    //     "bar1"
+    // } else if (bar2) {
+    //     null
+    // } else {
+    //     null
+    // } ?: "something-else"
+    private fun ASTNode.elseIfFollowedByBinaryExpression(): Boolean =
+        this.elementType == ELSE &&
+            this.firstChildNode?.elementType == BINARY_EXPRESSION &&
+            this.firstChildNode.firstChildNode?.elementType == IF
+
+    // Allow
+    // val foo = if (bar1) {
+    //     "bar1"
+    // } else if (bar2) {
+    //     "bar2"
+    // } else {
+    //     "bar3"
+    // }.plus("foo")
+    private fun ASTNode.elseIfFollowedByDotQualifiedExpression(): Boolean =
+        this.elementType == ELSE &&
+            this.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION &&
+            this.firstChildNode.firstChildNode?.elementType == IF
+
+    private fun ASTNode.isSimpleSingleLineIfStatement(): Boolean {
+        if (!prevSibling!!.textContains('\n')) {
+            if (firstChildNode == null) {
                 // if block with an empty 'then' block
-                return
+                return true
             }
-            if (node.firstChildNode.elementType == IF) {
+            if (firstChildNode.elementType == IF) {
                 // Allow single line for:
                 // else if (...)
-                return
+                return true
             }
-            if (node.parent?.textContains('\n') == false) {
+            if (parent?.textContains('\n') == false) {
                 // Allow single line if statements as long as they are really simple (e.g. do not contain newlines)
                 //    if (...) <statement> // no else statement
                 //    if (...) <statement> else <statement>
-                if (node.parent?.parent?.elementType == ELSE) {
+                if (parent?.parent?.elementType == ELSE) {
                     // Except in case nested if-else-if on single line
                     //    if (...) <statement> else if (..) <statement>
                 } else {
-                    return
+                    return true
                 }
             }
         }
-
-        emit(node.firstChildNode.startOffset, "Missing { ... }", true)
-            .ifAutocorrectAllowed {
-                autocorrect(node)
-            }
+        return false
     }
 
     private fun autocorrect(node: ASTNode) {

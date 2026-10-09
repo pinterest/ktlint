@@ -30,11 +30,12 @@ import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
 import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.prevLeaf
+import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceAfterMe
 import io.github.ktlint.core.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
-import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 /**
  * Ensures consistent spacing inside the parameter list. This rule partly overlaps with other rules like spacing around
@@ -57,7 +58,7 @@ public class ParameterListSpacingRule :
 
     override fun beforeVisitChildNodes(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
     ) {
         if (node.elementType == VALUE_PARAMETER_LIST) {
             visitValueParameterList(node, emit)
@@ -66,14 +67,9 @@ public class ParameterListSpacingRule :
 
     private fun visitValueParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == VALUE_PARAMETER_LIST)
-        val countValueParameters =
-            node
-                .children
-                .count { it.elementType == VALUE_PARAMETER }
-        var valueParameterCount = 0
         val iterator =
             node
                 .children
@@ -83,162 +79,127 @@ public class ParameterListSpacingRule :
         while (iterator.hasNext()) {
             val el = iterator.next()
             when (el.elementType) {
-                WHITE_SPACE -> {
-                    if (countValueParameters == 0 && node.containsNoComments()) {
-                        removeUnexpectedWhiteSpace(el, emit)
-                    } else if (valueParameterCount == 0 && el.isNotIndent()) {
-                        if (node.containsNoComments()) {
-                            // whitespace before first parameter
-                            removeUnexpectedWhiteSpace(el, emit)
-                        } else {
-                            // Avoid conflict with comment spacing rule which requires a whitespace before the
-                            // EOL-comment
-                        }
-                    } else if (valueParameterCount == countValueParameters && el.isNotIndent()) {
-                        if (node.containsNoComments()) {
-                            // whitespace after the last parameter
-                            removeUnexpectedWhiteSpace(el, emit)
-                        } else {
-                            // Avoid conflict with comment spacing rule which requires a whitespace before the
-                            // EOL-comment
-                        }
-                    } else if (el.nextCodeSibling?.elementType == COMMA) {
-                        // No whitespace between parameter name and comma allowed
-                        removeUnexpectedWhiteSpace(el, emit)
-                    } else if (el.isWhiteSpace && el.isNotIndent() && el.isNotSingleSpace()) {
-                        require(el.prevCodeSibling?.elementType == COMMA)
-                        replaceWithSingleSpace(el, emit)
-                    }
-                }
-
-                COMMA -> {
-                    // Comma, except when it is the trailing comma, must be followed by whitespace
-                    el
-                        .nextLeaf
-                        ?.takeUnless { it.isWhiteSpace || it.elementType == RPAR }
-                        ?.let { addMissingWhiteSpaceAfterMe(el, emit) }
-                }
-
-                VALUE_PARAMETER -> {
-                    valueParameterCount += 1
-                    visitValueParameter(el, emit)
-                }
+                WHITE_SPACE -> el.visitWhiteSpaceInValueParameterList(emit)
+                COMMA -> el.visitCommaInValueParameterList(emit)
+                VALUE_PARAMETER -> el.visitValueParameter(emit)
             }
+        }
+    }
+
+    private fun ASTNode.visitWhiteSpaceInValueParameterList(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        if (parent!!.findChildByType(VALUE_PARAMETER) == null && parent!!.containsNoComments()) {
+            // Remove whitespace from parameter list not containing a value parameter or comment
+            //     fun foo( )
+            this.removeUnexpectedWhiteSpace(emit)
+        } else if ((isBeforeFirstOrAfterLastValueParameter()) && isNotIndent()) {
+            if (parent!!.containsNoComments()) {
+                this.removeUnexpectedWhiteSpace(emit)
+            } else {
+                // Avoid conflict with comment spacing rule
+            }
+        } else if (nextCodeSibling?.elementType == COMMA) {
+            // No whitespace between parameter name and comma allowed
+            this.removeUnexpectedWhiteSpace(emit)
+        } else if (isWhiteSpace && isNotIndent() && isNotSingleSpace()) {
+            require(prevCodeSibling?.elementType == COMMA)
+            this.replaceWithSingleSpace(emit)
         }
     }
 
     private fun ASTNode.containsNoComments() = children.none { it.isPartOfComment }
 
-    private fun visitValueParameter(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        visitModifierList(node, emit)
-        removeWhiteSpaceBetweenParameterIdentifierAndColon(node, emit)
-        fixWhiteSpaceAfterColonInParameter(node, emit)
+    private fun ASTNode.isBeforeFirstOrAfterLastValueParameter(): Boolean =
+        this.isBeforeFirstValueParameter() || this.isAfterLastValueParameter()
+
+    private fun ASTNode.isBeforeFirstValueParameter(): Boolean = siblings(forward = false).none { it.elementType == VALUE_PARAMETER }
+
+    private fun ASTNode.isAfterLastValueParameter(): Boolean = siblings().none { it.elementType == VALUE_PARAMETER }
+
+    private fun ASTNode.visitCommaInValueParameterList(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        // Comma, except when it is the trailing comma, must be followed by whitespace
+        nextLeaf
+            ?.takeUnless { it.isWhiteSpace || it.elementType == RPAR }
+            ?.let { addMissingWhiteSpaceAfterMe(emit) }
     }
 
-    private fun visitModifierList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        val modifierList = node.findChildByType(MODIFIER_LIST) ?: return
-        removeWhiteSpaceBetweenModifiersInList(modifierList, emit)
-        removeWhiteSpaceBetweenModifierListAndParameterIdentifier(modifierList, emit)
+    private fun ASTNode.visitValueParameter(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        this.visitModifierList(emit)
+        removeWhiteSpaceBetweenParameterIdentifierAndColon(emit)
+        fixWhiteSpaceAfterColonInParameter(emit)
     }
 
-    private fun removeWhiteSpaceBetweenModifiersInList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(node.elementType == MODIFIER_LIST)
-        node
-            .children
+    private fun ASTNode.visitModifierList(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        val modifierList = findChildByType(MODIFIER_LIST) ?: return
+        modifierList.removeWhiteSpaceBetweenModifiersInList(emit)
+        modifierList.removeWhiteSpaceBetweenModifierListAndParameterIdentifier(emit)
+    }
+
+    private fun ASTNode.removeWhiteSpaceBetweenModifiersInList(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        require(this.elementType == MODIFIER_LIST)
+        children
             .filter { it.isWhiteSpace }
             // Store elements in the list before changing them as otherwise only the first whitespace is being changed
             .toList()
-            .forEach { visitWhiteSpaceAfterModifier(it, emit) }
+            .forEach { it.visitWhiteSpaceAfterModifier(emit) }
     }
 
-    private fun visitWhiteSpaceAfterModifier(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        node
-            .takeUnless {
-                // Ignore when the modifier is an annotation which is placed on a separate line
-                it.isIndent() && it.getPrecedingModifier()?.elementType == ANNOTATION_ENTRY
-            }?.takeIf { it.isNotSingleSpace() }
-            ?.let { replaceWithSingleSpace(it, emit) }
+    private fun ASTNode.visitWhiteSpaceAfterModifier(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        if (isIndent() && getPrecedingModifier()?.elementType == ANNOTATION_ENTRY) {
+            // Ignore indent when the modifier is an annotation which is placed on a separate line
+            return
+        }
+        if (isNotSingleSpace()) {
+            replaceWithSingleSpace(emit)
+        }
     }
 
-    private fun removeWhiteSpaceBetweenModifierListAndParameterIdentifier(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(node.elementType == MODIFIER_LIST)
-        node
-            .nextSibling
+    private fun ASTNode.removeWhiteSpaceBetweenModifierListAndParameterIdentifier(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        require(this.elementType == MODIFIER_LIST)
+        nextSibling
             ?.takeIf { it.isWhiteSpace }
-            ?.let { visitWhiteSpaceAfterModifier(it, emit) }
+            ?.visitWhiteSpaceAfterModifier(emit)
     }
 
-    private fun removeWhiteSpaceBetweenParameterIdentifierAndColon(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        node
-            .findChildByType(COLON)
+    private fun ASTNode.removeWhiteSpaceBetweenParameterIdentifierAndColon(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        findChildByType(COLON)
             ?.prevLeaf
             ?.takeIf { it.isWhiteSpace }
-            ?.let { whiteSpaceBeforeColon ->
-                removeUnexpectedWhiteSpace(whiteSpaceBeforeColon, emit)
-            }
+            ?.removeUnexpectedWhiteSpace(emit)
     }
 
-    private fun fixWhiteSpaceAfterColonInParameter(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        val colonNode = node.findChildByType(COLON) ?: return
+    private fun ASTNode.fixWhiteSpaceAfterColonInParameter(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        val colonNode = findChildByType(COLON) ?: return
         colonNode
             .nextLeaf
             ?.takeIf { it.isWhiteSpace }
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon == null) {
-                    addMissingWhiteSpaceAfterMe(colonNode, emit)
+                    colonNode.addMissingWhiteSpaceAfterMe(emit)
                 } else {
-                    if (node.isTypeReferenceWithModifierList() && whiteSpaceAfterColon.isIndent()) {
+                    if (isTypeReferenceWithModifierList() && whiteSpaceAfterColon.isIndent()) {
                         // Allow the type to be wrapped to the next line when it has a modifier:
                         //   data class Foo(
                         //       val bar:
                         //           @FooBar("foobar")
                         //           Bar,
                         //   )
-                        Unit
                     } else if (whiteSpaceAfterColon.hasTypeReferenceWhichDoesNotFitOnSameLineAsColon()) {
                         // Allow the type to be wrapped to the next line when the type does not fit on same line as colon:
                         //   class Foo(
                         //       val someReallyLongFieldNameUsedInMyClass:
                         //           SomeReallyLongDependencyClass
                         //   )
-                        Unit
                     } else if (whiteSpaceAfterColon.isNotSingleSpace()) {
-                        replaceWithSingleSpace(whiteSpaceAfterColon, emit)
+                        whiteSpaceAfterColon.replaceWithSingleSpace(emit)
                     }
                 }
             }
     }
 
-    private fun addMissingWhiteSpaceAfterMe(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(node.elementType == COLON || node.elementType == COMMA)
-        emit(node.startOffset, "Whitespace after '${node.text}' is missing", true)
-            .ifAutocorrectAllowed {
-                node.upsertWhitespaceAfterMe(" ")
-            }
+    private fun ASTNode.addMissingWhiteSpaceAfterMe(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        require(this.elementType == COLON || this.elementType == COMMA)
+        emit(this.startOffset, "Whitespace after '${this.text}' is missing", true)
+            .ifAutocorrectAllowed { upsertWhitespaceAfterMe(" ") }
     }
 
     private fun ASTNode.isNotIndent(): Boolean = !isIndent()
@@ -250,22 +211,14 @@ public class ParameterListSpacingRule :
         return text != " "
     }
 
-    private fun removeUnexpectedWhiteSpace(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        emit(node.startOffset, "Unexpected whitespace", true)
-            .ifAutocorrectAllowed {
-                (node as LeafElement).rawRemove()
-            }
+    private fun ASTNode.removeUnexpectedWhiteSpace(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        emit(startOffset, "Unexpected whitespace", true)
+            .ifAutocorrectAllowed { remove() }
     }
 
-    private fun replaceWithSingleSpace(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        emit(node.startOffset, "Expected a single space", true)
-            .ifAutocorrectAllowed { node.replaceTextWith(" ") }
+    private fun ASTNode.replaceWithSingleSpace(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        emit(startOffset, "Expected a single space", true)
+            .ifAutocorrectAllowed { replaceTextWith(" ") }
     }
 
     private fun ASTNode.getPrecedingModifier(): ASTNode? =

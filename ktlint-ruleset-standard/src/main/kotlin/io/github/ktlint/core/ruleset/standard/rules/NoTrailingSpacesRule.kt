@@ -24,67 +24,80 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isPartOfKDoc()) {
-            if (node.isWhiteSpace && node.hasTrailingSpacesBeforeNewline()) {
-                val offsetOfSpaceBeforeNewlineInText = node.text.indexOf(" \n")
-                val offsetOfFirstSpaceBeforeNewlineInText =
-                    node
-                        .text
-                        .take(offsetOfSpaceBeforeNewlineInText)
-                        .dropLastWhile { it == ' ' }
-                        .length
-                emit(node.startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)", true)
-                    .ifAutocorrectAllowed { node.removeTrailingSpacesBeforeNewline() }
-            }
+        when {
+            node.isPartOfKDoc() -> visitKDocElement(node, emit)
+            !node.isCode -> visitNonCodeElement(node, emit)
+        }
+    }
 
-            if (node.elementType == KDOC_TEXT &&
-                node.text.endsWith(" ") &&
-                node.isFollowedByNewlineBeforeKdocEndOrAsterisk()
-            ) {
+    private fun visitKDocElement(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        if (node.isWhiteSpace && node.hasTrailingSpacesBeforeNewline()) {
+            val offsetOfSpaceBeforeNewlineInText = node.text.indexOf(" \n")
+            val offsetOfFirstSpaceBeforeNewlineInText =
                 node
                     .text
-                    .trimEnd()
-                    .let { trimmedText ->
-                        emit(node.startOffset + trimmedText.length, "Trailing space(s)", true)
-                            .ifAutocorrectAllowed { node.replaceTextWith(trimmedText) }
-                    }
-            }
-        } else if (!node.isCode) {
-            val lines = node.text.split("\n")
-            var autocorrect = false
-            var violationOffset = node.startOffset
+                    .take(offsetOfSpaceBeforeNewlineInText)
+                    .dropLastWhile { it == ' ' }
+                    .length
+            emit(node.startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)", true)
+                .ifAutocorrectAllowed { node.removeTrailingSpacesBeforeNewline() }
+        }
 
-            val modifiedLines =
-                lines
-                    .mapIndexed { index, line ->
-                        val modifiedLine =
-                            when {
-                                node.elementType != EOL_COMMENT && index == lines.size - 1 && node.nextLeaf != null -> {
-                                    // Do not change the last line as it contains the indentation of the next element except
-                                    // when it is an EOL comment which may also not contain trailing spaces
-                                    line
-                                }
+        if (node.elementType == KDOC_TEXT &&
+            node.text.endsWith(" ") &&
+            node.isFollowedByNewlineBeforeKdocEndOrAsterisk()
+        ) {
+            node
+                .text
+                .trimEnd()
+                .let { trimmedText ->
+                    emit(node.startOffset + trimmedText.length, "Trailing space(s)", true)
+                        .ifAutocorrectAllowed { node.replaceTextWith(trimmedText) }
+                }
+        }
+    }
 
-                                line.hasTrailingSpace() -> {
-                                    val modifiedLine = line.trimEnd()
-                                    val firstTrailingSpaceOffset = violationOffset + modifiedLine.length
-                                    emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
-                                        .ifAutocorrectAllowed {
-                                            autocorrect = true
-                                        }
-                                    modifiedLine
-                                }
+    private fun visitNonCodeElement(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        val lines = node.text.split("\n")
+        var autocorrect = false
+        var violationOffset = node.startOffset
 
-                                else -> {
-                                    line
-                                }
+        val modifiedLines =
+            lines
+                .mapIndexed { index, line ->
+                    val modifiedLine =
+                        when {
+                            node.elementType != EOL_COMMENT && index == lines.size - 1 && node.nextLeaf != null -> {
+                                // Do not change the last line as it contains the indentation of the next element except
+                                // when it is an EOL comment which may also not contain trailing spaces
+                                line
                             }
-                        violationOffset += line.length + 1
-                        modifiedLine
-                    }
-            if (autocorrect) {
-                node.replaceTextWith(modifiedLines.joinToString(separator = "\n"))
-            }
+
+                            line.hasTrailingSpace() -> {
+                                val modifiedLine = line.trimEnd()
+                                val firstTrailingSpaceOffset = violationOffset + modifiedLine.length
+                                emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
+                                    .ifAutocorrectAllowed {
+                                        autocorrect = true
+                                    }
+                                modifiedLine
+                            }
+
+                            else -> {
+                                line
+                            }
+                        }
+                    violationOffset += line.length + 1
+                    modifiedLine
+                }
+        if (autocorrect) {
+            node.replaceTextWith(modifiedLines.joinToString(separator = "\n"))
         }
     }
 

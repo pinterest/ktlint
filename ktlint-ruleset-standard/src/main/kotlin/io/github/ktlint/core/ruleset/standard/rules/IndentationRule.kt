@@ -189,7 +189,7 @@ public class IndentationRule :
         visitNode(node, emit)
     }
 
-    @Suppress("LongMethod")
+    @Suppress("LongMethod", "CyclomaticComplexMethod")
     private fun visitNode(
         node: ASTNode,
         emit: (Int, String, Boolean) -> AutocorrectDecision,
