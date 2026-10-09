@@ -34,16 +34,40 @@ private val DEFAULT_KOTLIN_FILE_EXTENSIONS = setOf("kt", "kts")
 internal val DEFAULT_PATTERNS = DEFAULT_KOTLIN_FILE_EXTENSIONS.map { "**/*.$it" }
 
 /**
- * Transform the [patterns] to a sequence of files. Each element in [patterns] can be a glob, a file or directory path
+ * Transform the [pathAndPatterns] to a sequence of files. Each element in [pathAndPatterns] can be a glob, a file or directory path
  * relative to the [rootDir] or an absolute file or directory path.
  */
 internal fun FileSystem.fileSequence(
-    patterns: List<String>,
+    pathAndPatterns: List<String>,
     rootDir: Path = Paths.get(".").toAbsolutePath().normalize(),
 ): Sequence<Path> {
+    val (paths1, patternsExclusiveExistingFiles) = partitionPathsAndPatterns(pathAndPatterns, rootDir)
+    if (paths1.isNotEmpty() && patternsExclusiveExistingFiles.isEmpty()) {
+        // No globs found that needs to resolved by traversing the file system
+        return paths1.asSequence()
+    }
+
+    val (negatedPathMatchers, pathMatchers) = findMatchers(rootDir, pathAndPatterns)
+    val commonRootDir = findCommonRootDir(rootDir, pathAndPatterns)
+
+    LOGGER.debug { "Start walkFileTree from directory: '$commonRootDir'" }
+    var paths: List<Path> = emptyList()
+    val duration =
+        measureTimeMillis {
+            paths = walkFileTree(commonRootDir, negatedPathMatchers, pathMatchers)
+        }
+    LOGGER.debug { "Discovered ${paths.count()} files to be processed in $duration ms" }
+
+    return paths.asSequence()
+}
+
+private fun partitionPathsAndPatterns(
+    patterns: List<String>,
+    rootDir: Path,
+): Pair<List<Path>, List<String>> {
     if (patterns.isEmpty()) {
         LOGGER.trace { "No patterns provided. Will not expand any globs." }
-        return emptySequence()
+        return Pair(emptyList(), emptyList())
     }
 
     val result = mutableListOf<Path>()
@@ -59,23 +83,7 @@ internal fun FileSystem.fileSequence(
         }
     existingFiles.mapTo(result) { rootDir.resolve(it) }
 
-    // Return early and don't traverse the file system if all the input globs are absolute paths
-    if (result.isNotEmpty() && patternsExclusiveExistingFiles.isEmpty()) {
-        return result.asSequence()
-    }
-
-    val (negatedPathMatchers, pathMatchers) = findMatchers(rootDir, patternsExclusiveExistingFiles)
-    val commonRootDir = findCommonRootDir(rootDir, patterns)
-
-    LOGGER.debug { "Start walkFileTree from directory: '$commonRootDir'" }
-    var paths: List<Path> = emptyList()
-    val duration =
-        measureTimeMillis {
-            paths = walkFileTree(commonRootDir, negatedPathMatchers, pathMatchers)
-        }
-    LOGGER.debug { "Discovered ${paths.count()} files to be processed in $duration ms" }
-
-    return paths.asSequence()
+    return Pair(result.toList(), patternsExclusiveExistingFiles)
 }
 
 private fun FileSystem.findMatchers(
