@@ -200,18 +200,22 @@ public class StatementWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val previousCodeLeaf = node.prevCodeLeaf?.lastChildLeafOrSelf ?: return
-        val nextCodeLeaf = node.nextCodeLeaf?.firstChildLeafOrSelf ?: return
-        if (previousCodeLeaf.parent?.elementType == ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE) {
-            // Allow
-            // enum class INDEX2 { ONE, TWO, THREE; }
-            return
-        }
-        if (noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf)) {
-            emit(node.startOffset + 1, """Missing newline after '${node.text}'""", true)
-                .ifAutocorrectAllowed {
-                    node.upsertWhitespaceAfterMe(previousCodeLeaf.indent)
+        val previousCodeLeaf = node.prevCodeLeaf
+        val nextCodeLeaf = node.nextCodeLeaf
+        if (previousCodeLeaf != null && nextCodeLeaf != null) {
+            when {
+                previousCodeLeaf.parent?.elementType == ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE -> {
+                    // Allow
+                    // enum class INDEX2 { ONE, TWO, THREE; }
                 }
+
+                noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf) -> {
+                    emit(node.startOffset + 1, """Missing newline after '${node.text}'""", true)
+                        .ifAutocorrectAllowed {
+                            node.upsertWhitespaceAfterMe(previousCodeLeaf.indent)
+                        }
+                }
+            }
         }
     }
 }

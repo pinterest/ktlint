@@ -134,19 +134,20 @@ public class ClassSignatureRule :
     private fun ASTNode.hasMultilineSuperTypeList() = findChildByType(SUPER_TYPE_LIST)?.textContains('\n') == true
 
     private fun ASTNode.getFirstChildInSignature(): ASTNode? {
-        findChildByType(MODIFIER_LIST)
-            ?.let { modifierList ->
-                val iterator = modifierList.children.iterator()
-                var currentNode: ASTNode
-                while (iterator.hasNext()) {
-                    currentNode = iterator.next()
-                    if (currentNode.isNotAnnotationOrWhitespaceOrComment()) {
-                        return currentNode
-                    }
+        val modifierList = findChildByType(MODIFIER_LIST)
+        return if (modifierList == null) {
+            nextCodeLeaf
+        } else {
+            val iterator = modifierList.children.iterator()
+            var currentNode: ASTNode
+            while (iterator.hasNext()) {
+                currentNode = iterator.next()
+                if (currentNode.isNotAnnotationOrWhitespaceOrComment()) {
+                    return currentNode
                 }
-                return modifierList.nextCodeSibling
             }
-        return nextCodeLeaf
+            modifierList.nextCodeSibling
+        }
     }
 
     private fun ASTNode.isNotAnnotationOrWhitespaceOrComment() =

@@ -1178,29 +1178,39 @@ public class IndentationRule :
         }
     }
 
-    private fun ASTNode.ignoreIndent(): Boolean {
-        val nextLeaf = nextLeaf
-        if (text.endsWith("\n") && nextLeaf.isStartOfRawStringLiteral()) {
+    private fun ASTNode.ignoreIndent(): Boolean =
+        if (isRawStringLiteralStartingAtPosition0() || isCommentStartingAtPosition0()) {
             processedButNoIndentationChangedNeeded()
-            return true // raw strings (""") are allowed at column 0
+            true
+        } else {
+            false
         }
 
+    private fun ASTNode.isCommentStartingAtPosition0(): Boolean =
         nextLeaf
             ?.takeIf { it.isPartOf(TokenSets.COMMENTS) }
             ?.let { comment ->
-                if (text.endsWith("\n")) {
-                    processedButNoIndentationChangedNeeded()
-                    return true // comments are allowed at column 0
+                when {
+                    text.endsWith("\n") -> {
+                        // comments are allowed at column 0
+                        true
+                    }
+
+                    comment.textContains('\n') && comment.elementType == BLOCK_COMMENT -> {
+                        // FIXME: while we cannot assume any kind of layout inside a block comment,
+                        // `/*` and `*/` can still be indented
+                        true
+                    }
+
+                    else -> {
+                        false
+                    }
                 }
-                if (comment.textContains('\n') && comment.elementType == BLOCK_COMMENT) {
-                    // FIXME: while we cannot assume any kind of layout inside a block comment,
-                    // `/*` and `*/` can still be indented
-                    processedButNoIndentationChangedNeeded()
-                    return true
-                }
-            }
-        return false
-    }
+            } ?: false
+
+    private fun ASTNode.isRawStringLiteralStartingAtPosition0(): Boolean =
+        // raw strings (""") are allowed at column 0
+        text.endsWith("\n") && nextLeaf.isStartOfRawStringLiteral()
 
     private fun ASTNode?.isStartOfRawStringLiteral(): Boolean = this != null && this.elementType == OPEN_QUOTE && this.text == "\"\"\""
 

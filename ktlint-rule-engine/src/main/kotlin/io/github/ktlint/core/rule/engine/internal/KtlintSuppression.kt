@@ -113,45 +113,40 @@ internal fun ASTNode.insertKtlintRuleSuppression(
  * Finds the node on which the [Suppress] may be added. This is either a declaration or an exception with some exceptions.
  */
 private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boolean): ASTNode {
-    if (!forceFileAnnotation && isTopLevel()) {
-        return this
-    }
-
     var targetPsiElement = psi
     var isAnnotationForBinaryExpression = false
-    while (targetPsiElement.shouldInspectParentElement(forceFileAnnotation)) {
+    var stopTraversal = !forceFileAnnotation && isTopLevel()
+    while (!stopTraversal && targetPsiElement.shouldInspectParentElement(forceFileAnnotation)) {
         if (targetPsiElement is KtBinaryExpression) {
             isAnnotationForBinaryExpression = true
         }
-        targetPsiElement =
-            when {
-                targetPsiElement.parent == null -> {
-                    // Prevents null pointer when already at a root node
-                    return targetPsiElement.node
-                }
+        stopTraversal =
+            // Prevents null pointer when already at a root node
+            targetPsiElement.parent == null ||
+            // If a suppression is added to an inner element of a list element, then the annotation should be put on that element
+            // unless this is binary expression. Inserting the annotation on the root of the binary expression would result in
+            // applying that annotation only on the left hand side of the root expression instead of on the entire binary
+            // expression.
+            (targetPsiElement.node.elementType in listElementTypeTokenSet && !isAnnotationForBinaryExpression)
+        if (!stopTraversal) {
+            targetPsiElement =
+                when {
+                    targetPsiElement.isIgnorableListElement() -> {
+                        // If a suppression is added on a direct child of the list type but not inside in a list element then the annotation is
+                        // moved to the next list element. When no such element is found, it will be moved to the parent of the list type
+                        targetPsiElement
+                            .node
+                            .nextCodeSibling
+                            ?.firstChildLeafOrSelf
+                            ?.psi
+                            ?.parent
+                    }
 
-                targetPsiElement.node.elementType in listElementTypeTokenSet && !isAnnotationForBinaryExpression -> {
-                    // If a suppression is added to an inner element of a list element, then the annotation should be put on that element
-                    // unless this is binary expression. Inserting the annotation on the root of the binary expression would result in
-                    // applying that annotation only on the left hand side of the root expression instead of on the entire binary
-                    // expression.
-                    return targetPsiElement.node
+                    else -> {
+                        targetPsiElement.parent
+                    }
                 }
-
-                targetPsiElement.isIgnorableListElement() -> {
-                    // If a suppression is added on a direct child of the list type but not inside in a list element then the annotation is
-                    // moved to the next list element. When no such element is found, it will be moved to the parent of the list type
-                    targetPsiElement
-                        .node
-                        .nextCodeSibling
-                        ?.firstChildLeafOrSelf
-                        ?.psi
-                }
-
-                else -> {
-                    targetPsiElement
-                }
-            }?.parent
+        }
     }
     return targetPsiElement.node
 }

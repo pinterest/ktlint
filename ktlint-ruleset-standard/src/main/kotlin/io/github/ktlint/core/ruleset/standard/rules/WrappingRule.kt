@@ -679,26 +679,13 @@ public class WrappingRule :
      *         )
      *     ) { ... }
      */
-    private fun ASTNode.isPartOfForLoopConditionWithMultilineExpression(): Boolean {
-        if (parent?.elementType != FOR) {
-            return false
-        }
-        if (this.elementType != LPAR) {
-            return parent?.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
-        }
-        require(elementType == LPAR) {
-            "Node should be the LPAR of the FOR loop"
-        }
-
-        var node: ASTNode? = this
-        while (node != null && node.elementType != RPAR) {
-            if (node.isWhiteSpaceWithNewline) {
-                return false
+    private fun ASTNode.isPartOfForLoopConditionWithMultilineExpression(): Boolean =
+        parent?.elementType == FOR &&
+            if (elementType == LPAR) {
+                nextSibling { it.elementType == RPAR || it.isWhiteSpaceWithNewline }?.elementType == RPAR
+            } else {
+                parent?.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
             }
-            node = node.nextSibling
-        }
-        return true
-    }
 
     override fun afterVisitChildNodes(
         node: ASTNode,

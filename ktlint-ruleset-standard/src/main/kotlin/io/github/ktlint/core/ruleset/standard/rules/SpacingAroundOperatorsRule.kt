@@ -50,35 +50,18 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isUnaryOperator()) {
-            // Allow:
-            //   val foo = -1
-            return
-        }
-
-        if (node.isSpreadOperator()) {
-            // Allow:
-            //   foo(*array)
-            return
-        }
-
-        if (node.isImport()) {
-            // Allow:
-            //   import *
-            return
-        }
-
-        if (node.isTypeParameterOrSpreadOperator() && node.parent?.elementType != OPERATION_REFERENCE) {
-            // Allow:
-            //   <T> fun foo(...)
-            //   class Foo<T> { ... }
-            //   Foo<*>
-            return
-        }
-
         if (node.elementType in OPERATORS ||
             (node.elementType == IDENTIFIER && node.parent?.elementType == OPERATION_REFERENCE)
         ) {
+            visitOperator(node, emit)
+        }
+    }
+
+    private fun visitOperator(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        if (node.shouldCheckSpacing()) {
             val spacingBefore = node.prevLeaf.isWhiteSpace
             val spacingAfter = node.nextLeaf.isWhiteSpace
             when {
@@ -107,19 +90,35 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
         }
     }
 
-    private fun ASTNode.isTypeParameterOrSpreadOperator() = elementType == LT || elementType == GT || elementType == MUL
+    private fun ASTNode.shouldCheckSpacing(): Boolean =
+        !isUnaryOperator() &&
+            !isSpreadOperator() &&
+            !isImport() &&
+            !isTypeParameterOrSpreadOperator()
+
+    private fun ASTNode.isTypeParameterOrSpreadOperator() =
+        // Allow:
+        //   <T> fun foo(...)
+        //   class Foo<T> { ... }
+        //   Foo<*>
+        parent?.elementType != OPERATION_REFERENCE &&
+            (elementType == LT || elementType == GT || elementType == MUL)
 
     private fun ASTNode.isUnaryOperator() =
+        // Allow:
+        //   val foo = -1
         PREFIX_EXPRESSION ==
             parent { it.elementType == OPERATION_REFERENCE }
                 ?.parent
                 ?.elementType
 
     private fun ASTNode.isSpreadOperator() =
+        // Allow:
         // fn(*array)
         elementType == MUL && parent?.elementType == VALUE_ARGUMENT
 
     private fun ASTNode.isImport() =
+        // Allow:
         // import *
         isPartOf(IMPORT_DIRECTIVE)
 

@@ -4,9 +4,6 @@ style:
   # otherwise flag ~2280 lines that ktlintCheck already accepts.
   MaxLineLength:
     active: false
-  # See the note on the `complexity` section below - ReturnCount lives under `style` in detekt 2.x.
-  ReturnCount:
-    active: false
   # Disallowing comments with keywords like "TODO" and "FIXME" is counterproductive for situations in which something cannot be done or
   # fixed at the moment. Activating this rule could lead to writing same comment without the keyword.
   ForbiddenComment:

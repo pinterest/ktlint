@@ -107,72 +107,64 @@ public class ChainWrappingRule :
     private fun fixChainOperatorWhichMayNotUsedAtStartOfLine(
         node: ASTNode,
         emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ): Boolean {
-        if (node.isPartOfSpread()) {
-            // Allow:
-            //    fn(
-            //        *typedArray<...>()
-            //    )
-            return true
-        }
-        if (PREFIX_TOKENS.contains(node.elementType) && node.isInPrefixPosition()) {
-            // Allow:
-            //    fn(
-            //        -42
-            //    )
-            return true
-        }
+    ): Boolean =
+        if (node.isPartOfSpread() || node.isInPrefixPosition()) {
+            true
+        } else {
+            val prevLeaf = node.prevLeaf
+            if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline) {
+                emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
+                    .ifAutocorrectAllowed {
+                        // rewriting
+                        // <insertionPoint><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
+                        // <insertionPoint><prevLeaf=" "><node="&&"><nextLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
+                        // (or)
+                        // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
+                        // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
+                        val nextLeaf = node.nextLeaf
+                        val whiteSpaceToBeDeleted =
+                            when {
+                                nextLeaf.isWhiteSpaceWithNewline -> {
+                                    // Node is preceded and followed by whitespace. Prefer to remove the whitespace before the node as this will
+                                    // change the indent of the next line
+                                    prevLeaf
+                                }
 
-        val prevLeaf = node.prevLeaf
-        if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline) {
-            emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
-                .ifAutocorrectAllowed {
-                    // rewriting
-                    // <insertionPoint><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
-                    // <insertionPoint><prevLeaf=" "><node="&&"><nextLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                    // (or)
-                    // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
-                    // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                    val nextLeaf = node.nextLeaf
-                    val whiteSpaceToBeDeleted =
-                        when {
-                            nextLeaf.isWhiteSpaceWithNewline -> {
-                                // Node is preceded and followed by whitespace. Prefer to remove the whitespace before the node as this will
-                                // change the indent of the next line
-                                prevLeaf
+                                nextLeaf.isWhiteSpaceWithoutNewline -> {
+                                    nextLeaf
+                                }
+
+                                else -> {
+                                    null
+                                }
                             }
 
-                            nextLeaf.isWhiteSpaceWithoutNewline -> {
-                                nextLeaf
-                            }
-
-                            else -> {
-                                null
-                            }
+                        val parent = node.parent
+                        if (parent?.elementType == OPERATION_REFERENCE) {
+                            val insertBeforeSibling =
+                                parent
+                                    .prevCodeSibling
+                                    ?.nextSibling
+                            parent.remove()
+                            insertBeforeSibling?.parent?.addChild(parent, insertBeforeSibling)
+                            parent.upsertWhitespaceBeforeMe(" ")
+                        } else {
+                            val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
+                            (node as LeafPsiElement).remove()
+                            insertionPoint.rawInsertAfterMe(node)
+                            (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
                         }
-
-                    val parent = node.parent
-                    if (parent?.elementType == OPERATION_REFERENCE) {
-                        val insertBeforeSibling =
-                            parent
-                                .prevCodeSibling
-                                ?.nextSibling
-                        parent.remove()
-                        insertBeforeSibling?.parent?.addChild(parent, insertBeforeSibling)
-                        parent.upsertWhitespaceBeforeMe(" ")
-                    } else {
-                        val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
-                        (node as LeafPsiElement).remove()
-                        insertionPoint.rawInsertAfterMe(node)
-                        (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
+                        whiteSpaceToBeDeleted?.remove()
                     }
-                    whiteSpaceToBeDeleted?.remove()
-                }
+            }
+            false
         }
-        return false
-    }
 
     private fun ASTNode.isPartOfSpread() =
+        // Allow:
+        //    fn(
+        //        *typedArray<...>()
+        //    )
         elementType == MUL &&
             prevCodeLeaf
                 ?.let { leaf ->
@@ -184,7 +176,12 @@ public class ChainWrappingRule :
                         KtTokens.OPERATIONS.contains(type)
                 } == true
 
-    private fun ASTNode.isInPrefixPosition() = parent?.parent?.elementType == PREFIX_EXPRESSION
+    private fun ASTNode.isInPrefixPosition() =
+        // Allow:
+        //    fn(
+        //        -42
+        //    )
+        elementType in PREFIX_TOKENS && parent?.parent?.elementType == PREFIX_EXPRESSION
 
     private fun ASTNode.isElvisOperatorAndComment(): Boolean =
         elementType == ELVIS &&

@@ -282,18 +282,12 @@ internal class RuleExecutionContext private constructor(
                     }
                 }
 
-        private fun PsiElement.findErrorElement(): PsiErrorElement? {
+        private fun PsiElement.findErrorElement(): PsiErrorElement? =
             if (this is PsiErrorElement) {
-                return this
+                this
+            } else {
+                children.firstNotNullOfOrNull { it.findErrorElement() }
             }
-            this.children.forEach { child ->
-                val errorElement = child.findErrorElement()
-                if (errorElement != null) {
-                    return errorElement
-                }
-            }
-            return null
-        }
     }
 }
 

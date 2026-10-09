@@ -32,6 +32,7 @@ import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
 import io.github.ktlint.core.ruleset.standard.StandardRule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -86,37 +87,11 @@ public class PropertyWrappingRule :
 
         val fromNode = findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node)
 
-        node
-            .findChildByType(COLON)
-            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
-            ?.let { colon ->
-                requireNewlineAfterLeaf(colon, emit)
-                return
-            }
-
-        node
-            .findChildByType(TYPE_REFERENCE)
-            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
-            ?.let { typeReference ->
-                requireNewlineBeforeLeaf(typeReference, emit)
-                return
-            }
-
-        node
-            .findChildByType(EQ)
-            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
-            ?.let { equal ->
-                requireNewlineAfterLeaf(equal, emit)
-                return
-            }
-
-        node
-            .findChildByType(CALL_EXPRESSION)
-            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
-            ?.let { callExpression ->
-                requireNewlineBeforeLeaf(callExpression, emit)
-                return
-            }
+        // Only fix the first child that does not fit
+        node.fixChildIfDoesNotFit(COLON, fromNode) { requireNewlineAfterLeaf(it, emit) } ||
+            node.fixChildIfDoesNotFit(TYPE_REFERENCE, fromNode) { requireNewlineBeforeLeaf(it, emit) } ||
+            node.fixChildIfDoesNotFit(EQ, fromNode) { requireNewlineAfterLeaf(it, emit) } ||
+            node.fixChildIfDoesNotFit(CALL_EXPRESSION, fromNode) { requireNewlineBeforeLeaf(it, emit) }
     }
 
     private fun findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node: ASTNode): ASTNode {
@@ -129,6 +104,19 @@ public class PropertyWrappingRule :
                 ?: node
         return fromNode
     }
+
+    private fun ASTNode.fixChildIfDoesNotFit(
+        elementType: IElementType,
+        fromNode: ASTNode,
+        fix: (ASTNode) -> Unit,
+    ): Boolean =
+        findChildByType(elementType)
+            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
+            ?.let {
+                fix(it)
+                true
+            }
+            ?: false
 
     private fun ASTNode.doesNotFitOnSameLineAs(fromNode: ASTNode): Boolean =
         hasNoMaxLineLengthSuppression() &&

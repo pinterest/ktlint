@@ -6,7 +6,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.RBRACE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import io.github.ktlint.core.rule.engine.core.api.IgnoreKtlintSuppressions
-import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
 import io.github.ktlint.core.rule.engine.core.api.TokenSets
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
@@ -182,23 +181,23 @@ internal class SuppressionLocator(
                 .filter { it.elementType == VALUE_ARGUMENT }
                 .flatMapTo(mutableListOf()) {
                     it.text.removeSurrounding("\"").findRuleSuppressionIds()
-                }
-
-        if (suppressedRuleIds.isEmpty()) return null
-
-        val owner = parent { it.isKtAnnotated } ?: return null
-
-        val textRange = owner.textRange
-
-        return SuppressionHint(
-            IntRange(textRange.startOffset, textRange.endOffset - 1),
-            if (suppressedRuleIds.contains(ALL_KTLINT_RULES_SUPPRESSION_ID)) {
-                emptySet()
-            } else {
-                suppressedRuleIds.toSet()
-            },
-        )
+                }.ifEmpty { return null }
+        return suppressionRange()?.let { intRange ->
+            SuppressionHint(
+                intRange,
+                if (suppressedRuleIds.contains(ALL_KTLINT_RULES_SUPPRESSION_ID)) {
+                    emptySet()
+                } else {
+                    suppressedRuleIds.toSet()
+                },
+            )
+        }
     }
+
+    private fun ASTNode.suppressionRange(): IntRange? =
+        parent { it.isKtAnnotated }
+            ?.textRange
+            ?.let { IntRange(it.startOffset, it.endOffset) }
 
     private fun String.findRuleSuppressionIds(): List<String> =
         when {

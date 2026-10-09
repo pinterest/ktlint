@@ -113,31 +113,38 @@ public class MultiLineIfElseRule :
             this.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION &&
             this.firstChildNode.firstChildNode?.elementType == IF
 
-    private fun ASTNode.isSimpleSingleLineIfStatement(): Boolean {
-        if (!prevSibling!!.textContains('\n')) {
-            if (firstChildNode == null) {
+    private fun ASTNode.isSimpleSingleLineIfStatement(): Boolean =
+        when {
+            !prevSibling!!.textContains('\n') && firstChildNode == null -> {
                 // if block with an empty 'then' block
-                return true
+                true
             }
-            if (firstChildNode.elementType == IF) {
+
+            !prevSibling!!.textContains('\n') && firstChildNode.elementType == IF -> {
                 // Allow single line for:
                 // else if (...)
-                return true
+                true
             }
-            if (parent?.textContains('\n') == false) {
+
+            !prevSibling!!.textContains('\n') && parent?.textContains('\n') == false -> {
                 // Allow single line if statements as long as they are really simple (e.g. do not contain newlines)
                 //    if (...) <statement> // no else statement
                 //    if (...) <statement> else <statement>
+                // but not when
+                //    if (...) <statement> else if (..) <statement>
                 if (parent?.parent?.elementType == ELSE) {
                     // Except in case nested if-else-if on single line
                     //    if (...) <statement> else if (..) <statement>
+                    false
                 } else {
-                    return true
+                    true
                 }
             }
+
+            else -> {
+                false
+            }
         }
-        return false
-    }
 
     private fun autocorrect(node: ASTNode) {
         val prevLeaves =

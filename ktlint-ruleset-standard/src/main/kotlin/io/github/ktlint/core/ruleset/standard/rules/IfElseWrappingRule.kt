@@ -127,42 +127,50 @@ public class IfElseWrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multilineIf: Boolean,
     ) {
-        if (multilineIf) {
-            if (node.isElseIf()) {
-                // Allow "else if" on single line
-                return
-            }
-            if (node.elementType == ELSE_KEYWORD && node.nextCodeLeaf?.elementType == LBRACE) {
-                // Allow "else {" on single line
-                return
-            }
-        } else {
-            // Outer if statement is a single line statement
-            if (node.elementType == ELSE && node.nextCodeLeaf?.elementType == IF_KEYWORD) {
-                // Ignore "else if" as it is reported via another message
-                return
-            }
-        }
+        if (node.branchNeedsToBeWrapped(multilineIf)) {
+            with(node.findFirstNodeInBlockToBeWrapped() ?: node) {
+                val expectedIndent =
+                    if (nextSibling?.elementType == RBRACE) {
+                        node.indent
+                    } else {
+                        indentConfig.siblingIndentOf(node)
+                    }
 
-        with(node.findFirstNodeInBlockToBeIndented() ?: node) {
-            val expectedIndent =
-                if (nextSibling?.elementType == RBRACE) {
-                    node.indent
-                } else {
-                    indentConfig.siblingIndentOf(node)
-                }
-
-            applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf!! }
-                .takeUnless { it.isWhiteSpaceWithNewline }
-                ?.let {
-                    // Expected a newline with indent. Leave it up to the IndentationRule to determine exact indent
-                    emit(startOffset, "Expected a newline", true)
-                        .ifAutocorrectAllowed {
-                            upsertWhitespaceBeforeMe(expectedIndent)
-                        }
-                }
+                applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf!! }
+                    .takeUnless { it.isWhiteSpaceWithNewline }
+                    ?.let {
+                        // Expected a newline with indent. Leave it up to the IndentationRule to determine exact indent
+                        emit(startOffset, "Expected a newline", true)
+                            .ifAutocorrectAllowed {
+                                upsertWhitespaceBeforeMe(expectedIndent)
+                            }
+                    }
+            }
         }
     }
+
+    private fun ASTNode.branchNeedsToBeWrapped(multilineIf: Boolean): Boolean =
+        when {
+            multilineIf && isElseIf() -> {
+                // Allow "else if" on single line
+                false
+            }
+
+            multilineIf && this.elementType == ELSE_KEYWORD && nextCodeLeaf?.elementType == LBRACE -> {
+                // Allow "else {" on single line
+                false
+            }
+
+            // Outer if statement is a single line statement
+            !multilineIf && this.elementType == ELSE && nextCodeLeaf?.elementType == IF_KEYWORD -> {
+                // Ignore "else if" as it is reported via another message
+                false
+            }
+
+            else -> {
+                true
+            }
+        }
 
     private fun ASTNode.isElseIf() =
         when (elementType) {
@@ -171,7 +179,7 @@ public class IfElseWrappingRule :
             else -> false
         }
 
-    private fun ASTNode.findFirstNodeInBlockToBeIndented(): ASTNode? =
+    private fun ASTNode.findFirstNodeInBlockToBeWrapped(): ASTNode? =
         findChildByType(BLOCK)
             ?.children
             ?.first {

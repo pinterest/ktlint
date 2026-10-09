@@ -259,42 +259,35 @@ public class NoUnusedImportsRule :
         this.remove()
     }
 
-    private fun ASTNode.isExpressionForStaticImportWithExistingParentImport(): Boolean {
-        if (!containsMethodCall()) {
-            return false
+    private fun ASTNode.isExpressionForStaticImportWithExistingParentImport(): Boolean =
+        if (containsMethodCall()) {
+            val methodCallExpression = text.substringBeforeLast("(")
+            !(methodCallExpression.isNotEmpty() && methodCallExpression[0] !in 'A'..'Z') &&
+                areParentAndStaticImportsBothPresent(methodCallExpression)
+            // Not a static import when method call expression starts with uppercase which identifies a class name rather than a
+            // sub-package
+        } else {
+            false
         }
-
-        val methodCallExpression = text.substringBeforeLast("(")
-
-        // Only check static imports; identified if they start with a capital letter indicating a
-        // class name rather than a sub-package
-        if (methodCallExpression.isNotEmpty() && methodCallExpression[0] !in 'A'..'Z') {
-            return false
-        }
-
-        imports
-            .filterKeys { it.pathStr.removeBackticksAndTrim().endsWith(".$methodCallExpression") }
-            .forEach { import ->
-                val count =
-                    imports.count {
-                        it.key.pathStr.removeBackticksAndTrim().startsWith(
-                            import
-                                .key
-                                .pathStr
-                                .removeBackticksAndTrim()
-                                .substringBefore(methodCallExpression),
-                        )
-                    }
-                // Parent import and static import both are present
-                if (count > 1) {
-                    return true
-                }
-            }
-        return false
-    }
 
     private fun ASTNode.containsMethodCall() = text.split(".").last().contains("(")
 
+    private fun areParentAndStaticImportsBothPresent(methodCallExpression: String) =
+        imports
+            .filterKeys { it.pathStr.removeBackticksAndTrim().endsWith(".$methodCallExpression") }
+            .map {
+                it
+                    .key
+                    .pathStr
+                    .removeBackticksAndTrim()
+                    .substringBefore(methodCallExpression)
+            }.any { import ->
+                imports.any {
+                    it.key.pathStr
+                        .removeBackticksAndTrim()
+                        .startsWith(import)
+                }
+            }
 
     // Check if the import being checked is present in the filtered import list
     private fun isAValidImport(importPath: String) =

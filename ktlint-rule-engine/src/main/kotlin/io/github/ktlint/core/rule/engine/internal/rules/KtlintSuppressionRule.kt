@@ -48,6 +48,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 import org.jetbrains.kotlin.psi.psiUtil.siblings
 import org.jetbrains.kotlin.utils.addToStdlib.applyIf
+import kotlin.text.removePrefix
 
 /**
  * Disallow usage of the old "ktlint-disable" and "ktlint-enable" directives.
@@ -269,39 +270,33 @@ private class KtLintDirective(
 
     fun shouldBePromotedToParentDeclaration(ruleIdValidator: (String) -> Boolean): Boolean {
         require(ktlintDirectiveType == KTLINT_DISABLE && node.elementType == BLOCK_COMMENT)
-
-        if (node.shouldBeConvertedToFileAnnotation()) {
-            return false
+        return when {
+            node.shouldBeConvertedToFileAnnotation() -> false
+            node.isSuppressibleDeclaration() -> !hasMatchingKtlintEnabledDirective(ruleIdValidator)
+            else -> node.surroundsMultipleListElements()
         }
-
-        if (node.isSuppressibleDeclaration()) {
-            return findMatchingKtlintEnableDirective(ruleIdValidator)
-                ?.let { matchingKtlintEnabledDirective ->
-                    // In case the node is part of a suppressible declaration and the next sibling matches the enable directive then the
-                    // block directive should be match with this declaration only and not be moved to the parent.
-                    matchingKtlintEnabledDirective !=
-                        node
-                            .parent
-                            ?.nextSibling { !it.isWhiteSpace }
-                }
-                ?: false
-        }
-
-        return node.surroundsMultipleListElements()
     }
+
+    private fun hasMatchingKtlintEnabledDirective(ruleIdValidator: (String) -> Boolean): Boolean =
+        findMatchingKtlintEnableDirective(ruleIdValidator)
+            .let { matchingKtlintEnabledDirective ->
+                // In case the node is part of a suppressible declaration and the next sibling matches the enable directive then the
+                // block directive should be match with this declaration only and not be moved to the parent.
+                matchingKtlintEnabledDirective ==
+                    node
+                        .parent
+                        ?.nextSibling { !it.isWhiteSpace }
+            }
 
     private fun ASTNode.surroundsMultipleListElements(): Boolean {
         require(ktlintDirectiveType == KTLINT_DISABLE && elementType == BLOCK_COMMENT)
-        return if (parent?.elementType in listTypeTokenSet) {
+        return parent?.elementType in listTypeTokenSet &&
             findMatchingKtlintEnableDirective(ruleIdValidator)
                 ?.siblings(false)
                 ?.takeWhile { it != this }
                 ?.count { it.elementType in listElementTypeTokenSet }
                 ?.let { it > 1 }
                 ?: false
-        } else {
-            false
-        }
     }
 
     private val listTypeTokenSet =
@@ -344,33 +339,36 @@ private class KtLintDirective(
 }
 
 private fun ASTNode.ktlintDirectiveOrNull(ruleIdValidator: (String) -> Boolean): KtLintDirective? {
-    val ktlintDirectiveString =
-        when (elementType) {
-            EOL_COMMENT -> {
-                text
-                    .removePrefix("//")
-                    .trim()
-            }
-
-            BLOCK_COMMENT -> {
-                text
-                    .removePrefix("/*")
-                    .removeSuffix("*/")
-                    .trim()
-            }
-
-            else -> {
-                return null
-            }
+    val ktlintDirectiveString = ktlintDirectiveString()
+    return ktlintDirectiveString
+        ?.toKtlintDirectiveTypeOrNull()
+        ?.let { ktlintDirectiveType ->
+            Pair(ktlintDirectiveType, ktlintDirectiveString.removePrefix(ktlintDirectiveType.id))
+            val ruleIds = ktlintDirectiveString.removePrefix(ktlintDirectiveType.id)
+            val suppressionIdChanges = ruleIds.toSuppressionIdChanges(ruleIdValidator)
+            return KtLintDirective(this, ruleIdValidator, ktlintDirectiveType, ruleIds, suppressionIdChanges)
         }
-    val ktlintDirectiveType =
-        ktlintDirectiveString.toKtlintDirectiveTypeOrNull()
-            ?: return null
-    val ruleIds = ktlintDirectiveString.removePrefix(ktlintDirectiveType.id)
-    val suppressionIdChanges = ruleIds.toSuppressionIdChanges(ruleIdValidator)
-
-    return KtLintDirective(this, ruleIdValidator, ktlintDirectiveType, ruleIds, suppressionIdChanges)
 }
+
+private fun ASTNode.ktlintDirectiveString(): String? =
+    when (elementType) {
+        EOL_COMMENT -> {
+            text
+                .removePrefix("//")
+                .trim()
+        }
+
+        BLOCK_COMMENT -> {
+            text
+                .removePrefix("/*")
+                .removeSuffix("*/")
+                .trim()
+        }
+
+        else -> {
+            null
+        }
+    }
 
 private fun String.toKtlintDirectiveTypeOrNull() =
     when {

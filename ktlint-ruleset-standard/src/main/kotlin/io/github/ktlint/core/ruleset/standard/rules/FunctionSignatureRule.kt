@@ -144,31 +144,43 @@ public class FunctionSignatureRule :
             } else {
                 this
             }
-        funNode
-            ?.findChildByType(MODIFIER_LIST)
-            ?.let { modifierList ->
-                val iterator = modifierList.children.iterator()
-                var currentNode: ASTNode
-                while (iterator.hasNext()) {
-                    currentNode = iterator.next()
-                    if (currentNode.elementType == CONTEXT_PARAMETER_LIST) {
-                        return currentNode
+        val modifierList = funNode?.findChildByType(MODIFIER_LIST)
+        return if (modifierList == null) {
+            funNode?.nextCodeLeaf
+        } else {
+            modifierList.firstCodeChildFromFunctionModifierList()
+        }
+    }
+
+    private fun ASTNode.firstCodeChildFromFunctionModifierList(): ASTNode? {
+        require(elementType == MODIFIER_LIST)
+        val iterator = children.iterator()
+        var result: ASTNode? = null
+        while (iterator.hasNext() && result == null) {
+            val currentNode = iterator.next()
+            result =
+                when {
+                    currentNode.elementType == CONTEXT_PARAMETER_LIST -> {
+                        currentNode
                             .lastChildLeafOrSelf
                             .nextLeaf
                             .takeIf { it.isWhiteSpaceWithNewline }
                             ?.nextLeaf
                             ?: currentNode
-                    } else if (currentNode.elementType != ANNOTATION &&
+                    }
+
+                    currentNode.elementType != ANNOTATION &&
                         currentNode.elementType != ANNOTATION_ENTRY &&
-                        currentNode.elementType != WHITE_SPACE
-                    ) {
-                        return currentNode
+                        currentNode.elementType != WHITE_SPACE -> {
+                        currentNode
+                    }
+
+                    else -> {
+                        null
                     }
                 }
-                return modifierList.nextCodeSibling
-            }
-
-        return funNode?.nextCodeLeaf
+        }
+        return result ?: nextCodeSibling
     }
 
     private fun visitFunctionSignature(
