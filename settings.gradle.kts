@@ -5,6 +5,19 @@ pluginManagement {
     }
 
     includeBuild("build-logic")
+
+    plugins {
+        // The Kotlin version of the root project and the the `ktlint-ruleset-template` module has to be identical as otherwise the build
+        // fails. However, the version can not be set in `build.gradle.kts` using a variable. Therefore, it is set in the settings.
+        // Version catalogs are not available in pluginManagement, so read the kotlin version directly from the TOML file.
+        val kotlinVersion =
+            file("gradle/libs.versions.toml")
+                .readLines()
+                .first { it.startsWith("kotlin =") }
+                .substringAfter('"')
+                .substringBefore('"')
+        kotlin("jvm") version kotlinVersion
+    }
 }
 
 dependencyResolutionManagement {
