@@ -289,7 +289,9 @@ internal class LintAndFormatProcessor(
                         StandardCopyOption.REPLACE_EXISTING,
                         StandardCopyOption.ATOMIC_MOVE,
                     )
-                } catch (e: Exception) {
+                } catch (
+                    @Suppress("TooGenericExceptionCaught") e: Exception,
+                ) {
                     tmp.delete()
                     throw e
                 }
