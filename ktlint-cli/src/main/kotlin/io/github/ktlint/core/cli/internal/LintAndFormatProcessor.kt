@@ -22,6 +22,8 @@ import java.io.File
 import java.io.OutputStreamWriter
 import java.io.PrintWriter
 import java.nio.file.FileSystems
+import java.nio.file.Files
+import java.nio.file.StandardCopyOption
 import java.util.Locale
 import java.util.concurrent.Callable
 import java.util.concurrent.atomic.AtomicBoolean
@@ -214,10 +216,7 @@ internal class LintAndFormatProcessor(
             }
 
             code.content != formattedFileContent -> {
-                code
-                    .filePath
-                    ?.toFile()
-                    ?.writeText(formattedFileContent, UTF_8)
+                replaceFile(code, formattedFileContent)
             }
         }
     }
@@ -268,6 +267,33 @@ internal class LintAndFormatProcessor(
             // The write method does not autoflush.
             flush()
         }
+    }
+
+    private fun replaceFile(
+        code: Code,
+        formattedFileContent: String,
+    ) {
+        code
+            .filePath
+            ?.toFile()
+            ?.let { target ->
+                // Write output first to temporary file. Only when this write has succeeded than replace the original file with the
+                // temporary file. This should prevent replacing the original file with empty contents in case an IO error occurs between
+                // truncating the original content and writing the new content.
+                val tmp = File(target.parent, "${target.name}.tmp")
+                try {
+                    tmp.writeText(formattedFileContent, UTF_8)
+                    Files.move(
+                        tmp.toPath(),
+                        target.toPath(),
+                        StandardCopyOption.REPLACE_EXISTING,
+                        StandardCopyOption.ATOMIC_MOVE,
+                    )
+                } catch (e: Exception) {
+                    tmp.delete()
+                    throw e
+                }
+            }
     }
 
     private fun Throwable.toKtlintCliError(code: Code): KtlintCliError =
