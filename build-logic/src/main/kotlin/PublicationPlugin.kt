@@ -5,7 +5,7 @@ import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.configure
 import org.gradle.plugins.signing.SigningExtension
 
-@Suppress("unused") // Has indirect reference in `build-logic/build.gradle.kts`
+@Suppress("Unused") // Class is referenced by name in "build-logic/build.gradle.kts"
 abstract class PublicationPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit =
         with(target) {
@@ -36,6 +36,7 @@ abstract class PublicationPlugin : Plugin<Project> {
                 version = project.version.toString(),
             )
             configureSigning()
+            @Suppress("UnstableApiUsage")
             configureBasedOnAppliedPlugins()
             configurePom()
         }
