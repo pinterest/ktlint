@@ -1,6 +1,3 @@
-import org.gradle.api.Project
-import org.gradle.api.provider.Provider
-
 pluginManagement {
     repositories {
         mavenCentral()
@@ -36,10 +33,6 @@ rootProject.name = "ktlint-root"
 
 enableFeaturePreview("STABLE_CONFIGURATION_CACHE")
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
-
-gradle.lifecycle.beforeProject {
-    group = providers.gradleProperty("POM_GROUP_ID").get()
-}
 
 include(
     ":ktlint-api-consumer",
