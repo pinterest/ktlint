@@ -3,9 +3,9 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.kotlin.dsl.configure
-import org.gradle.kotlin.dsl.the
 import org.gradle.plugins.signing.SigningExtension
 
+@Suppress("Unused") // Class is referenced by name in "build-logic/build.gradle.kts"
 abstract class PublicationPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit =
         with(target) {
@@ -59,6 +59,7 @@ abstract class PublicationPlugin : Plugin<Project> {
                     )
                 }
 
+                @Suppress("UnstableApiUsage")
                 configureBasedOnAppliedPlugins()
 
                 pom {

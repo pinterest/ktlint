@@ -6,7 +6,6 @@ import io.github.ktlint.core.cli.reporter.baseline.Baseline.Status.VALID
 import io.github.ktlint.core.cli.reporter.core.api.KtlintCliError
 import io.github.ktlint.core.cli.reporter.core.api.KtlintCliError.Status.BASELINE_IGNORED
 import io.github.ktlint.core.logger.api.initKtLintKLogger
-import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.w3c.dom.Element
 import org.xml.sax.SAXException

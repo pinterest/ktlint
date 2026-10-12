@@ -6,7 +6,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.RBRACE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_REFERENCE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import io.github.ktlint.core.rule.engine.core.api.IgnoreKtlintSuppressions
-import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
 import io.github.ktlint.core.rule.engine.core.api.TokenSets
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig

@@ -5,7 +5,6 @@ import io.github.ktlint.core.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MAR
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import io.github.ktlint.core.test.LintViolation
 import io.github.ktlint.core.test.MULTILINE_STRING_QUOTE
-import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class BinaryExpressionWrappingRuleTest {
