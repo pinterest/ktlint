@@ -2,7 +2,9 @@
 // build logic of other internal ktlint modules (https://github.com/ktlint/ktlint/issues/3048)..
 
 plugins {
-    kotlin("jvm") version "2.4.20"
+    // You may want to set the kotlin version explicitly. When this module is compiled within the Ktlint project it inherits the kotlin
+    // version from the root project
+    kotlin("jvm")
     // Remove the line below when this custom ruleset is not to be published to maven. If you do want to publish your ruleset to Maven, you
     // still might need to configure the Maven Central repository in file `settings.gradle.xml` which is not included in the sample project
     // as it conflicts with the build of the Ktlint itself. Suggested content of that file:
