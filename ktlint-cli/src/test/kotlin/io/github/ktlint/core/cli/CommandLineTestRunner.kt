@@ -64,39 +64,32 @@ class CommandLineTestRunner(
         val output = process.inputStream.bufferedReader().use { it.readLines() }
         val error = process.errorStream.bufferedReader().use { it.readLines() }
 
-        if (process.isAlive || true) {
-            // Destroy the process as it is still running
-            process.destroyForcibly()
+        // Destroy the process forcibly. This should be unneeded when "process.isAlive" equals false. For an unknown reason, the process
+        // sometimes (mostly on Windows) results in a timeout, although the ktlint command is  actually terminated.
+        process.destroyForcibly()
 
-            // For an unknown reason, the process sometimes (mostly on Windows) results in a timeout, although the ktlint command is
-            // terminated. On termination, ktlint prints the exit code on the last line of the output in most cases. Whenever that line is
-            // expected, and found, then consider this as normal termination. When such a line is not expected, then use a null value as the
-            // exit code cannot be determined.
-            val exitCode =
-                output
-                    .lastOrNull { it.contains(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE) }
-                    ?.substringAfter(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE)
-                    ?.toInt()
-            if (exitCode != null || !expectExitCodeLoggedWhenKtlintIsFinished) {
-                executionAssertions(ExecutionResult(exitCode, output, error, projectPath))
-            } else {
-                // Ktlint is either not terminated or is terminated with a non-zero exit code.
-                val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
-                fail {
-                    "CLI test has been aborted as it could not be completed in $maxDurationInSeconds seconds"
-                        .followedByIndentedList(
-                            listOf(
-                                "RESULTS OF STDOUT:".followedByIndentedList(output, 2),
-                                "RESULTS OF STDERR:".followedByIndentedList(error, 2),
-                            ),
-                        )
-                }
-            }
+        // On termination, ktlint prints the exit code on the last line of the output in most cases. Whenever that line is
+        // expected, and found, then consider this as normal termination. When such a line is not expected, then use a null value as the
+        // exit code cannot be determined.
+        val exitCode =
+            output
+                .lastOrNull { it.contains(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE) }
+                ?.substringAfter(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE)
+                ?.toInt()
+        if (exitCode != null || !expectExitCodeLoggedWhenKtlintIsFinished) {
+            executionAssertions(ExecutionResult(exitCode, output, error, projectPath))
         } else {
-            executionAssertions(ExecutionResult(process.exitValue(), output, error, projectPath))
-
-            // Only destroy the process when it is no longer needed (so after asserting)
-            process.destroy()
+            // Ktlint is either not terminated or is terminated with a non-zero exit code.
+            val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
+            fail {
+                "CLI test has been aborted as it could not be completed in $maxDurationInSeconds seconds"
+                    .followedByIndentedList(
+                        listOf(
+                            "RESULTS OF STDOUT:".followedByIndentedList(output, 2),
+                            "RESULTS OF STDERR:".followedByIndentedList(error, 2),
+                        ),
+                    )
+            }
         }
     }
 
