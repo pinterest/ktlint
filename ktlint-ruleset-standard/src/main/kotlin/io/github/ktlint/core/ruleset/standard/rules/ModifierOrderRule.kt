@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ABSTRACT_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ACTUAL_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -32,17 +31,13 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.VARARG_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
 @SinceKtlint("0.7", STABLE)
 public class ModifierOrderRule : StandardRule("modifier-order") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == MODIFIER_LIST) {
             val modifierArr = node.getChildren(tokenSet)
             val sorted = modifierArr.copyOf().apply { sortWith(compareBy { ORDERED_MODIFIERS.indexOf(it.elementType) }) }
@@ -56,8 +51,7 @@ public class ModifierOrderRule : StandardRule("modifier-order") {
                         emit(
                             node.startOffset,
                             "Incorrect modifier order (should be \"$squashedAnnotations\")",
-                            true,
-                        ).ifAutocorrectAllowed { autocorrect = true }
+                        ) { autocorrect = true }
                     }
                 if (autocorrect) {
                     modifierArr.forEachIndexed { i, n ->

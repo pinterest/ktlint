@@ -68,10 +68,6 @@ public final class io/github/ktlint/core/rule/engine/core/api/AutocorrectDecisio
 	public static fun values ()[Lio/github/ktlint/core/rule/engine/core/api/AutocorrectDecision;
 }
 
-public final class io/github/ktlint/core/rule/engine/core/api/AutocorrectDecisionKt {
-	public static final fun ifAutocorrectAllowed (Lio/github/ktlint/core/rule/engine/core/api/AutocorrectDecision;Lkotlin/jvm/functions/Function0;)Ljava/lang/Object;
-}
-
 public final class io/github/ktlint/core/rule/engine/core/api/ElementType {
 	public static final field INSTANCE Lio/github/ktlint/core/rule/engine/core/api/ElementType;
 	public final fun getABSTRACT_KEYWORD ()Lorg/jetbrains/kotlin/com/intellij/psi/tree/IElementType;
@@ -427,15 +423,17 @@ public class io/github/ktlint/core/rule/engine/core/api/RuleV2 {
 	public fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/RuleV2$About;Ljava/util/Set;)V
 	public synthetic fun <init> (Lio/github/ktlint/core/rule/engine/core/api/RuleId;Lio/github/ktlint/core/rule/engine/core/api/RuleV2$About;Ljava/util/Set;ILkotlin/jvm/internal/DefaultConstructorMarker;)V
 	public fun afterLastNode ()V
-	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+	public fun afterVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)V
 	public fun beforeFirstNode (Lio/github/ktlint/core/rule/engine/core/api/editorconfig/EditorConfig;)V
-	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;Lkotlin/jvm/functions/Function3;)V
+	public fun beforeVisitChildNodes (Lorg/jetbrains/kotlin/com/intellij/lang/ASTNode;)V
+	public final fun emit (ILjava/lang/String;Lkotlin/jvm/functions/Function0;)V
+	public static synthetic fun emit$default (Lio/github/ktlint/core/rule/engine/core/api/RuleV2;ILjava/lang/String;Lkotlin/jvm/functions/Function0;ILjava/lang/Object;)V
 	public fun getAbout ()Lio/github/ktlint/core/rule/engine/core/api/RuleV2$About;
 	public fun getRuleId ()Lio/github/ktlint/core/rule/engine/core/api/RuleId;
 	public fun getUsesEditorConfigProperties ()Ljava/util/Set;
 	public final fun isUsedForTraversalOfAST ()Z
 	public final fun shouldContinueTraversalOfAST ()Z
-	public final fun startTraversalOfAST ()V
+	public final fun startTraversalOfAST (Lkotlin/jvm/functions/Function4;)V
 	public final fun stopTraversalOfAST ()V
 }
 

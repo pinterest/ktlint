@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ENUM_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -50,10 +49,7 @@ public class EnumEntryNameCaseRule :
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node !is CompositeElement || node.elementType != ENUM_ENTRY) {
             return
         }
@@ -61,7 +57,7 @@ public class EnumEntryNameCaseRule :
             .findChildByType(IDENTIFIER)
             ?.let { KtPsiUtil.unquoteIdentifier(it.text) }
             ?.takeIf { !it.matches(enumEntryCasingRegex) }
-            ?.let { emit(node.startOffset, enumEntryCasingViolation, false) }
+            ?.let { emit(node.startOffset, enumEntryCasingViolation) }
     }
 
     public companion object {

@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CATCH_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DO_KEYWORD
@@ -21,7 +20,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.WHILE_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
@@ -52,13 +50,9 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
 
     private val keywordsWithoutSpaces = create(GET_KEYWORD, SET_KEYWORD)
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType in tokenSet && node.parent?.elementType != KDOC_NAME && !node.nextLeaf.isWhiteSpace) {
-            emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"", true)
-                .ifAutocorrectAllowed { node.upsertWhitespaceAfterMe(" ") }
+            emit(node.startOffset + node.text.length, "Missing spacing after \"${node.text}\"") { node.upsertWhitespaceAfterMe(" ") }
         }
         node
             .takeIf { keywordsWithoutSpaces.contains(it.elementType) }
@@ -66,8 +60,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
             ?.nextLeaf
             ?.takeIf { it.isWhiteSpace }
             ?.also { nextLeaf ->
-                emit(node.startOffset, "Unexpected spacing after \"${node.text}\"", true)
-                    .ifAutocorrectAllowed { nextLeaf.remove() }
+                emit(node.startOffset, "Unexpected spacing after \"${node.text}\"") { nextLeaf.remove() }
             }
         if (noLFBeforeSet.contains(node.elementType)) {
             val prevLeaf = node.prevLeaf
@@ -81,8 +74,7 @@ public class SpacingAroundKeywordRule : StandardRule("keyword-spacing") {
                     ?.takeIf { it.elementType == BLOCK }
                     ?.takeIf { !isElseKeyword || it.parent?.parent == node.parent }
                     ?.run {
-                        emit(node.startOffset, "Unexpected newline before \"${node.text}\"", true)
-                            .ifAutocorrectAllowed { prevLeaf.replaceTextWith(" ") }
+                        emit(node.startOffset, "Unexpected newline before \"${node.text}\"") { prevLeaf.replaceTextWith(" ") }
                     }
             }
         }

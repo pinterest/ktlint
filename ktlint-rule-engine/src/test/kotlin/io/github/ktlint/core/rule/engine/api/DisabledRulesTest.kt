@@ -1,6 +1,5 @@
 package io.github.ktlint.core.rule.engine.api
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
 import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
@@ -63,11 +62,8 @@ class DisabledRulesTest {
             ruleId = ruleId,
             about = About(),
         ) {
-        override fun beforeVisitChildNodes(
-            node: ASTNode,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-        ) {
-            emit(node.startOffset, SOME_NO_VAR_RULE_VIOLATION, false)
+        override fun beforeVisitChildNodes(node: ASTNode) {
+            emit(node.startOffset, SOME_NO_VAR_RULE_VIOLATION)
         }
 
         companion object {

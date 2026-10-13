@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
@@ -24,7 +23,6 @@ import io.github.ktlint.core.rule.engine.core.api.children
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isDeclaration
@@ -49,10 +47,7 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
             CLASS,
             CLASS_INITIALIZER,
@@ -61,25 +56,21 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
             PROPERTY,
             PROPERTY_ACCESSOR,
             -> {
-                visitDeclaration(node, emit)
+                visitDeclaration(node)
             }
         }
     }
 
-    private fun visitDeclaration(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitDeclaration(node: ASTNode) {
         if (node.allowBlankLineBeforeDeclaration()) return
 
         node
             .takeIf { it.isDeclaration }
             ?.takeUnless { it.prevLeaf.isBlankLine() }
             ?.let { insertBeforeNode ->
-                emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
-                    .ifAutocorrectAllowed {
-                        insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent))
-                    }
+                emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration") {
+                    insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent))
+                }
             }
     }
 

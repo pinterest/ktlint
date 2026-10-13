@@ -1,6 +1,5 @@
 package io.github.ktlint.core.rule.engine.internal.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK_COMMENT
@@ -24,7 +23,6 @@ import io.github.ktlint.core.rule.engine.core.api.KtlintKotlinCompiler
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.findChildByTypeRecursively
 import io.github.ktlint.core.rule.engine.core.api.findParentByType
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
@@ -77,17 +75,14 @@ public class KtlintSuppressionRule(
 
     private val ruleIdValidator: (String) -> Boolean = { ruleId -> allowedRuleIdAsStrings.contains(ruleId) }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { isKtlintRuleSuppressionInAnnotation(it) }
-            ?.let { visitKtlintSuppressionInAnnotation(node, emit) }
+            ?.let { visitKtlintSuppressionInAnnotation(node) }
 
         node
             .ktlintDirectiveOrNull(ruleIdValidator)
-            ?.visitKtlintDirective(emit)
+            ?.visitKtlintDirective()
     }
 
     private fun isKtlintRuleSuppressionInAnnotation(node: ASTNode) =
@@ -103,10 +98,7 @@ public class KtlintSuppressionRule(
 
     private fun ASTNode.isPartOfAnnotation() = parent { it.elementType == ANNOTATION || it.elementType == ANNOTATION_ENTRY } != null
 
-    private fun visitKtlintSuppressionInAnnotation(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitKtlintSuppressionInAnnotation(node: ASTNode) {
         node
             .findChildByTypeRecursively(LITERAL_STRING_TEMPLATE_ENTRY)
             ?.let { literalStringTemplateEntry ->
@@ -117,14 +109,12 @@ public class KtlintSuppressionRule(
                         .removeSurrounding("\"")
                 val offset = literalStringTemplateEntry.startOffset
                 if (prefixedSuppression.isUnknownKtlintSuppression()) {
-                    emit(offset, "Ktlint rule with id '$prefixedSuppression' is unknown or not loaded", false)
-                    Unit
+                    emit(offset, "Ktlint rule with id '$prefixedSuppression' is unknown or not loaded")
                 } else if (prefixedSuppression != literalStringTemplateEntry.text) {
-                    emit(offset, "Identifier to suppress ktlint rule must be fully qualified with the rule set id", true)
-                        .ifAutocorrectAllowed {
-                            createLiteralStringTemplateEntry(prefixedSuppression)
-                                ?.let { literalStringTemplateEntry.replaceWith(it) }
-                        }
+                    emit(offset, "Identifier to suppress ktlint rule must be fully qualified with the rule set id") {
+                        createLiteralStringTemplateEntry(prefixedSuppression)
+                            ?.let { literalStringTemplateEntry.replaceWith(it) }
+                    }
                 }
             }
     }
@@ -144,47 +134,42 @@ public class KtlintSuppressionRule(
             ?.findChildByType(STRING_TEMPLATE)
             ?.findChildByType(LITERAL_STRING_TEMPLATE_ENTRY)
 
-    private fun KtLintDirective.visitKtlintDirective(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun KtLintDirective.visitKtlintDirective() {
         when (ktlintDirectiveType) {
             KTLINT_DISABLE -> {
                 if (node.elementType == EOL_COMMENT && node.prevLeaf.isWhiteSpaceWithNewline) {
-                    removeDanglingEolCommentWithKtlintDisableDirective(emit)
+                    removeDanglingEolCommentWithKtlintDisableDirective()
                 } else {
-                    visitKtlintDisableDirective(emit)
+                    visitKtlintDisableDirective()
                 }
             }
 
             KTLINT_ENABLE -> {
-                removeKtlintEnableDirective(emit)
+                removeKtlintEnableDirective()
             }
         }
     }
 
-    private fun KtLintDirective.removeDanglingEolCommentWithKtlintDisableDirective(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        emit(offset, "Directive 'ktlint-disable' in EOL comment is ignored as it is not preceded by a code element", true)
-            .ifAutocorrectAllowed {
-                node.removePrecedingWhitespace()
-                node.remove()
-            }
+    private fun KtLintDirective.removeDanglingEolCommentWithKtlintDisableDirective() {
+        emit(offset, "Directive 'ktlint-disable' in EOL comment is ignored as it is not preceded by a code element") {
+            node.removePrecedingWhitespace()
+            node.remove()
+        }
     }
 
-    private fun KtLintDirective.visitKtlintDisableDirective(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun KtLintDirective.visitKtlintDisableDirective() {
         if (node.elementType == BLOCK_COMMENT && hasNoMatchingKtlintEnableDirective(ruleIdValidator)) {
             emit(
                 offset,
                 "Directive 'ktlint-disable' is deprecated. The matching 'ktlint-enable' directive is not found in same scope. Replace " +
                     "with @Suppress annotation",
-                false,
             )
             return
         }
-        val autocorrectDecision = emit(offset, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation", true)
+        var autocorrect = false
+        emit(offset, "Directive 'ktlint-disable' is deprecated. Replace with @Suppress annotation") {
+            autocorrect = true
+        }
         suppressionIdChanges
             .filterIsInstance<InvalidSuppressionId>()
             .forEach { ktlintDirectiveChange ->
@@ -193,10 +178,9 @@ public class KtlintSuppressionRule(
                         ktlintDirectiveType.id.length +
                         ktlintDirectiveChange.offsetOriginalRuleId,
                     "Ktlint rule with id '${ktlintDirectiveChange.originalRuleId}' is unknown or not loaded",
-                    false,
                 )
             }
-        autocorrectDecision.ifAutocorrectAllowed {
+        if (autocorrect) {
             val suppressionIds =
                 suppressionIdChanges
                     .filterIsInstance<ValidSuppressionId>()
@@ -221,14 +205,11 @@ public class KtlintSuppressionRule(
         }
     }
 
-    private fun KtLintDirective.removeKtlintEnableDirective(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        emit(offset, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations", true)
-            .ifAutocorrectAllowed {
-                node.removePrecedingWhitespace()
-                node.remove()
-            }
+    private fun KtLintDirective.removeKtlintEnableDirective() {
+        emit(offset, "Directive 'ktlint-enable' is obsolete after migrating to suppress annotations") {
+            node.removePrecedingWhitespace()
+            node.remove()
+        }
     }
 
     private fun String.isUnknownKtlintSuppression(): Boolean =

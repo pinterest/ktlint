@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.WHEN
@@ -17,7 +16,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
@@ -58,21 +56,15 @@ public class WhenEntryBracing :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == WHEN) {
-            visitWhenStatement(node, emit)
+            visitWhenStatement(node)
         }
     }
 
-    private fun visitWhenStatement(
-        node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitWhenStatement(node: ASTNode) {
         if (node.hasAnyWhenEntryWithBlockAfterArrow() || node.hasAnyWhenEntryWithMultilineBody()) {
-            addBracesToWhenEntry(node, emitAndApprove)
+            addBracesToWhenEntry(node)
         }
     }
 
@@ -96,10 +88,7 @@ public class WhenEntryBracing :
             .any { it.isWhiteSpaceWithNewline }
     }
 
-    private fun addBracesToWhenEntry(
-        node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun addBracesToWhenEntry(node: ASTNode) {
         node
             .children
             .filter { it.elementType == WHEN_ENTRY }
@@ -109,15 +98,12 @@ public class WhenEntryBracing :
                     .findChildByType(ARROW)
                     ?.let { arrow ->
                         val nonWhiteSpaceSibling = arrow.nextSibling { !it.isWhiteSpace } ?: arrow
-                        emitAndApprove(
+                        emit(
                             nonWhiteSpaceSibling.startOffset,
                             "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces " +
                                 "or has a multiline body",
-                            true,
-                        ).ifAutocorrectAllowed {
-                            arrow
-//                                .nextSibling { it.isWhiteSpace() }
-                                .surroundWithBraces()
+                        ) {
+                            arrow.surroundWithBraces()
                         }
                     }
             }

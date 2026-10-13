@@ -1,12 +1,10 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_MARKDOWN_LINK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_TAG
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.parent
 import io.github.ktlint.core.rule.engine.core.api.prevSibling
@@ -16,21 +14,17 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("0.2", STABLE)
 public class NoMultipleSpacesRule : StandardRule("no-multi-spaces") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { node.isWhiteSpace }
             .takeUnless { node.isPossibleAlignmentOfKdocTag() }
             ?.let {
                 val beforeIndentation = node.removeIndentation()
                 if (beforeIndentation.length > 1) {
-                    emit(node.startOffset + 1, "Unnecessary long whitespace", true)
-                        .ifAutocorrectAllowed {
-                            val remainder = node.text.substring(beforeIndentation.length)
-                            node.replaceTextWith(" $remainder")
-                        }
+                    emit(node.startOffset + 1, "Unnecessary long whitespace") {
+                        val remainder = node.text.substring(beforeIndentation.length)
+                        node.replaceTextWith(" $remainder")
+                    }
                 }
             }
     }

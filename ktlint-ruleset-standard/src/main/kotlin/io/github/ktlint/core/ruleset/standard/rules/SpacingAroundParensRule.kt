@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONSTRUCTOR_CALLEE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
@@ -17,7 +16,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER_LI
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -39,17 +37,14 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
  */
 @SinceKtlint("0.24", STABLE)
 public class SpacingAroundParensRule : StandardRule("paren-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == LPAR || node.elementType == RPAR) {
             val spacingBefore = node.isUnexpectedSpacingBeforeParenthesis()
             val spacingAfter = node.isUnexpectedSpacingAfterParenthesis()
             when {
-                spacingBefore && spacingAfter -> node.fixUnexpectedSpacingAround(emit)
-                spacingBefore -> node.fixUnexpectedSpacingBefore(emit)
-                spacingAfter -> node.fixUnexpectSpacingAfter(emit)
+                spacingBefore && spacingAfter -> node.fixUnexpectedSpacingAround()
+                spacingBefore -> node.fixUnexpectedSpacingBefore()
+                spacingAfter -> node.fixUnexpectSpacingAfter()
             }
         }
     }
@@ -187,28 +182,19 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             ?.none { it.textContains('\n') || it.elementType == EOL_COMMENT }
             ?: false
 
-    private fun ASTNode.fixUnexpectedSpacingAround(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        emit(startOffset, "Unexpected spacing around \"$text\"", true)
-            .ifAutocorrectAllowed {
-                prevLeaf!!.remove()
-                nextLeaf!!.remove()
-            }
+    private fun ASTNode.fixUnexpectedSpacingAround() {
+        emit(startOffset, "Unexpected spacing around \"$text\"") {
+            prevLeaf!!.remove()
+            nextLeaf!!.remove()
+        }
     }
 
-    private fun ASTNode.fixUnexpectedSpacingBefore(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${text}\"", true)
-            .ifAutocorrectAllowed { prevLeaf?.remove() }
+    private fun ASTNode.fixUnexpectedSpacingBefore() {
+        emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${text}\"") { prevLeaf?.remove() }
     }
 
-    private fun ASTNode.fixUnexpectSpacingAfter(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        emit(startOffset + 1, "Unexpected spacing after \"$text\"", true)
-            .ifAutocorrectAllowed { nextLeaf!!.remove() }
+    private fun ASTNode.fixUnexpectSpacingAfter() {
+        emit(startOffset + 1, "Unexpected spacing after \"$text\"") { nextLeaf!!.remove() }
     }
 
     private companion object {

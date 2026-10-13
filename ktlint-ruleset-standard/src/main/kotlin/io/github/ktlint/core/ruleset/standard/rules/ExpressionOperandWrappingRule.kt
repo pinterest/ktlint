@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
@@ -15,7 +14,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -68,14 +66,11 @@ public class ExpressionOperandWrappingRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.isBinaryExpressionWithWrappableOperand() }
             ?.takeIf { it.isMultiline() }
-            ?.let { visitMultilineBinaryExpression(it, emit) }
+            ?.let { visitMultilineBinaryExpression(it) }
     }
 
     private fun ASTNode.isBinaryExpressionWithWrappableOperand() =
@@ -85,10 +80,7 @@ public class ExpressionOperandWrappingRule :
                 ?.firstChildNode
                 ?.takeIf { it.elementType in WRAPPABLE_OPERAND }
 
-    private fun visitMultilineBinaryExpression(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitMultilineBinaryExpression(node: ASTNode) {
         node
             .findChildByType(OPERATION_REFERENCE)
             ?.takeUnless { it.nextSibling.isWhiteSpaceWithNewline }
@@ -105,10 +97,9 @@ public class ExpressionOperandWrappingRule :
                                 ?.textLength
                                 ?: 0,
                         )
-                emit(startOffset, "Newline expected before operand in multiline expression", true)
-                    .ifAutocorrectAllowed {
-                        operationReference.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
-                    }
+                emit(startOffset, "Newline expected before operand in multiline expression") {
+                    operationReference.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
+                }
             }
     }
 

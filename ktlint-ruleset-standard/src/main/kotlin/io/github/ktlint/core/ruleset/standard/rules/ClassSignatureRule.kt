@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
@@ -38,7 +37,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_P
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY_OFF
 import io.github.ktlint.core.rule.engine.core.api.hasModifier
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.isCode
@@ -96,12 +94,9 @@ public class ClassSignatureRule :
         maxLineLength = editorConfig.maxLineLength()
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == CLASS) {
-            visitClass(node, emit)
+            visitClass(node)
         }
     }
 
@@ -156,10 +151,7 @@ public class ClassSignatureRule :
             elementType != WHITE_SPACE &&
             elementType != EOL_COMMENT
 
-    private fun visitClass(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitClass(node: ASTNode) {
         require(node.elementType == CLASS)
 
         val wrapPrimaryConstructorParameters =
@@ -169,13 +161,13 @@ public class ClassSignatureRule :
                 (
                     isMaxLineLengthSet() &&
                         node.hasNoMaxLineLengthSuppression() &&
-                        classSignatureExcludingSuperTypesExceedsMaxLineLength(node, emit)
+                        classSignatureExcludingSuperTypesExceedsMaxLineLength(node)
                 ) ||
                 (!isMaxLineLengthSet() && node.classSignatureExcludingSuperTypesIsMultiline()) ||
                 node.containsEolComment()
-        fixWhiteSpacesInValueParameterList(node, emit, multiline = wrapPrimaryConstructorParameters, dryRun = false)
-        fixWhitespacesInSuperTypeList(node, emit, wrapPrimaryConstructor = wrapPrimaryConstructorParameters)
-        fixClassBody(node, emit)
+        fixWhiteSpacesInValueParameterList(node, multiline = wrapPrimaryConstructorParameters, dryRun = false)
+        fixWhitespacesInSuperTypeList(node, wrapPrimaryConstructor = wrapPrimaryConstructorParameters)
+        fixClassBody(node)
     }
 
     private fun ASTNode.containsEolComment() =
@@ -184,10 +176,7 @@ public class ClassSignatureRule :
             ?.any { it.elementType == EOL_COMMENT }
             ?: false
 
-    private fun classSignatureExcludingSuperTypesExceedsMaxLineLength(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ): Boolean {
+    private fun classSignatureExcludingSuperTypesExceedsMaxLineLength(node: ASTNode): Boolean {
         val actualClassSignatureLength = node.getClassSignatureLength(excludeSuperTypes = true)
         // Calculate the length of the class signature in case it, excluding the super types, would be rewritten as single
         // line (and without a maximum line length). The white space correction will be calculated via a dry run of the
@@ -195,7 +184,7 @@ public class ClassSignatureRule :
         val length =
             actualClassSignatureLength +
                 // Calculate the white space correction in case the signature would be rewritten to a single line
-                fixWhiteSpacesInValueParameterList(node, emit, multiline = false, dryRun = true)
+                fixWhiteSpacesInValueParameterList(node, multiline = false, dryRun = true)
         return node.hasNoMaxLineLengthSuppression() && length > maxLineLength
     }
 
@@ -233,7 +222,6 @@ public class ClassSignatureRule :
 
     private fun fixWhiteSpacesInValueParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
@@ -248,11 +236,11 @@ public class ClassSignatureRule :
 
         whiteSpaceCorrection +=
             if (hasNoValueParameters) {
-                fixWhiteSpacesInEmptyValueParameterList(node, emit, dryRun)
+                fixWhiteSpacesInEmptyValueParameterList(node, dryRun)
             } else {
-                fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, emit, multiline, dryRun) +
-                    fixWhiteSpacesBetweenParametersInValueParameterList(node, emit, multiline, dryRun) +
-                    fixWhiteSpaceBeforeClosingParenthesis(node, emit, multiline, dryRun)
+                fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, multiline, dryRun) +
+                    fixWhiteSpacesBetweenParametersInValueParameterList(node, multiline, dryRun) +
+                    fixWhiteSpaceBeforeClosingParenthesis(node, multiline, dryRun)
             }
 
         return whiteSpaceCorrection
@@ -260,7 +248,6 @@ public class ClassSignatureRule :
 
     private fun fixWhiteSpacesInEmptyValueParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         dryRun: Boolean,
     ): Int {
         var whiteSpaceCorrection = 0
@@ -290,8 +277,7 @@ public class ClassSignatureRule :
                     ?.elementType == CONSTRUCTOR_DELEGATION_REFERENCE
             }?.let { parameterList ->
                 if (!dryRun) {
-                    emit(parameterList.startOffset, "No parenthesis expected", true)
-                        .ifAutocorrectAllowed { parameterList.remove() }
+                    emit(parameterList.startOffset, "No parenthesis expected") { parameterList.remove() }
                 } else {
                     whiteSpaceCorrection -= parameterList.textLength
                 }
@@ -304,7 +290,6 @@ public class ClassSignatureRule :
 
     private fun fixWhiteSpacesBeforeFirstParameterInValueParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
@@ -327,25 +312,20 @@ public class ClassSignatureRule :
                         // Let indent rule determine the exact indent
                         val expectedParameterIndent = indentConfig.childIndentOf(node)
                         if (!dryRun) {
-                            emit(firstParameterInList.startOffset, "Newline expected after opening parenthesis", true)
-                                .ifAutocorrectAllowed {
-                                    valueParameterList.firstChildNode.upsertWhitespaceAfterMe(expectedParameterIndent)
-                                }
+                            emit(firstParameterInList.startOffset, "Newline expected after opening parenthesis") {
+                                valueParameterList.firstChildNode.upsertWhitespaceAfterMe(expectedParameterIndent)
+                            }
                         } else {
                             whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                         }
                     }
-                } else {
-                    if (whiteSpaceBeforeIdentifier != null) {
-                        if (!dryRun) {
-                            emit(
-                                firstParameter!!.startOffset,
-                                "No whitespace expected between opening parenthesis and first parameter name",
-                                true,
-                            ).ifAutocorrectAllowed { whiteSpaceBeforeIdentifier.remove() }
-                        } else {
-                            whiteSpaceCorrection -= whiteSpaceBeforeIdentifier.textLength
+                } else if (whiteSpaceBeforeIdentifier != null) {
+                    if (!dryRun) {
+                        emit(firstParameter!!.startOffset, "No whitespace expected between opening parenthesis and first parameter name") {
+                            whiteSpaceBeforeIdentifier.remove()
                         }
+                    } else {
+                        whiteSpaceCorrection -= whiteSpaceBeforeIdentifier.textLength
                     }
                 }
             }
@@ -355,7 +335,6 @@ public class ClassSignatureRule :
 
     private fun fixWhiteSpacesBetweenParametersInValueParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
@@ -372,14 +351,13 @@ public class ClassSignatureRule :
             .children
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
-            .forEach { whiteSpaceCorrection += it.fixWhiteSpaceValueParameter(node, emit, multiline, dryRun) }
+            .forEach { whiteSpaceCorrection += it.fixWhiteSpaceValueParameter(node, multiline, dryRun) }
 
         return whiteSpaceCorrection
     }
 
     private fun ASTNode.fixWhiteSpaceValueParameter(
         node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
@@ -394,10 +372,9 @@ public class ClassSignatureRule :
                         // Let IndentationRule determine the exact indent
                         val expectedParameterIndent = indentConfig.childIndentOf(node)
                         if (!dryRun) {
-                            emit(this.startOffset, "Parameter should start on a newline", true)
-                                .ifAutocorrectAllowed {
-                                    firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent)
-                                }
+                            emit(this.startOffset, "Parameter should start on a newline") {
+                                firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent)
+                            }
                         } else {
                             whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                         }
@@ -405,10 +382,9 @@ public class ClassSignatureRule :
                 } else {
                     if (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != " ") {
                         if (!dryRun) {
-                            emit(firstChildNodeInValueParameter!!.startOffset, "Single whitespace expected before parameter", true)
-                                .ifAutocorrectAllowed {
-                                    firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ")
-                                }
+                            emit(firstChildNodeInValueParameter!!.startOffset, "Single whitespace expected before parameter") {
+                                firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ")
+                            }
                         } else {
                             whiteSpaceCorrection += 1 - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                         }
@@ -420,7 +396,6 @@ public class ClassSignatureRule :
 
     private fun fixWhiteSpaceBeforeClosingParenthesis(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
@@ -439,27 +414,21 @@ public class ClassSignatureRule :
                         // Let IndentationRule determine the exact indent
                         val expectedParameterIndent = node.indent
                         if (!dryRun) {
-                            emit(closingParenthesisPrimaryConstructor!!.startOffset, "Newline expected before closing parenthesis", true)
-                                .ifAutocorrectAllowed {
-                                    closingParenthesisPrimaryConstructor.upsertWhitespaceBeforeMe(expectedParameterIndent)
-                                }
+                            emit(closingParenthesisPrimaryConstructor!!.startOffset, "Newline expected before closing parenthesis") {
+                                closingParenthesisPrimaryConstructor.upsertWhitespaceBeforeMe(expectedParameterIndent)
+                            }
                         } else {
                             whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeClosingParenthesis?.textLength ?: 0)
                         }
                     }
-                } else {
-                    if (whiteSpaceBeforeClosingParenthesis != null &&
-                        whiteSpaceBeforeClosingParenthesis.nextLeaf?.elementType == RPAR
-                    ) {
-                        if (!dryRun) {
-                            emit(
-                                whiteSpaceBeforeClosingParenthesis.startOffset,
-                                "No whitespace expected between last parameter and closing parenthesis",
-                                true,
-                            ).ifAutocorrectAllowed { whiteSpaceBeforeClosingParenthesis.remove() }
-                        } else {
-                            whiteSpaceCorrection -= whiteSpaceBeforeClosingParenthesis.textLength
-                        }
+                } else if (whiteSpaceBeforeClosingParenthesis != null && whiteSpaceBeforeClosingParenthesis.nextLeaf?.elementType == RPAR) {
+                    if (!dryRun) {
+                        emit(
+                            whiteSpaceBeforeClosingParenthesis.startOffset,
+                            "No whitespace expected between last parameter and closing parenthesis",
+                        ) { whiteSpaceBeforeClosingParenthesis.remove() }
+                    } else {
+                        whiteSpaceCorrection -= whiteSpaceBeforeClosingParenthesis.textLength
                     }
                 }
             }
@@ -468,12 +437,11 @@ public class ClassSignatureRule :
 
     private fun fixWhitespacesInSuperTypeList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         wrapPrimaryConstructor: Boolean,
     ) {
         val superTypes = node.superTypes() ?: return
 
-        fixWhitespacesInSuperTypeCallEntry(superTypes, emit)
+        fixWhitespacesInSuperTypeCallEntry(superTypes)
 
         if (superTypes.count() == 1) {
             val superType = superTypes.first()
@@ -485,38 +453,34 @@ public class ClassSignatureRule :
                 //     class ClassWithPrimaryConstructorWhichWillBeWrapped(
                 //         ...
                 //     ) : SomeSuperTypeEntry
-                fixWhiteSpacesInSuperTypeListWithSingleEntryAndWrappedPrimaryConstructor(superType, emit)
+                fixWhiteSpacesInSuperTypeListWithSingleEntryAndWrappedPrimaryConstructor(superType)
             } else {
-                fixWhiteSpacesInSuperTypeListWithSingleEntryAndUnwrappedPrimaryConstructor(superType, node, emit)
+                fixWhiteSpacesInSuperTypeListWithSingleEntryAndUnwrappedPrimaryConstructor(superType, node)
             }
         } else {
-            fixWhitespacesInSuperTypeListWithMultipleEntries(superTypes, node, emit)
+            fixWhitespacesInSuperTypeListWithMultipleEntries(superTypes, node)
         }
     }
 
-    private fun fixWhitespacesInSuperTypeCallEntry(
-        superTypes: Sequence<ASTNode>,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun fixWhitespacesInSuperTypeCallEntry(superTypes: Sequence<ASTNode>) {
         superTypes
             .firstOrNull { it.elementType == SUPER_TYPE_CALL_ENTRY }
             ?.let { superTypeCallEntry ->
                 if (superTypeCallEntry != superTypes.first()) {
-                    emit(superTypeCallEntry.startOffset, "Super type call must be first super type", true)
-                        .ifAutocorrectAllowed {
-                            val superTypeList = superTypeCallEntry.parent!!
-                            val originalFirstSuperType = superTypes.first()
-                            val commaBeforeSuperTypeCall = requireNotNull(superTypeCallEntry.prevSibling { it.elementType == COMMA })
+                    emit(superTypeCallEntry.startOffset, "Super type call must be first super type") {
+                        val superTypeList = superTypeCallEntry.parent!!
+                        val originalFirstSuperType = superTypes.first()
+                        val commaBeforeSuperTypeCall = requireNotNull(superTypeCallEntry.prevSibling { it.elementType == COMMA })
 
-                            // Remove the whitespace before the super type call and do not insert a new whitespace as it will be fixed later
-                            superTypeCallEntry
-                                .prevSibling
-                                ?.takeIf { it.isWhiteSpace }
-                                ?.remove()
+                        // Remove the whitespace before the super type call and do not insert a new whitespace as it will be fixed later
+                        superTypeCallEntry
+                            .prevSibling
+                            ?.takeIf { it.isWhiteSpace }
+                            ?.remove()
 
-                            superTypeList.addChild(superTypeCallEntry, originalFirstSuperType)
-                            superTypeList.addChild(commaBeforeSuperTypeCall, originalFirstSuperType)
-                        }
+                        superTypeList.addChild(superTypeCallEntry, originalFirstSuperType)
+                        superTypeList.addChild(commaBeforeSuperTypeCall, originalFirstSuperType)
+                    }
                 }
 
                 // Disallow:
@@ -524,16 +488,12 @@ public class ClassSignatureRule :
                 superTypeCallEntry
                     .findChildByType(WHITE_SPACE)
                     ?.let { whitespace ->
-                        emit(whitespace.startOffset, "No whitespace expected", true)
-                            .ifAutocorrectAllowed { whitespace.remove() }
+                        emit(whitespace.startOffset, "No whitespace expected") { whitespace.remove() }
                     }
             }
     }
 
-    private fun fixWhiteSpacesInSuperTypeListWithSingleEntryAndWrappedPrimaryConstructor(
-        superType: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun fixWhiteSpacesInSuperTypeListWithSingleEntryAndWrappedPrimaryConstructor(superType: ASTNode) {
         superType
             .prevLeaf
             .takeIf { it.isWhiteSpaceWithNewline }
@@ -541,8 +501,9 @@ public class ClassSignatureRule :
             ?.let { whiteSpaceBeforeSuperType ->
                 val expectedWhitespace = " "
                 if (whiteSpaceBeforeSuperType.text != expectedWhitespace) {
-                    emit(superType.startOffset, "Expected single space before the super type", true)
-                        .ifAutocorrectAllowed { superType.upsertWhitespaceBeforeMe(expectedWhitespace) }
+                    emit(superType.startOffset, "Expected single space before the super type") {
+                        superType.upsertWhitespaceBeforeMe(expectedWhitespace)
+                    }
                 }
             }
     }
@@ -550,7 +511,6 @@ public class ClassSignatureRule :
     private fun fixWhiteSpacesInSuperTypeListWithSingleEntryAndUnwrappedPrimaryConstructor(
         superType: ASTNode,
         node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
     ) {
         val superTypeFirstChildNode = superType.firstChildNode
         val whiteSpaceBeforeIdentifierOfSuperTypeFirstChildNode = superTypeFirstChildNode?.prevLeaf?.takeIf { it.isWhiteSpace }
@@ -558,24 +518,22 @@ public class ClassSignatureRule :
         whiteSpaceBeforeIdentifierOfSuperTypeFirstChildNode
             .let { whiteSpaceBeforeIdentifier ->
                 if (node.hasMultilineSuperTypeList() ||
-                    classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node, emit)
+                    classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node)
                 ) {
                     if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
-                        emit(superTypeFirstChildNode.startOffset, "Super type should start on a newline", true)
-                            .ifAutocorrectAllowed {
-                                // Let IndentationRule determine the exact indent
-                                superTypeFirstChildNode.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
-                            }
+                        emit(superTypeFirstChildNode.startOffset, "Super type should start on a newline") {
+                            // Let IndentationRule determine the exact indent
+                            superTypeFirstChildNode.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                        }
                     }
                 } else if (superTypeFirstChildNode.prevLeaf?.prevSibling?.elementType != EOL_COMMENT) {
                     val expectedWhitespace = " "
                     if (whiteSpaceBeforeIdentifier == null ||
                         whiteSpaceBeforeIdentifier.text != expectedWhitespace
                     ) {
-                        emit(superTypeFirstChildNode.startOffset, "Expected single space before the super type", true)
-                            .ifAutocorrectAllowed {
-                                superTypeFirstChildNode.upsertWhitespaceBeforeMe(expectedWhitespace)
-                            }
+                        emit(superTypeFirstChildNode.startOffset, "Expected single space before the super type") {
+                            superTypeFirstChildNode.upsertWhitespaceBeforeMe(expectedWhitespace)
+                        }
                     }
                 }
             }
@@ -584,7 +542,6 @@ public class ClassSignatureRule :
     private fun fixWhitespacesInSuperTypeListWithMultipleEntries(
         superTypes: Sequence<ASTNode>,
         node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
     ) {
         require(superTypes.count() > 1)
         superTypes
@@ -599,28 +556,23 @@ public class ClassSignatureRule :
                             if (whiteSpaceBeforeIdentifier?.prevLeaf?.elementType != EOL_COMMENT &&
                                 (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != expectedWhitespace)
                             ) {
-                                emit(firstChildNodeInSuperType.startOffset, "Expected single space before the first super type", true)
-                                    .ifAutocorrectAllowed {
-                                        firstChildNodeInSuperType.upsertWhitespaceBeforeMe(expectedWhitespace)
-                                    }
+                                emit(firstChildNodeInSuperType.startOffset, "Expected single space before the first super type") {
+                                    firstChildNodeInSuperType.upsertWhitespaceBeforeMe(expectedWhitespace)
+                                }
                             }
                         } else {
                             if (whiteSpaceBeforeIdentifier.isWhiteSpaceWithoutNewlineOrNull) {
-                                emit(firstChildNodeInSuperType.startOffset, "Super type should start on a newline", true)
-                                    .ifAutocorrectAllowed {
-                                        // Let IndentationRule determine the exact indent
-                                        firstChildNodeInSuperType.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
-                                    }
+                                emit(firstChildNodeInSuperType.startOffset, "Super type should start on a newline") {
+                                    // Let IndentationRule determine the exact indent
+                                    firstChildNodeInSuperType.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                                }
                             }
                         }
                     }
             }
     }
 
-    private fun classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ): Boolean {
+    private fun classSignaturesIncludingFirstSuperTypeExceedsMaxLineLength(node: ASTNode): Boolean {
         val actualClassSignatureLength = node.getClassSignatureLength(excludeSuperTypes = false)
         // Calculate the length of the class signature in case it, including the super types, would be rewritten as single
         // line (and without a maximum line length). The white space correction will be calculated via a dry run of the
@@ -628,7 +580,7 @@ public class ClassSignatureRule :
         val length =
             actualClassSignatureLength +
                 // Calculate the white space correction in case the signature would be rewritten to a single line
-                fixWhiteSpacesInValueParameterList(node, emit, multiline = false, dryRun = true)
+                fixWhiteSpacesInValueParameterList(node, multiline = false, dryRun = true)
         return node.hasNoMaxLineLengthSuppression() && length > maxLineLength
     }
 
@@ -639,20 +591,16 @@ public class ClassSignatureRule :
             ?.prevLeaf { !it.isPartOfComment }
             .isWhiteSpaceWithNewline
 
-    private fun fixClassBody(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun fixClassBody(node: ASTNode) {
         node
             .findChildByType(CLASS_BODY)
             ?.let { classBody ->
                 if (classBody.prevLeaf?.text != " ") {
-                    emit(classBody.startOffset, "Expected a single space before class body", true)
-                        .ifAutocorrectAllowed {
-                            classBody
-                                .prevLeaf
-                                ?.upsertWhitespaceAfterMe(" ")
-                        }
+                    emit(classBody.startOffset, "Expected a single space before class body") {
+                        classBody
+                            .prevLeaf
+                            ?.upsertWhitespaceAfterMe(" ")
+                    }
                 }
             }
     }

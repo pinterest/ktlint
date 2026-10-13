@@ -2,11 +2,12 @@
 
 package com.pinterest.ktlint.rule.engine.core.api
 
-import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
-import com.pinterest.ktlint.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfig
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.EditorConfigProperty
-import io.github.ktlint.core.rule.engine.core.api.KtlintKotlinCompiler
+import io.github.ktlint.core.rule.engine.api.Code
+import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
+import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
+import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.ec4j.core.model.PropertyType
@@ -17,7 +18,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue as CodeStyleValueKtlintComPinterestKtlint
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE as RuleExecutionPropertyTypeKtlint1x
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution as RuleExecutionKtlintComPinterestKtlint
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision as AutocorrectDecisionIoGithubKtlint
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY as CODE_STYLE_PROPERTY_IO_GITHUB_KTLINT
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue as CodeStyleValueIoGithubKtlint
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig as EditorConfigIoGithubKtlint
@@ -43,7 +43,7 @@ class RuleToRuleV2KtTest {
     inner class `Given a rule implementing RuleAutocorrectApproveHandler` {
         @Test
         fun `then toRuleV2 preserves the ruleId`() {
-            val ruleV2 = legacyRule(ruleId = "custom:my-rule").toRuleV2()
+            val ruleV2 = LegacyRule(ruleId = "custom:my-rule").toRuleV2()
 
             assertThat(ruleV2.ruleId.value).isEqualTo("custom:my-rule")
         }
@@ -51,7 +51,7 @@ class RuleToRuleV2KtTest {
         @Test
         fun `then toRuleV2 preserves the about metadata`() {
             val ruleV2 =
-                legacyRule(
+                LegacyRule(
                     maintainer = "Some Maintainer",
                     repositoryUrl = "https://some-repo.example.com",
                     issueTrackerUrl = "https://some-issues.example.com",
@@ -65,7 +65,7 @@ class RuleToRuleV2KtTest {
         @Test
         fun `then toRuleV2 maps usesEditorConfigProperties to io-github equivalents`() {
             val property = sampleEditorConfigProperty("some-property")
-            val ruleV2 = legacyRule(usesEditorConfigProperties = setOf(property)).toRuleV2()
+            val ruleV2 = LegacyRule(usesEditorConfigProperties = setOf(property)).toRuleV2()
 
             val mapped = ruleV2.usesEditorConfigProperties.single()
             assertThat(mapped.name).isEqualTo("some-property")
@@ -80,7 +80,13 @@ class RuleToRuleV2KtTest {
         @Test
         fun `then beforeFirstNode delegates to the original rule`() {
             var delegated = false
-            val ruleV2 = legacyRule(onBeforeFirstNode = { delegated = true }).toRuleV2()
+            val legacyRule =
+                object : LegacyRule() {
+                    override fun beforeFirstNode(editorConfig: EditorConfig) {
+                        delegated = true
+                    }
+                }
+            val ruleV2 = legacyRule.toRuleV2()
 
             ruleV2.beforeFirstNode(EditorConfigIoGithubKtlint())
 
@@ -90,7 +96,13 @@ class RuleToRuleV2KtTest {
         @Test
         fun `then afterLastNode delegates to the original rule`() {
             var delegated = false
-            val ruleV2 = legacyRule(onAfterLastNode = { delegated = true }).toRuleV2()
+            val legacyRule =
+                object : LegacyRule() {
+                    override fun afterLastNode() {
+                        delegated = true
+                    }
+                }
+            val ruleV2 = legacyRule.toRuleV2()
 
             ruleV2.afterLastNode()
 
@@ -98,29 +110,95 @@ class RuleToRuleV2KtTest {
         }
 
         @Test
-        fun `then beforeVisitChildNodes delegates and converts ALLOW_AUTOCORRECT`() {
-            var capturedDecision: AutocorrectDecision? = null
-            val ruleV2 =
-                legacyRule(
-                    onBeforeVisitChildNodes = { _, emit -> capturedDecision = emit(0, "error", true) },
-                ).toRuleV2()
-
-            ruleV2.beforeVisitChildNodes(fakeNode()) { _, _, _ -> AutocorrectDecisionIoGithubKtlint.ALLOW_AUTOCORRECT }
-
-            assertThat(capturedDecision).isEqualTo(ALLOW_AUTOCORRECT)
+        fun `then beforeVisitChildNodes delegates emitting the violation and if applicable the autocorrect`() {
+            val code =
+                """
+                fun bar() {
+                    // foo
+                    // bar
+                    }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun bar() {
+                    // foo
+                    // BAR
+                    }
+                """.trimIndent()
+            val legacyRule =
+                object : LegacyRule() {
+                    override fun beforeVisitChildNodes(
+                        node: ASTNode,
+                        emit: (Int, String, Boolean) -> AutocorrectDecision,
+                    ) {
+                        if (node.elementType == EOL_COMMENT) {
+                            emit(node.startOffset, "Node: ${node.text}", true)
+                                .ifAutocorrectAllowed { node.replaceTextWith(node.text.uppercase()) }
+                        }
+                    }
+                }
+            val actual =
+                KtLintRuleEngine(
+                    ruleProviders = setOf(RuleProvider { legacyRule }.toRuleV2Provider()),
+                ).format(
+                    Code.fromSnippet(code),
+                    callback = { lintError ->
+                        // Emulate behavior of the API consumer (for example Ktlint IntelliJ Plugin in manual mode where the user indicates
+                        // that only the "bar" comment is to be fixed.
+                        if (lintError.detail == "Node: // bar") {
+                            io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
+                        } else {
+                            io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
+                        }
+                    },
+                )
+            assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Test
-        fun `then beforeVisitChildNodes delegates and converts NO_AUTOCORRECT`() {
-            var capturedDecision: AutocorrectDecision? = null
-            val ruleV2 =
-                legacyRule(
-                    onBeforeVisitChildNodes = { _, emit -> capturedDecision = emit(0, "error", true) },
-                ).toRuleV2()
-
-            ruleV2.beforeVisitChildNodes(fakeNode()) { _, _, _ -> AutocorrectDecisionIoGithubKtlint.NO_AUTOCORRECT }
-
-            assertThat(capturedDecision).isEqualTo(NO_AUTOCORRECT)
+        fun `then afterVisitChildNodes delegates emitting the violation and if applicable the autocorrect`() {
+            val code =
+                """
+                fun bar() {
+                    // foo
+                    // bar
+                    }
+                """.trimIndent()
+            val formattedCode =
+                """
+                fun bar() {
+                    // foo
+                    // BAR
+                    }
+                """.trimIndent()
+            val legacyRule =
+                object : LegacyRule() {
+                    override fun afterVisitChildNodes(
+                        node: ASTNode,
+                        emit: (Int, String, Boolean) -> AutocorrectDecision,
+                    ) {
+                        if (node.elementType == EOL_COMMENT) {
+                            emit(node.startOffset, "Node: ${node.text}", true)
+                                .ifAutocorrectAllowed { node.replaceTextWith(node.text.uppercase()) }
+                        }
+                    }
+                }
+            val actual =
+                KtLintRuleEngine(
+                    ruleProviders = setOf(RuleProvider { legacyRule }.toRuleV2Provider()),
+                ).format(
+                    Code.fromSnippet(code),
+                    callback = { lintError ->
+                        // Emulate behavior of the API consumer (for example Ktlint IntelliJ Plugin in manual mode where the user indicates
+                        // that only the "bar" comment is to be fixed.
+                        if (lintError.detail == "Node: // bar") {
+                            io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
+                        } else {
+                            io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
+                        }
+                    },
+                )
+            assertThat(actual).isEqualTo(formattedCode)
         }
 
         @Nested
@@ -128,7 +206,7 @@ class RuleToRuleV2KtTest {
             @Test
             fun `then toRuleV2 maps PropertyType to io-github equivalent`() {
                 val mapped =
-                    legacyRule(usesEditorConfigProperties = setOf(CODE_STYLE_PROPERTY_COM_PINTEREST_KTLINT))
+                    LegacyRule(usesEditorConfigProperties = setOf(CODE_STYLE_PROPERTY_COM_PINTEREST_KTLINT))
                         .toRuleV2()
                         .usesEditorConfigProperties
                         .single()
@@ -139,7 +217,7 @@ class RuleToRuleV2KtTest {
             @Test
             fun `then toRuleV2 maps default values to io-github CodeStyleValue`() {
                 val mapped =
-                    legacyRule(usesEditorConfigProperties = setOf(CODE_STYLE_PROPERTY_COM_PINTEREST_KTLINT))
+                    LegacyRule(usesEditorConfigProperties = setOf(CODE_STYLE_PROPERTY_COM_PINTEREST_KTLINT))
                         .toRuleV2()
                         .usesEditorConfigProperties
                         .single()
@@ -157,7 +235,7 @@ class RuleToRuleV2KtTest {
             fun `then toRuleV2 wraps propertyMapper so that returned com-pinterest CodeStyleValue is converted to io-github`() {
                 val codeStylePropertyIoGithubKtlint =
                     // Note: the rule defined is a Ktlint 1.x compatible rule using the Ktlint 1.x  code style property
-                    legacyRule(usesEditorConfigProperties = setOf(CODE_STYLE_PROPERTY_COM_PINTEREST_KTLINT))
+                    LegacyRule(usesEditorConfigProperties = setOf(CODE_STYLE_PROPERTY_COM_PINTEREST_KTLINT))
                         .toRuleV2()
                         .usesEditorConfigProperties
                         .single()
@@ -183,7 +261,7 @@ class RuleToRuleV2KtTest {
             @Test
             fun `then toRuleV2 maps PropertyType to io-github equivalent`() {
                 val mapped =
-                    legacyRule(usesEditorConfigProperties = setOf(ruleExecutionPropertyComPinterestKtlint))
+                    LegacyRule(usesEditorConfigProperties = setOf(ruleExecutionPropertyComPinterestKtlint))
                         .toRuleV2()
                         .usesEditorConfigProperties
                         .single()
@@ -194,7 +272,7 @@ class RuleToRuleV2KtTest {
             @Test
             fun `then toRuleV2 maps default values to io-github RuleExecution`() {
                 val mapped =
-                    legacyRule(usesEditorConfigProperties = setOf(ruleExecutionPropertyComPinterestKtlint))
+                    LegacyRule(usesEditorConfigProperties = setOf(ruleExecutionPropertyComPinterestKtlint))
                         .toRuleV2()
                         .usesEditorConfigProperties
                         .single()
@@ -216,66 +294,31 @@ class RuleToRuleV2KtTest {
                     propertyMapper = { _, _ -> "remapped-value" },
                 )
             val mapped =
-                legacyRule(usesEditorConfigProperties = setOf(propertyWithStringMapper)).toRuleV2().usesEditorConfigProperties.single()
+                LegacyRule(usesEditorConfigProperties = setOf(propertyWithStringMapper)).toRuleV2().usesEditorConfigProperties.single()
 
             val result = mapped.propertyMapper?.invoke(null, CodeStyleValueIoGithubKtlint.KTLINT_OFFICIAL)
 
             assertThat(result).isEqualTo("remapped-value")
         }
-
-        @Test
-        fun `then afterVisitChildNodes delegates to the original rule`() {
-            var delegated = false
-            val ruleV2 =
-                legacyRule(
-                    onAfterVisitChildNodes = { _, _ -> delegated = true },
-                ).toRuleV2()
-
-            ruleV2.afterVisitChildNodes(fakeNode()) { _, _, _ -> AutocorrectDecisionIoGithubKtlint.NO_AUTOCORRECT }
-
-            assertThat(delegated).isTrue
-        }
     }
 
-    private fun legacyRule(
+    private open class LegacyRule(
         ruleId: String = "custom:legacy-rule",
         maintainer: String = "Test Maintainer",
         repositoryUrl: String = "https://repo.example.com",
         issueTrackerUrl: String = "https://issues.example.com",
         usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
-        onBeforeFirstNode: (EditorConfig) -> Unit = {},
-        onAfterLastNode: () -> Unit = {},
-        onBeforeVisitChildNodes: (ASTNode, (Int, String, Boolean) -> AutocorrectDecision) -> Unit = { _, _ -> },
-        onAfterVisitChildNodes: (ASTNode, (Int, String, Boolean) -> AutocorrectDecision) -> Unit = { _, _ -> },
-    ): Rule =
-        object :
-            Rule(
-                ruleId = RuleId(ruleId),
-                about =
-                    About(
-                        maintainer = maintainer,
-                        repositoryUrl = repositoryUrl,
-                        issueTrackerUrl = issueTrackerUrl,
-                    ),
-                usesEditorConfigProperties = usesEditorConfigProperties,
-            ),
-            RuleAutocorrectApproveHandler {
-            override fun beforeFirstNode(editorConfig: EditorConfig) = onBeforeFirstNode(editorConfig)
-
-            override fun afterLastNode() = onAfterLastNode()
-
-            override fun beforeVisitChildNodes(
-                node: ASTNode,
-                emit: (Int, String, Boolean) -> AutocorrectDecision,
-            ) = onBeforeVisitChildNodes(node, emit)
-
-            override fun afterVisitChildNodes(
-                node: ASTNode,
-                emit: (Int, String, Boolean) -> AutocorrectDecision,
-            ) = onAfterVisitChildNodes(node, emit)
-        }
-
-    private fun fakeNode(): ASTNode = KtlintKotlinCompiler.createPsiFileFromText("Fake.kt", "val x = 1").node
+    ) : Rule(
+            ruleId = RuleId(ruleId),
+            about =
+                About(
+                    maintainer = maintainer,
+                    repositoryUrl = repositoryUrl,
+                    issueTrackerUrl = issueTrackerUrl,
+                ),
+            usesEditorConfigProperties = usesEditorConfigProperties,
+        ),
+        RuleAutocorrectApproveHandler
 
     @Suppress("SameParameterValue")
     private fun sampleEditorConfigProperty(name: String): EditorConfigProperty<String> =

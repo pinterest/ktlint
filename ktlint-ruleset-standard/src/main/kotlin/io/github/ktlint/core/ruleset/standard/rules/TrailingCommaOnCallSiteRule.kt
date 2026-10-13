@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COMMA
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_LITERAL
@@ -18,7 +17,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.children
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
@@ -52,57 +50,43 @@ public class TrailingCommaOnCallSiteRule :
         allowTrailingCommaOnCallSite = editorConfig[TRAILING_COMMA_ON_CALL_SITE_PROPERTY]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         // Keep processing of element types in sync with IntelliJ Kotlin formatting settings.
         // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
         when (node.elementType) {
-            COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, emit)
-            INDICES -> visitIndices(node, emit)
-            TYPE_ARGUMENT_LIST -> visitTypeList(node, emit)
-            VALUE_ARGUMENT_LIST -> visitValueList(node, emit)
+            COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node)
+            INDICES -> visitIndices(node)
+            TYPE_ARGUMENT_LIST -> visitTypeList(node)
+            VALUE_ARGUMENT_LIST -> visitValueList(node)
             else -> Unit
         }
     }
 
-    private fun visitCollectionLiteralExpression(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitCollectionLiteralExpression(node: ASTNode) {
         val inspectNode =
             node
                 .children
                 .last { it.elementType == RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
-            emit = emit,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
         )
     }
 
     private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_CALL_SITE && allowTrailingCommaOnCallSite
 
-    private fun visitIndices(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitIndices(node: ASTNode) {
         val inspectNode =
             node
                 .children
                 .last { it.elementType == RBRACKET }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
-            emit = emit,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
         )
     }
 
-    private fun visitValueList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitValueList(node: ASTNode) {
         if (node.parent?.elementType != FUNCTION_LITERAL) {
             node
                 .children
@@ -110,24 +94,19 @@ public class TrailingCommaOnCallSiteRule :
                 ?.let { inspectNode ->
                     node.reportAndCorrectTrailingCommaNodeBefore(
                         inspectNode = inspectNode,
-                        emit = emit,
                         isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
                     )
                 }
         }
     }
 
-    private fun visitTypeList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitTypeList(node: ASTNode) {
         val inspectNode =
             node
                 .children
                 .first { it.elementType == GT }
         node.reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
-            emit = emit,
             isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
         )
     }
@@ -135,7 +114,6 @@ public class TrailingCommaOnCallSiteRule :
     private fun ASTNode.reportAndCorrectTrailingCommaNodeBefore(
         inspectNode: ASTNode,
         isTrailingCommaAllowed: Boolean,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val prevLeaf = inspectNode.prevLeaf
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
@@ -147,22 +125,16 @@ public class TrailingCommaOnCallSiteRule :
         when (trailingCommaState) {
             TrailingCommaState.EXISTS -> {
                 if (!isTrailingCommaAllowed) {
-                    emit(
-                        trailingCommaNode!!.startOffset,
-                        "Unnecessary trailing comma before \"${inspectNode.text}\"",
-                        true,
-                    ).ifAutocorrectAllowed { trailingCommaNode.remove() }
+                    emit(trailingCommaNode!!.startOffset, "Unnecessary trailing comma before \"${inspectNode.text}\"") {
+                        trailingCommaNode.remove()
+                    }
                 }
             }
 
             TrailingCommaState.MISSING -> {
                 if (isTrailingCommaAllowed) {
                     val prevNode = inspectNode.prevCodeLeaf!!
-                    emit(
-                        prevNode.startOffset + prevNode.textLength,
-                        "Missing trailing comma before \"${inspectNode.text}\"",
-                        true,
-                    ).ifAutocorrectAllowed {
+                    emit(prevNode.startOffset + prevNode.textLength, "Missing trailing comma before \"${inspectNode.text}\"") {
                         inspectNode
                             .prevCodeSibling
                             ?.nextSibling
@@ -174,11 +146,9 @@ public class TrailingCommaOnCallSiteRule :
             }
 
             TrailingCommaState.REDUNDANT -> {
-                emit(
-                    trailingCommaNode!!.startOffset,
-                    "Unnecessary trailing comma before \"${inspectNode.text}\"",
-                    true,
-                ).ifAutocorrectAllowed { trailingCommaNode.remove() }
+                emit(trailingCommaNode!!.startOffset, "Unnecessary trailing comma before \"${inspectNode.text}\"") {
+                    trailingCommaNode.remove()
+                }
             }
 
             TrailingCommaState.NOT_EXISTS -> {

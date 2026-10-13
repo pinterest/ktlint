@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONDITION
@@ -29,7 +28,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROP
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isLeaf
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
@@ -77,19 +75,13 @@ public class BinaryExpressionWrappingRule :
         maxLineLength = editorConfig.maxLineLength()
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
-            BINARY_EXPRESSION -> visitBinaryExpression(node, emit)
+            BINARY_EXPRESSION -> visitBinaryExpression(node)
         }
     }
 
-    private fun visitBinaryExpression(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitBinaryExpression(node: ASTNode) {
         require(node.elementType == BINARY_EXPRESSION)
 
         // First check whether the entire expression has to be pushed to the next line after and assignment in a property or function
@@ -102,11 +94,7 @@ public class BinaryExpressionWrappingRule :
                     ?: false
             }?.takeIf { it.isOnLineExceedingMaxLineLength() }
             ?.let { expression ->
-                emit(
-                    expression.startOffset,
-                    "Line is exceeding max line length. Break line between assignment and expression",
-                    true,
-                ).ifAutocorrectAllowed {
+                emit(expression.startOffset, "Line is exceeding max line length. Break line between assignment and expression") {
                     expression.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(expression))
                 }
             }
@@ -130,11 +118,7 @@ public class BinaryExpressionWrappingRule :
                 node.prevLeaf.isWhiteSpaceWithNewline
             }?.takeIf { it.causesMaxLineLengthToBeExceeded() }
             ?.let { expression ->
-                emit(
-                    expression.startOffset,
-                    "Line is exceeding max line length. Break line before expression",
-                    true,
-                ).ifAutocorrectAllowed {
+                emit(expression.startOffset, "Line is exceeding max line length. Break line before expression") {
                     expression.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(expression))
                 }
             }
@@ -145,13 +129,13 @@ public class BinaryExpressionWrappingRule :
             .firstOrNull { !it.isLeaf || !it.isCode }
             ?.takeIf { it.elementType == CALL_EXPRESSION }
             ?.takeIf { it.causesMaxLineLengthToBeExceeded() }
-            ?.let { callExpression -> visitCallExpression(callExpression, emit) }
+            ?.let { callExpression -> visitCallExpression(callExpression) }
 
         // The remainder (operation reference plus right hand side) might still cause the max line length to be exceeded
         node
             .takeIf { node.lastChildNode.causesMaxLineLengthToBeExceeded() || node.isPartOfConditionExceedingMaxLineLength() }
             ?.findChildByType(OPERATION_REFERENCE)
-            ?.let { operationReference -> visitOperationReference(operationReference, emit) }
+            ?.let { operationReference -> visitOperationReference(operationReference) }
     }
 
     private fun ASTNode.isPartOfConditionExceedingMaxLineLength() =
@@ -167,10 +151,7 @@ public class BinaryExpressionWrappingRule :
             ?.causesMaxLineLengthToBeExceeded()
             ?: false
 
-    private fun visitCallExpression(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitCallExpression(node: ASTNode) {
         node
             .takeIf { it.elementType == CALL_EXPRESSION }
             ?.takeIf { it.parent?.elementType == BINARY_EXPRESSION }
@@ -184,27 +165,22 @@ public class BinaryExpressionWrappingRule :
                         functionLiteral
                             .findChildByType(LBRACE)
                             ?.let { lbrace ->
-                                emit(lbrace.startOffset + 1, "Newline expected after '{'", true)
-                                    .ifAutocorrectAllowed {
-                                        lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace.parent!!))
-                                    }
+                                emit(lbrace.startOffset + 1, "Newline expected after '{'") {
+                                    lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace.parent!!))
+                                }
                             }
                         functionLiteral
                             .findChildByType(RBRACE)
                             ?.let { rbrace ->
-                                emit(rbrace.startOffset, "Newline expected before '}'", true)
-                                    .ifAutocorrectAllowed {
-                                        rbrace.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node.parent!!))
-                                    }
+                                emit(rbrace.startOffset, "Newline expected before '}'") {
+                                    rbrace.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node.parent!!))
+                                }
                             }
                     }
             }
     }
 
-    private fun visitOperationReference(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitOperationReference(node: ASTNode) {
         node
             .takeIf { it.elementType == OPERATION_REFERENCE }
             ?.takeUnless {
@@ -224,10 +200,9 @@ public class BinaryExpressionWrappingRule :
                         .takeUnless { it.isWhiteSpaceWithNewline }
                         ?.let {
                             // Wrapping after the elvis operator leads to violating the 'chain-wrapping' rule, so it must be wrapped itself
-                            emit(operationReference.startOffset, "Line is exceeding max line length. Break line before '?:'", true)
-                                .ifAutocorrectAllowed {
-                                    operationReference.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(operationReference))
-                                }
+                            emit(operationReference.startOffset, "Line is exceeding max line length. Break line before '?:'") {
+                                operationReference.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(operationReference))
+                            }
                         }
                 } else {
                     operationReference
@@ -236,8 +211,7 @@ public class BinaryExpressionWrappingRule :
                             emit(
                                 nextSibling.startOffset,
                                 "Line is exceeding max line length. Break line after '${operationReference.text}' in binary expression",
-                                true,
-                            ).ifAutocorrectAllowed {
+                            ) {
                                 nextSibling.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(operationReference))
                             }
                         }

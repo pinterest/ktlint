@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS_BODY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONST_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FILE
@@ -44,26 +43,20 @@ public class PropertyNamingRule :
         constantNamingProperty = editorConfig[CONSTANT_NAMING_PROPERTY]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { node.elementType == PROPERTY }
-            ?.let { property -> visitProperty(property, emit) }
+            ?.let { property -> visitProperty(property) }
     }
 
-    private fun visitProperty(
-        property: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitProperty(property: ASTNode) {
         property
             .findChildByType(IDENTIFIER)
             ?.takeUnless { it.isTokenKeywordBetweenBackticks() }
             ?.let { identifier ->
                 when {
                     property.hasConstModifier() -> {
-                        visitConstProperty(identifier, emit)
+                        visitConstProperty(identifier)
                     }
 
                     property.hasCustomGetter() || property.isTopLevelValue() || property.isObjectValue() -> {
@@ -71,16 +64,13 @@ public class PropertyNamingRule :
                     }
 
                     else -> {
-                        visitNonConstProperty(identifier, emit)
+                        visitNonConstProperty(identifier)
                     }
                 }
             }
     }
 
-    private fun visitConstProperty(
-        identifier: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitConstProperty(identifier: ASTNode) {
         identifier
             .text
             .takeUnless {
@@ -92,27 +82,18 @@ public class PropertyNamingRule :
             }?.takeUnless { it.matches(constantNamingProperty.regEx) }
             ?.let {
                 val expectedNaming = constantNamingProperty.name.lowercase().replace("_", " ")
-                emit(
-                    identifier.startOffset,
-                    "Property name should use the $expectedNaming notation when the value can not be changed",
-                    false,
-                )
+                emit(identifier.startOffset, "Property name should use the $expectedNaming notation when the value can not be changed")
             }
     }
 
-    private fun visitNonConstProperty(
-        identifier: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitNonConstProperty(identifier: ASTNode) {
         identifier
             .text
             .takeUnless { it.matches(LOWER_CAMEL_CASE_REGEXP) }
             ?.takeUnless {
                 // Ignore backing properties
                 it.startsWith("_")
-            }?.let {
-                emit(identifier.startOffset, "Property name should start with a lowercase letter and use camel case", false)
-            }
+            }?.let { emit(identifier.startOffset, "Property name should start with a lowercase letter and use camel case") }
     }
 
     private fun ASTNode.hasCustomGetter() = findChildByType(PROPERTY_ACCESSOR)?.findChildByType(GET_KEYWORD) != null

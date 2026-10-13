@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IMPORT_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.WHITE_SPACE
@@ -11,7 +10,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTA
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.prevLeaf
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
@@ -31,10 +29,7 @@ public class BlankLineBeforePackage :
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
             PACKAGE_DIRECTIVE -> {
                 node
@@ -42,10 +37,9 @@ public class BlankLineBeforePackage :
                     .takeUnless { it.firstChildNode == null }
                     ?.takeUnless { it.prevLeaf.isBlankLine() }
                     ?.let { insertBeforeNode ->
-                        emit(insertBeforeNode.startOffset, "Expected a blank line before the package statement", true)
-                            .ifAutocorrectAllowed {
-                                insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent))
-                            }
+                        emit(insertBeforeNode.startOffset, "Expected a blank line before the package statement") {
+                            insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent))
+                        }
                     }
                 stopTraversalOfAST()
             }

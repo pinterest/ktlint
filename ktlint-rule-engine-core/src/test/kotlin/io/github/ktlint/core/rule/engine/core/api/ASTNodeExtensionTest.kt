@@ -1304,10 +1304,7 @@ class ASTNodeExtensionTest {
             ruleId = RuleId("test:dummy-rule"),
             about = About(),
         ) {
-        override fun beforeVisitChildNodes(
-            node: ASTNode,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-        ) {
+        override fun beforeVisitChildNodes(node: ASTNode) {
             block(node)
         }
     }

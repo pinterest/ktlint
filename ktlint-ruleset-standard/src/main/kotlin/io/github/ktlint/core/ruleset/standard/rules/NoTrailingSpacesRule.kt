@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_END
@@ -9,7 +8,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_TEXT
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
@@ -20,20 +18,14 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("0.1", STABLE)
 public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when {
-            node.isPartOfKDoc() -> visitKDocElement(node, emit)
-            !node.isCode -> visitNonCodeElement(node, emit)
+            node.isPartOfKDoc() -> visitKDocElement(node)
+            !node.isCode -> visitNonCodeElement(node)
         }
     }
 
-    private fun visitKDocElement(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitKDocElement(node: ASTNode) {
         if (node.isWhiteSpace && node.hasTrailingSpacesBeforeNewline()) {
             val offsetOfSpaceBeforeNewlineInText = node.text.indexOf(" \n")
             val offsetOfFirstSpaceBeforeNewlineInText =
@@ -42,8 +34,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                     .take(offsetOfSpaceBeforeNewlineInText)
                     .dropLastWhile { it == ' ' }
                     .length
-            emit(node.startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)", true)
-                .ifAutocorrectAllowed { node.removeTrailingSpacesBeforeNewline() }
+            emit(node.startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)") { node.removeTrailingSpacesBeforeNewline() }
         }
 
         if (node.elementType == KDOC_TEXT &&
@@ -54,16 +45,12 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                 .text
                 .trimEnd()
                 .let { trimmedText ->
-                    emit(node.startOffset + trimmedText.length, "Trailing space(s)", true)
-                        .ifAutocorrectAllowed { node.replaceTextWith(trimmedText) }
+                    emit(node.startOffset + trimmedText.length, "Trailing space(s)") { node.replaceTextWith(trimmedText) }
                 }
         }
     }
 
-    private fun visitNonCodeElement(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitNonCodeElement(node: ASTNode) {
         val lines = node.text.split("\n")
         var autocorrect = false
         var violationOffset = node.startOffset
@@ -82,10 +69,9 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                             line.hasTrailingSpace() -> {
                                 val modifiedLine = line.trimEnd()
                                 val firstTrailingSpaceOffset = violationOffset + modifiedLine.length
-                                emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
-                                    .ifAutocorrectAllowed {
-                                        autocorrect = true
-                                    }
+                                emit(firstTrailingSpaceOffset, "Trailing space(s)") {
+                                    autocorrect = true
+                                }
                                 modifiedLine
                             }
 

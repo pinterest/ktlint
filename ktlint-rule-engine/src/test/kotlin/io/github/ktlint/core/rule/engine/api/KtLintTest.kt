@@ -24,7 +24,6 @@ import io.github.ktlint.core.rule.engine.core.api.RuleV2
 import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.END_OF_LINE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isRoot
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
 import io.github.ktlint.core.ruleset.standard.rules.IndentationRule
@@ -463,10 +462,7 @@ private open class DummyRule(
         ruleId = RuleId("test:dummy"),
         about = About(),
     ) {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         block(node)
     }
 }
@@ -479,19 +475,17 @@ private class AutoCorrectErrorRule :
         ruleId = AUTOCORRECT_ERROR_RULE_ID,
         about = About(),
     ) {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == REGULAR_STRING_PART) {
             when (node.text) {
                 STRING_VALUE_TO_BE_AUTOCORRECTED -> {
-                    emit(node.startOffset, ERROR_MESSAGE_CAN_BE_AUTOCORRECTED, true)
-                        .ifAutocorrectAllowed { node.replaceTextWith(STRING_VALUE_AFTER_AUTOCORRECT) }
+                    emit(node.startOffset, ERROR_MESSAGE_CAN_BE_AUTOCORRECTED) {
+                        node.replaceTextWith(STRING_VALUE_AFTER_AUTOCORRECT)
+                    }
                 }
 
                 STRING_VALUE_NOT_TO_BE_CORRECTED -> {
-                    emit(node.startOffset, ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED, false)
+                    emit(node.startOffset, ERROR_MESSAGE_CAN_NOT_BE_AUTOCORRECTED)
                 }
             }
         }
@@ -531,20 +525,14 @@ private class SimpleTestRule(
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(ruleId, BEFORE_CHILDREN))
         if (stopTraversalInBeforeVisitChildNodes(node)) {
             stopTraversalOfAST()
         }
     }
 
-    override fun afterVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun afterVisitChildNodes(node: ASTNode) {
         ruleExecutionCalls.add(node.toRuleExecutionCall(ruleId, AFTER_CHILDREN))
         if (stopTraversalInAfterVisitChildNodes(node)) {
             stopTraversalOfAST()
@@ -631,10 +619,7 @@ private class WithStateRule :
         hasNotBeenVisitedYet = false
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        emit(node.startOffset, "Fake violation which can be autocorrected", true)
+    override fun beforeVisitChildNodes(node: ASTNode) {
+        emit(node.startOffset, "Fake violation which can be autocorrected")
     }
 }

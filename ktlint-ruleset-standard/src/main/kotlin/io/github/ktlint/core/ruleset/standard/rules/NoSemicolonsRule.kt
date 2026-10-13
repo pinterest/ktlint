@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BODY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
@@ -19,7 +18,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.findParentByType
 import io.github.ktlint.core.rule.engine.core.api.hasModifier
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -40,32 +38,27 @@ public class NoSemicolonsRule :
     StandardRule(
         id = "no-semi",
     ) {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType != SEMICOLON) {
             return
         }
         val nextLeaf = node.nextLeaf
         if (nextLeaf.doesNotRequirePreSemi() && isNoSemicolonRequiredAfter(node)) {
-            emit(node.startOffset, "Unnecessary semicolon", true)
-                .ifAutocorrectAllowed {
-                    val prevLeaf = node.prevLeaf
-                    node.remove()
-                    if (prevLeaf.isNonNullWhitespace() && nextLeaf.isNonNullWhitespace()) {
-                        prevLeaf!!.remove()
-                    }
+            emit(node.startOffset, "Unnecessary semicolon") {
+                val prevLeaf = node.prevLeaf
+                node.remove()
+                if (prevLeaf.isNonNullWhitespace() && nextLeaf.isNonNullWhitespace()) {
+                    prevLeaf!!.remove()
                 }
+            }
         } else if (!nextLeaf.isWhiteSpace) {
             if (node.prevLeaf.isWhiteSpaceWithNewline) {
                 return
             }
             // todo: move to a separate rule
-            emit(node.startOffset + 1, "Missing spacing after \";\"", true)
-                .ifAutocorrectAllowed {
-                    node.upsertWhitespaceAfterMe(" ")
-                }
+            emit(node.startOffset + 1, "Missing spacing after \";\"") {
+                node.upsertWhitespaceAfterMe(" ")
+            }
         }
     }
 

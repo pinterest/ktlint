@@ -1,13 +1,11 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALLABLE_REFERENCE_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS_LITERAL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COLONCOLON
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -21,10 +19,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("0.37", STABLE)
 public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == COLONCOLON) {
             val prevLeaf = node.prevLeaf
             val nextLeaf = node.nextLeaf
@@ -57,23 +52,20 @@ public class SpacingAroundDoubleColonRule : StandardRule("double-colon-spacing")
             val spacingAfter = nextLeaf.isWhiteSpace
             when {
                 spacingBefore && spacingAfter -> {
-                    emit(node.startOffset, "Unexpected spacing around \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            prevLeaf!!.removeSelf(removeSingleWhiteSpace)
-                            nextLeaf!!.remove()
-                        }
+                    emit(node.startOffset, "Unexpected spacing around \"${node.text}\"") {
+                        prevLeaf!!.removeSelf(removeSingleWhiteSpace)
+                        nextLeaf!!.remove()
+                    }
                 }
 
                 spacingBefore -> {
-                    emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            prevLeaf.removeSelf(removeSingleWhiteSpace)
-                        }
+                    emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${node.text}\"") {
+                        prevLeaf.removeSelf(removeSingleWhiteSpace)
+                    }
                 }
 
                 spacingAfter -> {
-                    emit(nextLeaf!!.startOffset, "Unexpected spacing after \"${node.text}\"", true)
-                        .ifAutocorrectAllowed { nextLeaf.remove() }
+                    emit(nextLeaf!!.startOffset, "Unexpected spacing after \"${node.text}\"") { nextLeaf.remove() }
                 }
             }
         }

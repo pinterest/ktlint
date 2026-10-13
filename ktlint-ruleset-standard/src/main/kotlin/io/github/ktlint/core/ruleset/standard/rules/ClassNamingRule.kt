@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
@@ -26,10 +25,7 @@ import org.jetbrains.kotlin.lexer.KtTokens
 public class ClassNamingRule : StandardRule("class-naming") {
     private var allowBacktickedClassName = false
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (!allowBacktickedClassName && node.elementType == IMPORT_DIRECTIVE) {
             node
                 .findChildByType(DOT_QUALIFIED_EXPRESSION)
@@ -46,7 +42,7 @@ public class ClassNamingRule : StandardRule("class-naming") {
             ?.findChildByType(IDENTIFIER)
             ?.takeUnless { it.isValidFunctionName() || it.isTestClass() || it.isTokenKeywordBetweenBackticks() }
             ?.let {
-                emit(it.startOffset, "Class or object name should start with an uppercase letter and use camel case", false)
+                emit(it.startOffset, "Class or object name should start with an uppercase letter and use camel case")
             }
     }
 

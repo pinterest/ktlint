@@ -1,7 +1,6 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.logger.api.initKtLintKLogger
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -98,7 +97,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.findParentByType
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
@@ -170,33 +168,26 @@ public class IndentationRule :
         identExplicitConstructor = editorConfig[INDENT_EXPLICIT_CONSTRUCTOR_PROPERTY]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isRoot) {
             // File should not start with a whitespace
             node
                 .nextLeaf
                 ?.takeIf { it.isWhiteSpaceWithoutNewline }
                 ?.let { whitespaceWithoutNewline ->
-                    emit(node.startOffset, "Unexpected indentation", true)
-                        .ifAutocorrectAllowed { whitespaceWithoutNewline.remove() }
+                    emit(node.startOffset, "Unexpected indentation") { whitespaceWithoutNewline.remove() }
                 }
             indentContextStack.addLast(startNoIndentZone(node))
         }
 
-        visitNode(node, emit)
+        visitNode(node)
     }
 
     @Suppress("LongMethod", "CyclomaticComplexMethod")
-    private fun visitNode(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitNode(node: ASTNode) {
         when {
             node.isWhiteSpaceWithNewline -> {
-                visitNewLineIndentation(node, emit)
+                visitNewLineIndentation(node)
             }
 
             node.elementType == CONTEXT_PARAMETER_LIST ||
@@ -289,7 +280,7 @@ public class IndentationRule :
             }
 
             node.elementType == LITERAL_STRING_TEMPLATE_ENTRY && node.nextCodeSibling?.elementType == CLOSING_QUOTE -> {
-                visitWhiteSpaceBeforeClosingQuote(node, emit)
+                visitWhiteSpaceBeforeClosingQuote(node)
             }
 
             node.elementType == WHEN -> {
@@ -1070,10 +1061,7 @@ public class IndentationRule :
             indentContextStack.addLast(newIndentContext)
         }
 
-    override fun afterVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun afterVisitChildNodes(node: ASTNode) {
         while (
             // End visit of the node matches with the toAstNode on top of the stack
             indentContextStack.peekLast()?.toASTNode == node ||
@@ -1110,10 +1098,7 @@ public class IndentationRule :
         }
     }
 
-    private fun visitNewLineIndentation(
-        node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitNewLineIndentation(node: ASTNode) {
         line++
         if (indentContextStack.peekLast()?.activated == false) {
             val lastIndentContext = indentContextStack.removeLast()
@@ -1126,28 +1111,26 @@ public class IndentationRule :
             return
         }
 
-        val normalizedNodeIndent = node.normalizedIndent(emitAndApprove)
+        val normalizedNodeIndent = node.normalizedIndent()
         val expectedIndentation = node.expectedIndent()
         val text = node.text
         val nodeIndent = text.substringAfterLast("\n")
         if (nodeIndent != normalizedNodeIndent || normalizedNodeIndent != expectedIndentation) {
-            val autoCorrect =
-                if (normalizedNodeIndent != expectedIndentation) {
-                    emitAndApprove(
-                        node.startOffset + text.length - nodeIndent.length,
-                        "Unexpected indentation (${normalizedNodeIndent.length}) (should be ${expectedIndentation.length})",
-                        true,
-                    ) == AutocorrectDecision.ALLOW_AUTOCORRECT
-                } else {
-                    // Indentation was at correct level but contained invalid indent characters. This violation has already
-                    // been emitted.
-                    true
+            // Indentation was at correct level but contained invalid indent characters. The violation has already been emitted.
+            var autoCorrect = normalizedNodeIndent == expectedIndentation
+            if (normalizedNodeIndent != expectedIndentation) {
+                emit(
+                    node.startOffset + text.length - nodeIndent.length,
+                    "Unexpected indentation (${normalizedNodeIndent.length}) (should be ${expectedIndentation.length})",
+                ) {
+                    autoCorrect = true
                 }
-            LOGGER.trace {
-                "Line $line: ${if (!autoCorrect) "would have " else ""} changed indentation to ${expectedIndentation.length} " +
-                    "(from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
             }
             if (autoCorrect) {
+                LOGGER.trace {
+                    "Line $line: changed indentation to ${expectedIndentation.length} " +
+                        "(from ${normalizedNodeIndent.length}) for ${node.elementType}: ${node.textWithEscapedTabAndNewline()}"
+                }
                 node.replaceTextWith(
                     text.substringBeforeLast("\n") + "\n" + expectedIndentation,
                 )
@@ -1218,23 +1201,14 @@ public class IndentationRule :
         return lastIndexContext.nodeIndent + adjustedChildIndent
     }
 
-    private fun ASTNode.normalizedIndent(
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ): String {
-        val nodeIndent = text.substringAfterLast("\n")
-        return when (indentConfig.indentStyle) {
+    private fun ASTNode.normalizedIndent(): String {
+        var nodeIndent = text.substringAfterLast("\n")
+        when (indentConfig.indentStyle) {
             SPACE -> {
                 if ('\t' in nodeIndent) {
-                    emitAndApprove(
-                        startOffset + text.length - nodeIndent.length,
-                        "Unexpected tab character(s)",
-                        true,
-                    ).ifAutocorrectAllowed {
-                        // Ignore approval and fix invalid indent character always
-                        indentConfig.toNormalizedIndent(nodeIndent)
-                    } ?: nodeIndent
-                } else {
-                    nodeIndent
+                    emit(startOffset + text.length - nodeIndent.length, "Unexpected tab character(s)") {
+                        nodeIndent = indentConfig.toNormalizedIndent(nodeIndent)
+                    }
                 }
             }
 
@@ -1249,29 +1223,32 @@ public class IndentationRule :
                             .takeIf { ' ' in it }
                             ?.let { nodeIndentWithoutExpectedTrailingSpaces ->
                                 // Remaining indentation contains unexpected space(s)
-                                emitAndApprove(
+                                emit(
                                     startOffset + textLength - nodeIndent.substringAfterLast('\t').length + expectedIndent.length,
                                     "Unexpected space character(s)",
-                                    true,
-                                ).ifAutocorrectAllowed {
-                                    indentConfig
-                                        .toNormalizedIndent(nodeIndentWithoutExpectedTrailingSpaces)
-                                        .plus(expectedTrailingSpaces)
+                                ) {
+                                    nodeIndent =
+                                        indentConfig
+                                            .toNormalizedIndent(nodeIndentWithoutExpectedTrailingSpaces)
+                                            .plus(expectedTrailingSpaces)
                                 }
                             }
-                    } ?: nodeIndent
+                    }
             }
         }
+        return nodeIndent
     }
 
-    private fun visitWhiteSpaceBeforeClosingQuote(
-        node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitWhiteSpaceBeforeClosingQuote(node: ASTNode) {
         if (!this::stringTemplateIndenter.isInitialized) {
-            stringTemplateIndenter = StringTemplateIndenter(codeStyle, indentConfig)
+            stringTemplateIndenter =
+                StringTemplateIndenter(
+                    codeStyle,
+                    indentConfig,
+                    emit = { offset, errorMessage, autoCorrect -> emit(offset, errorMessage, autoCorrect) },
+                )
         }
-        stringTemplateIndenter.visitClosingQuotes(currentIndent(), node.parent!!, emitAndApprove)
+        stringTemplateIndenter.visitClosingQuotes(currentIndent(), node.parent!!)
     }
 
     private fun ASTNode?.isElvisOperator() =
@@ -1435,11 +1412,11 @@ private fun String.textWithEscapedTabAndNewline(): String {
 private class StringTemplateIndenter(
     private val codeStyle: CodeStyleValue,
     private val indentConfig: IndentConfig,
+    private val emit: (offset: Int, errorMessage: String, autoCorrect: () -> Unit) -> Unit,
 ) {
     fun visitClosingQuotes(
         expectedIndent: String,
         node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         require(node.elementType == STRING_TEMPLATE)
         node
@@ -1450,11 +1427,10 @@ private class StringTemplateIndenter(
                     // It can not be determined with certainty how mixed indentation characters should be interpreted.
                     // The trimIndent function handles tabs and spaces equally (one tabs equals one space) while the user
                     // might expect that the tab size in the indentation is more than one space.
-                    emitAndApprove(
+                    emit(
                         node.startOffset,
                         "Indentation of multiline string should not contain both tab(s) and space(s)",
-                        false,
-                    )
+                    ) { /* NO-OP */ }
                     return
                 }
 
@@ -1497,16 +1473,15 @@ private class StringTemplateIndenter(
                                 // It is a deliberate choice not to fix the indents inside the string literal except the line which only
                                 // contains the closing quotes. See `string-template-indent` rule for fixing the content of the string
                                 // template itself
-                                emitAndApprove(it.startOffset, "Unexpected indent of multiline string closing quotes", true)
-                                    .ifAutocorrectAllowed {
-                                        if (it.firstChildNode == null) {
-                                            (it as LeafPsiElement).rawInsertBeforeMe(
-                                                LeafPsiElement(REGULAR_STRING_PART, correctedExpectedIndent),
-                                            )
-                                        } else {
-                                            it.firstChildNode.replaceTextWith(correctedExpectedIndent + actualContent)
-                                        }
+                                emit(it.startOffset, "Unexpected indent of multiline string closing quotes") {
+                                    if (it.firstChildNode == null) {
+                                        (it as LeafPsiElement).rawInsertBeforeMe(
+                                            LeafPsiElement(REGULAR_STRING_PART, correctedExpectedIndent),
+                                        )
+                                    } else {
+                                        it.firstChildNode.replaceTextWith(correctedExpectedIndent + actualContent)
                                     }
+                                }
                             }
                         }
                     }

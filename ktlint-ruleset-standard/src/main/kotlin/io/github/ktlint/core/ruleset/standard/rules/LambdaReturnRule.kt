@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_LITERAL
@@ -22,7 +21,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.nextCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
@@ -69,23 +67,17 @@ public class LambdaReturnRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.elementType == FUNCTION_LITERAL }
             ?.findChildByType(BLOCK)
             ?.children()
             ?.lastOrNull { it.elementType == RETURN }
             ?.takeIf { it.nextCodeSibling == null }
-            ?.let { lastReturn -> visitReturnStatement(lastReturn, emit) }
+            ?.let { lastReturn -> visitReturnStatement(lastReturn) }
     }
 
-    private fun visitReturnStatement(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitReturnStatement(node: ASTNode) {
         require(node.elementType == RETURN)
 
         val labelQualifier = node.findChildByType(LABEL_QUALIFIER)
@@ -95,16 +87,15 @@ public class LambdaReturnRule :
             ?.takeIf { it.count() > 0 }
             ?.takeIf { node.refersToInnerMostLambdaArgument(labelQualifier.qualifierIdentifier()) }
             ?.let { siblings ->
-                emit(node.startOffset, "Unnecessary return", true)
-                    .ifAutocorrectAllowed {
-                        val parent = node.parent!!
-                        siblings
-                            // The remaining siblings are moved to before the RETURN sibling. Without collecting the remaining siblings
-                            // first into a list, the RETURN sibling itself would also be tried to be moved which results in a failure.
-                            .toList()
-                            .forEach { sibling -> parent.addChild(sibling, node) }
-                        node.remove()
-                    }
+                emit(node.startOffset, "Unnecessary return") {
+                    val parent = node.parent!!
+                    siblings
+                        // The remaining siblings are moved to before the RETURN sibling. Without collecting the remaining siblings
+                        // first into a list, the RETURN sibling itself would also be tried to be moved which results in a failure.
+                        .toList()
+                        .forEach { sibling -> parent.addChild(sibling, node) }
+                    node.remove()
+                }
             }
     }
 

@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
@@ -24,7 +23,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROP
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
@@ -77,10 +75,7 @@ public class ArgumentListWrappingRule :
         ignoreWhenParameterCountGreaterOrEqualThanProperty = editorConfig[IGNORE_WHEN_PARAMETER_COUNT_GREATER_OR_EQUAL_THAN_PROPERTY]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (editorConfigIndent.disabled) {
             return
         }
@@ -89,7 +84,7 @@ public class ArgumentListWrappingRule :
             if (needToWrapArgumentList(node)) {
                 node
                     .children()
-                    .forEach { child -> wrapArgumentInList(child, emit) }
+                    .forEach { child -> wrapArgumentInList(child) }
             }
         }
     }
@@ -172,20 +167,16 @@ public class ArgumentListWrappingRule :
             "\n" + editorConfigIndent.indent.repeat(maxOf(indentLevel, 0))
         }
 
-    private fun wrapArgumentInList(
-        child: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun wrapArgumentInList(child: ASTNode) {
         when (child.elementType) {
             LPAR -> {
                 child
                     .prevLeaf
                     ?.let { prevLeaf ->
                         if (prevLeaf.isWhiteSpaceWithNewline) {
-                            emit(child.startOffset, errorMessage(child), true)
-                                .ifAutocorrectAllowed {
-                                    prevLeaf.psi.delete()
-                                }
+                            emit(child.startOffset, errorMessage(child)) {
+                                prevLeaf.psi.delete()
+                            }
                         }
                     }
             }
@@ -208,22 +199,20 @@ public class ArgumentListWrappingRule :
 
                     prevLeaf.isWhiteSpace -> {
                         // The current child needs to be wrapped to a newline.
-                        emit(child.startOffset, errorMessage(child), true)
-                            .ifAutocorrectAllowed {
-                                // The indentation is purely based on the previous leaf only. Note that in
-                                // autoCorrect mode the indent rule, if enabled, runs after this rule and
-                                // determines the final indentation. But if the indent rule is disabled then the
-                                // indent of this rule is kept.
-                                prevLeaf?.replaceTextWith(intendedIndent)
-                            }
+                        emit(child.startOffset, errorMessage(child)) {
+                            // The indentation is purely based on the previous leaf only. Note that in
+                            // autoCorrect mode the indent rule, if enabled, runs after this rule and
+                            // determines the final indentation. But if the indent rule is disabled then the
+                            // indent of this rule is kept.
+                            prevLeaf?.replaceTextWith(intendedIndent)
+                        }
                     }
 
                     else -> {
                         // Insert a new whitespace element in order to wrap the current child to a new line.
-                        emit(child.startOffset, errorMessage(child), true)
-                            .ifAutocorrectAllowed {
-                                child.parent?.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
-                            }
+                        emit(child.startOffset, errorMessage(child)) {
+                            child.parent?.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
+                        }
                     }
                 }
                 // Indentation of child nodes need to be fixed by the IndentationRule.

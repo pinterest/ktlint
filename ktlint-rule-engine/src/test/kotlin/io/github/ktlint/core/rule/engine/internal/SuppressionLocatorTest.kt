@@ -528,12 +528,9 @@ class SuppressionLocatorTest {
             ruleId = id,
             about = About(),
         ) {
-        override fun beforeVisitChildNodes(
-            node: ASTNode,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-        ) {
+        override fun beforeVisitChildNodes(node: ASTNode) {
             if (node.elementType == IDENTIFIER && node.text.startsWith("foo")) {
-                emit(node.startOffset, "Line should not contain a foo identifier", false)
+                emit(node.startOffset, "Line should not contain a foo identifier")
             }
         }
     }

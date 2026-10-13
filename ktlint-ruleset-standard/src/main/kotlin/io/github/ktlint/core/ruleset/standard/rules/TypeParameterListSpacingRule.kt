@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS_BODY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONSTRUCTOR_KEYWORD
@@ -20,7 +19,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -60,32 +58,26 @@ public class TypeParameterListSpacingRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType != TYPE_PARAMETER_LIST) {
             return
         }
 
         when (node.parent?.elementType) {
-            CLASS -> visitClassDeclaration(node, emit)
-            TYPEALIAS -> visitTypeAliasDeclaration(node, emit)
-            FUN, PROPERTY -> visitFunctionOrPropertyDeclaration(node, emit)
+            CLASS -> visitClassDeclaration(node)
+            TYPEALIAS -> visitTypeAliasDeclaration(node)
+            FUN, PROPERTY -> visitFunctionOrPropertyDeclaration(node)
         }
-        visitInsideTypeParameterList(node, emit)
+        visitInsideTypeParameterList(node)
     }
 
-    private fun visitClassDeclaration(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitClassDeclaration(node: ASTNode) {
         // No white space expected between class name and parameter list
         //     class Bar <T>
         node
             .prevSibling
             ?.takeIf { it.isWhiteSpace }
-            ?.let { visitWhitespace(it, emit) }
+            ?.let { visitWhitespace(it) }
 
         // No white space expected between parameter type list and the constructor except when followed by compound
         // constructor
@@ -118,15 +110,14 @@ public class TypeParameterListSpacingRule :
                         //    class Bar<T> actual constructor(...)
                         //    class Bar<T> @SomeAnnotation constructor(...)
                         if (whiteSpace.text != " ") {
-                            emit(whiteSpace.startOffset, "Expected a single space", true)
-                                .ifAutocorrectAllowed {
-                                    // If line is to be wrapped this should have been done by other rules before running this rule
-                                    whiteSpace.upsertWhitespaceBeforeMe(" ")
-                                }
+                            emit(whiteSpace.startOffset, "Expected a single space") {
+                                // If line is to be wrapped this should have been done by other rules before running this rule
+                                whiteSpace.upsertWhitespaceBeforeMe(" ")
+                            }
                         }
                     }
                 } else {
-                    visitWhitespace(whiteSpace, emit)
+                    visitWhitespace(whiteSpace)
                 }
             }
 
@@ -135,32 +126,26 @@ public class TypeParameterListSpacingRule :
         node
             .nextSibling
             ?.takeIf { it.isWhiteSpace && it.nextCodeSibling?.elementType == CLASS_BODY }
-            ?.let { singleSpaceExpected(it, emit) }
+            ?.let { singleSpaceExpected(it) }
     }
 
-    private fun visitTypeAliasDeclaration(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitTypeAliasDeclaration(node: ASTNode) {
         // No white space expected between typealias keyword name and parameter list
         //     typealias Bar <T>
         node
             .prevSibling
             ?.takeIf { it.isWhiteSpace }
-            ?.let { visitWhitespace(it, emit) }
+            ?.let { visitWhitespace(it) }
 
         // No white space expected between parameter type list and equals sign
         //    typealias Bar<T> = ...
         node
             .nextSibling
             ?.takeIf { it.isWhiteSpace && it.nextCodeSibling?.elementType == EQ }
-            ?.let { singleSpaceExpected(it, emit) }
+            ?.let { singleSpaceExpected(it) }
     }
 
-    private fun visitFunctionOrPropertyDeclaration(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitFunctionOrPropertyDeclaration(node: ASTNode) {
         // Single space expected before type parameter list of function or property
         //    fun<T> foo(...)
         //    val<T> List<T>.foo: T
@@ -168,9 +153,9 @@ public class TypeParameterListSpacingRule :
             .prevLeaf
             ?.let { prevLeaf ->
                 if (prevLeaf.isWhiteSpace) {
-                    singleSpaceExpected(prevLeaf, emit)
+                    singleSpaceExpected(prevLeaf)
                 } else {
-                    singleSpaceExpected(node.firstChildNode, emit)
+                    singleSpaceExpected(node.firstChildNode)
                 }
             }
 
@@ -182,14 +167,11 @@ public class TypeParameterListSpacingRule :
             .lastChildNode
             .nextLeaf
             ?.let { nextSibling ->
-                singleSpaceExpected(nextSibling, emit)
+                singleSpaceExpected(nextSibling)
             }
     }
 
-    private fun visitInsideTypeParameterList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitInsideTypeParameterList(node: ASTNode) {
         node
             .findChildByType(LT)
             ?.nextSibling
@@ -201,7 +183,7 @@ public class TypeParameterListSpacingRule :
                     } else {
                         ""
                     }
-                visitWhitespace(it, emit, expectedWhitespace)
+                visitWhitespace(it, expectedWhitespace)
             }
 
         node
@@ -215,13 +197,12 @@ public class TypeParameterListSpacingRule :
                     } else {
                         ""
                     }
-                visitWhitespace(it, emit, expectedWhitespace)
+                visitWhitespace(it, expectedWhitespace)
             }
     }
 
     private fun visitWhitespace(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         expectedWhitespace: String = "",
     ) {
         if (node.text == expectedWhitespace) {
@@ -230,41 +211,33 @@ public class TypeParameterListSpacingRule :
 
         when {
             expectedWhitespace.isEmpty() -> {
-                emit(node.startOffset, "No whitespace expected", true)
-                    .ifAutocorrectAllowed { node.remove() }
+                emit(node.startOffset, "No whitespace expected") { node.remove() }
             }
 
             node.isWhiteSpaceWithoutNewline && expectedWhitespace.startsWith("\n") -> {
-                emit(node.startOffset, "Expected a newline", true)
-                    .ifAutocorrectAllowed { node.replaceTextWith(expectedWhitespace) }
+                emit(node.startOffset, "Expected a newline") { node.replaceTextWith(expectedWhitespace) }
             }
 
             expectedWhitespace == " " -> {
-                emit(node.startOffset, "Expected a single space", true)
-                    .ifAutocorrectAllowed { node.replaceTextWith(expectedWhitespace) }
+                emit(node.startOffset, "Expected a single space") { node.replaceTextWith(expectedWhitespace) }
             }
         }
     }
 
-    private fun singleSpaceExpected(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun singleSpaceExpected(node: ASTNode) {
         when {
             node.text == " " -> {
                 // Nothing to do
             }
 
             node.isWhiteSpaceWithNewline -> {
-                emit(node.startOffset, "Expected a single space instead of newline", true)
-                    .ifAutocorrectAllowed { node.replaceTextWith(" ") }
+                emit(node.startOffset, "Expected a single space instead of newline") { node.replaceTextWith(" ") }
             }
 
             else -> {
-                emit(node.startOffset, "Expected a single space", true)
-                    .ifAutocorrectAllowed {
-                        node.upsertWhitespaceBeforeMe(" ")
-                    }
+                emit(node.startOffset, "Expected a single space") {
+                    node.upsertWhitespaceBeforeMe(" ")
+                }
             }
         }
     }

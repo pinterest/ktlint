@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS_BODY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COMPANION_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN
@@ -46,19 +45,13 @@ public class BackingPropertyNamingRule :
         codeStyle = editorConfig[CODE_STYLE_PROPERTY]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { node.elementType == PROPERTY }
-            ?.let { property -> visitProperty(property, emit) }
+            ?.let { property -> visitProperty(property) }
     }
 
-    private fun visitProperty(
-        property: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitProperty(property: ASTNode) {
         property
             .findChildByType(IDENTIFIER)
             ?.takeIf { it.text.startsWith("_") }
@@ -70,34 +63,29 @@ public class BackingPropertyNamingRule :
                 // Do not report overridden properties as they can only be changed by changing the base property
                 it.parent!!.hasModifier(OVERRIDE_KEYWORD)
             }?.let { identifier ->
-                visitBackingProperty(identifier, emit)
+                visitBackingProperty(identifier)
             }
     }
 
-    private fun visitBackingProperty(
-        identifier: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitBackingProperty(identifier: ASTNode) {
         identifier
             .text
             .takeUnless { it.matches(BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP) }
-            ?.let {
-                emit(identifier.startOffset, "Backing property should start with underscore followed by lower camel case", false)
-            }
+            ?.let { emit(identifier.startOffset, "Backing property should start with underscore followed by lower camel case") }
 
         if (!identifier.hasPrivateModifierInPropertyDeclaration() && !identifier.isDeclaredInPrivateCompanionObject()) {
-            emit(identifier.startOffset, "Backing property not allowed when 'private' modifier is missing", false)
+            emit(identifier.startOffset, "Backing property not allowed when 'private' modifier is missing")
         }
 
         // A backing property can only exist when a correlated public property or function exists
         val correlatedPropertyOrFunction = identifier.findCorrelatedPropertyOrFunction()
         if (correlatedPropertyOrFunction == null) {
-            emit(identifier.startOffset, "Backing property is only allowed when a matching property or function exists", false)
+            emit(identifier.startOffset, "Backing property is only allowed when a matching property or function exists")
         } else {
             if (codeStyle == ANDROID_STUDIO || correlatedPropertyOrFunction.isPublic()) {
                 return
             } else {
-                emit(identifier.startOffset, "Backing property is only allowed when the matching property or function is public", false)
+                emit(identifier.startOffset, "Backing property is only allowed when the matching property or function is public")
             }
         }
     }

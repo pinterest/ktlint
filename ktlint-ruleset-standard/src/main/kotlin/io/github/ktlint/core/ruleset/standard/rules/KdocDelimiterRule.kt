@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_END
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_LEADING_ASTERISK
@@ -16,7 +15,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTA
 import io.github.ktlint.core.rule.engine.core.api.children
 import io.github.ktlint.core.rule.engine.core.api.endOffset
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -51,14 +49,11 @@ public class KdocDelimiterRule :
     StandardRule("kdoc-delimiter"),
     RuleV2.OfficialCodeStyle,
     RuleV2.Experimental {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
             KDOC_START -> {
                 if (!node.isPartOfMultiLineKdoc()) {
-                    visitKdocStartInSingleLineKdoc(node, emit)
+                    visitKdocStartInSingleLineKdoc(node)
                 }
             }
 
@@ -67,7 +62,7 @@ public class KdocDelimiterRule :
                     // Nothing but whitespace and/or (empty) leading asterisks between the opening and closing delimiter,
                     // e.g. `/***/`, `/** */`, `/**\n */` or `/**\n *\n */`.
                     // Although it could be removed automatically, it is likely that the developer had an intent to write a KDoc.
-                    emit(node.treeParent.findChildByType(KDOC_START)!!.endOffset, "An empty KDoc comment is not allowed", false)
+                    emit(node.treeParent.findChildByType(KDOC_START)!!.endOffset, "An empty KDoc comment is not allowed")
                 }
             }
 
@@ -80,21 +75,21 @@ public class KdocDelimiterRule :
                     // Note that a non auto-correctable error is reported for the empty KDoc. Removing the empty line, but not removing the
                     // KDOC_START and KDOC_END is confusing.
                 } else {
-                    visitLeadingAsterisk(node, emit)
+                    visitLeadingAsterisk(node)
                 }
             }
 
             KDOC_TEXT -> {
                 if (node.isPartOfMultiLineKdoc()) {
-                    visitKdocTextInMultiLineKdoc(node, emit)
+                    visitKdocTextInMultiLineKdoc(node)
                 }
             }
 
             KDOC_END -> {
                 if (node.isPartOfMultiLineKdoc()) {
-                    visitKdocEndInMultiLineKdoc(node, emit)
+                    visitKdocEndInMultiLineKdoc(node)
                 } else {
-                    visitKdocEndInSingleLineKdoc(node, emit)
+                    visitKdocEndInSingleLineKdoc(node)
                 }
             }
         }
@@ -102,10 +97,7 @@ public class KdocDelimiterRule :
 
     private fun ASTNode.isPartOfMultiLineKdoc(): Boolean = parent { it.elementType == KDOC }?.textContains('\n') ?: false
 
-    private fun visitKdocStartInSingleLineKdoc(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitKdocStartInSingleLineKdoc(node: ASTNode) {
         require(node.elementType == KDOC_START)
         node
             .nextLeaf
@@ -116,10 +108,9 @@ public class KdocDelimiterRule :
                     .takeWhile { it == ' ' }
                     .takeUnless { it.length == 1 }
                     ?.let {
-                        emit(leafAfterKdocStart.startOffset, "Expected a single space after '/**' in a single-line KDoc comment", true)
-                            .ifAutocorrectAllowed {
-                                leafAfterKdocStart.replaceTextWith(" " + leafAfterKdocStart.text.trimStart(' '))
-                            }
+                        emit(leafAfterKdocStart.startOffset, "Expected a single space after '/**' in a single-line KDoc comment") {
+                            leafAfterKdocStart.replaceTextWith(" " + leafAfterKdocStart.text.trimStart(' '))
+                        }
                     }
             }
     }
@@ -134,29 +125,23 @@ public class KdocDelimiterRule :
         }
     }
 
-    private fun visitLeadingAsterisk(
-        leadingAsterisk: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitLeadingAsterisk(leadingAsterisk: ASTNode) {
         require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
 
-        if (checkEmptyLineAfterOpeningDelimiter(leadingAsterisk, emit)) {
+        if (checkEmptyLineAfterOpeningDelimiter(leadingAsterisk)) {
             // Remainder of checks (improper indentation, and context after asterisk) are not relevant when the line is (to be) removed.
             return
         }
-        if (checkEmptyLineBeforeClosingDelimiter(leadingAsterisk, emit)) {
+        if (checkEmptyLineBeforeClosingDelimiter(leadingAsterisk)) {
             // Remainder of checks (improper indentation, and context after asterisk) are not relevant when the line is (to be) removed.
             return
         }
-        checkIndentationBeforeLeadingAsterisk(leadingAsterisk, emit)
-        checkContentAfterLeadingAsterisk(leadingAsterisk, emit)
-        checkConsecutiveBlankLines(leadingAsterisk, emit)
+        checkIndentationBeforeLeadingAsterisk(leadingAsterisk)
+        checkContentAfterLeadingAsterisk(leadingAsterisk)
+        checkConsecutiveBlankLines(leadingAsterisk)
     }
 
-    private fun checkEmptyLineAfterOpeningDelimiter(
-        leadingAsterisk: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ): Boolean {
+    private fun checkEmptyLineAfterOpeningDelimiter(leadingAsterisk: ASTNode): Boolean {
         require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
 
         val kdocSection = leadingAsterisk.parent { it.elementType == KDOC_SECTION }
@@ -165,11 +150,10 @@ public class KdocDelimiterRule :
             ?.nextLeaf
             ?.takeIf { it.isWhiteSpaceWithNewline }
             ?.let { whitespaceAfterLeadingAsterisk ->
-                emit(leadingAsterisk.startOffset, "No empty line expected after opening delimiter", true)
-                    .ifAutocorrectAllowed {
-                        whitespaceAfterLeadingAsterisk.remove()
-                        leadingAsterisk.remove()
-                    }
+                emit(leadingAsterisk.startOffset, "No empty line expected after opening delimiter") {
+                    whitespaceAfterLeadingAsterisk.remove()
+                    leadingAsterisk.remove()
+                }
                 // Remainder of checks (improper indentation, and context after asterisk) are not relevant when the line is (to be)
                 // removed.
                 return true
@@ -178,10 +162,7 @@ public class KdocDelimiterRule :
         return false
     }
 
-    private fun checkEmptyLineBeforeClosingDelimiter(
-        leadingAsterisk: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ): Boolean {
+    private fun checkEmptyLineBeforeClosingDelimiter(leadingAsterisk: ASTNode): Boolean {
         require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
 
         val kdocSection = leadingAsterisk.parent { it.elementType == KDOC_SECTION }
@@ -190,11 +171,10 @@ public class KdocDelimiterRule :
             ?.prevLeaf
             ?.takeIf { it.isWhiteSpaceWithNewline }
             ?.let { whitespaceAfterLeadingAsterisk ->
-                emit(leadingAsterisk.startOffset, "No empty line expected before closing delimiter", true)
-                    .ifAutocorrectAllowed {
-                        whitespaceAfterLeadingAsterisk.remove()
-                        leadingAsterisk.remove()
-                    }
+                emit(leadingAsterisk.startOffset, "No empty line expected before closing delimiter") {
+                    whitespaceAfterLeadingAsterisk.remove()
+                    leadingAsterisk.remove()
+                }
                 // Remainder of checks (improper indentation, and context after asterisk) are not relevant when the line is (to be)
                 // removed.
                 return true
@@ -203,10 +183,7 @@ public class KdocDelimiterRule :
         return false
     }
 
-    private fun checkIndentationBeforeLeadingAsterisk(
-        leadingAsterisk: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun checkIndentationBeforeLeadingAsterisk(leadingAsterisk: ASTNode) {
         require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
         val actualIndent =
             leadingAsterisk
@@ -231,18 +208,11 @@ public class KdocDelimiterRule :
             //     *   * option 2
             //     * following applies: some more text.
             //     */
-            emit(
-                leadingAsterisk.startOffset,
-                "Leading asterisk is not properly aligned with the first asterisk of the KDoc opening '/**'",
-                false,
-            )
+            emit(leadingAsterisk.startOffset, "Leading asterisk is not properly aligned with the first asterisk of the KDoc opening '/**'")
         }
     }
 
-    private fun checkContentAfterLeadingAsterisk(
-        leadingAsterisk: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun checkContentAfterLeadingAsterisk(leadingAsterisk: ASTNode) {
         require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
         leadingAsterisk
             .nextSibling
@@ -258,8 +228,7 @@ public class KdocDelimiterRule :
                             emit(
                                 leadingAsterisk.startOffset + leadingAsterisk.textLength,
                                 "An empty line in a KDoc comment should not contain trailing whitespace after the leading asterisk",
-                                true,
-                            ).ifAutocorrectAllowed { nextSibling.remove() }
+                            ) { nextSibling.remove() }
                         }
                     }
 
@@ -267,42 +236,33 @@ public class KdocDelimiterRule :
                         emit(
                             leadingAsterisk.startOffset + leadingAsterisk.textLength,
                             "A leading asterisk in a KDoc comment should be followed by a single space",
-                            true,
-                        ).ifAutocorrectAllowed { nextSibling.upsertWhitespaceBeforeMe(" ") }
+                        ) { nextSibling.upsertWhitespaceBeforeMe(" ") }
                     }
                 }
             }
     }
 
-    private fun checkConsecutiveBlankLines(
-        leadingAsterisk: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun checkConsecutiveBlankLines(leadingAsterisk: ASTNode) {
         require(leadingAsterisk.elementType == KDOC_LEADING_ASTERISK)
         leadingAsterisk
             .takeIf { it.nextLeaf.isWhiteSpaceWithNewline && it.prevLeaf.isWhiteSpaceWithNewline }
             ?.prevSibling { !it.isWhiteSpace }
             ?.takeIf { it.elementType == KDOC_LEADING_ASTERISK }
             ?.let {
-                emit(leadingAsterisk.startOffset, "Unexpected consecutive blank line", true)
-                    .ifAutocorrectAllowed {
-                        leadingAsterisk.prevSibling.takeIf { it.isWhiteSpace }?.remove()
-                        leadingAsterisk.remove()
-                    }
+                emit(leadingAsterisk.startOffset, "Unexpected consecutive blank line") {
+                    leadingAsterisk.prevSibling.takeIf { it.isWhiteSpace }?.remove()
+                    leadingAsterisk.remove()
+                }
             }
     }
 
-    private fun visitKdocTextInMultiLineKdoc(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitKdocTextInMultiLineKdoc(node: ASTNode) {
         require(node.elementType == KDOC_TEXT)
         if (node.isFirstKdocTextInKdocSection()) {
             val kdocStart = node.parent { it.elementType == KDOC }!!.findChildByType(KDOC_START)!!
             emit(
                 kdocStart.endOffset,
                 "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line",
-                false,
             )
         } else {
             val hasKdocLeadingAsteriskOnSameLine =
@@ -310,11 +270,7 @@ public class KdocDelimiterRule :
                     .prevLeaf { it.isWhiteSpaceWithNewline || it.elementType == KDOC_LEADING_ASTERISK || it.elementType == KDOC_START }
                     .isWhiteSpaceWithNewline
             if (hasKdocLeadingAsteriskOnSameLine) {
-                emit(
-                    node.startOffset,
-                    "Each line of a multi-line KDoc comment should start with a leading asterisk",
-                    false,
-                )
+                emit(node.startOffset, "Each line of a multi-line KDoc comment should start with a leading asterisk")
             }
         }
     }
@@ -324,10 +280,7 @@ public class KdocDelimiterRule :
         return this == parent { it.elementType == KDOC_SECTION }!!.firstChildNode
     }
 
-    private fun visitKdocEndInMultiLineKdoc(
-        kdocEnd: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitKdocEndInMultiLineKdoc(kdocEnd: ASTNode) {
         require(kdocEnd.elementType == KDOC_END)
         val siblingBeforeKdocEnd = kdocEnd.prevSibling!!
         when {
@@ -342,11 +295,7 @@ public class KdocDelimiterRule :
                 siblingBeforeKdocEnd
                     .lastChildLeafOrSelf
                     .let { kdocText ->
-                        emit(
-                            kdocText.prevSibling!!.startOffset,
-                            "Unexpected leading asterisk followed by Closing '*/' om same line",
-                            true,
-                        ).ifAutocorrectAllowed {
+                        emit(kdocText.prevSibling!!.startOffset, "Unexpected leading asterisk followed by Closing '*/' om same line") {
                             kdocText.prevSibling?.remove()
                             kdocText.remove()
                         }
@@ -357,7 +306,6 @@ public class KdocDelimiterRule :
                 emit(
                     kdocEnd.startOffset,
                     "Closing '*/' of a multi-line KDoc comment should not be preceded by any other text on the same line",
-                    false,
                 )
             }
 
@@ -369,8 +317,7 @@ public class KdocDelimiterRule :
                     emit(
                         siblingBeforeKdocEnd.startOffset + prefixLength,
                         "Closing '*/' should align with the leading asterisks of the KDoc comment",
-                        true,
-                    ).ifAutocorrectAllowed {
+                    ) {
                         siblingBeforeKdocEnd.replaceTextWith(siblingBeforeKdocEnd.text.substring(0, prefixLength) + expectedIndent)
                     }
                 }
@@ -378,10 +325,7 @@ public class KdocDelimiterRule :
         }
     }
 
-    private fun visitKdocEndInSingleLineKdoc(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitKdocEndInSingleLineKdoc(node: ASTNode) {
         require(node.elementType == KDOC_END)
 
         // Ignore empty single line KDOC: `/***/`
@@ -394,13 +338,12 @@ public class KdocDelimiterRule :
                 .takeLastWhile { it == ' ' }
                 .takeUnless { it.length == 1 }
                 ?.let {
-                    emit(node.startOffset, "Expected a single space before '*/' in a single-line KDoc comment", true)
-                        .ifAutocorrectAllowed {
-                            node
-                                .prevSibling!!
-                                .lastChildLeafOrSelf
-                                .let { it.replaceTextWith(it.text.trimEnd(' ') + " ") }
-                        }
+                    emit(node.startOffset, "Expected a single space before '*/' in a single-line KDoc comment") {
+                        node
+                            .prevSibling!!
+                            .lastChildLeafOrSelf
+                            .let { it.replaceTextWith(it.text.trimEnd(' ') + " ") }
+                    }
                 }
         } else {
             // The Kotlin parser adds all asterisks, but no other characters, directly preceding the closing delimiter '*/' to the KDOC_END
@@ -417,27 +360,26 @@ public class KdocDelimiterRule :
                 .takeLastWhile { it == ' ' }
                 .takeUnless { it.length == 1 }
                 ?.let {
-                    emit(node.startOffset, "Expected a single space before '*/' in a single-line KDoc comment", true)
-                        .ifAutocorrectAllowed {
-                            node
-                                .prevSibling!!
-                                .lastChildLeafOrSelf
-                                .let { it.replaceTextWith(it.text.trimEnd(' ') + "$extraClosingAsterisks ") }
+                    emit(node.startOffset, "Expected a single space before '*/' in a single-line KDoc comment") {
+                        node
+                            .prevSibling!!
+                            .lastChildLeafOrSelf
+                            .let { it.replaceTextWith(it.text.trimEnd(' ') + "$extraClosingAsterisks ") }
 
-                            // Simply replacing the text inside the KDOC_END element results in an exception in the IndentationRule. So
-                            // recreate a completely new KDOC_END element to replace the existing.
-                            val newKdocEnd =
-                                KtlintKotlinCompiler
-                                    .createASTNodeFromText(
-                                        """
-                                        /**
-                                         */
-                                        """.trimIndent(),
-                                    )?.findChildByType(KDOC)
-                                    ?.findChildByType(KDOC_END)
-                                    ?: error("Cannot create KdocEnd")
-                            node.replaceWith(newKdocEnd)
-                        }
+                        // Simply replacing the text inside the KDOC_END element results in an exception in the IndentationRule. So
+                        // recreate a completely new KDOC_END element to replace the existing.
+                        val newKdocEnd =
+                            KtlintKotlinCompiler
+                                .createASTNodeFromText(
+                                    """
+                                    /**
+                                     */
+                                    """.trimIndent(),
+                                )?.findChildByType(KDOC)
+                                ?.findChildByType(KDOC_END)
+                                ?: error("Cannot create KdocEnd")
+                        node.replaceWith(newKdocEnd)
+                    }
                 }
         }
     }

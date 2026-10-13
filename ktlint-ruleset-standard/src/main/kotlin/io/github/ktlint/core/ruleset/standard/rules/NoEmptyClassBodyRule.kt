@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS_BODY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LBRACE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.OBJECT_LITERAL
@@ -9,7 +8,6 @@ import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.children
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
@@ -21,18 +19,14 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("0.9", STABLE)
 public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isRemovableEmptyClassBody()) {
-            emit(node.startOffset, "Unnecessary block (\"{}\")", true)
-                .ifAutocorrectAllowed {
-                    // remove space between declaration and block
-                    node.prevSibling.takeIf { it.isWhiteSpace }?.remove()
-                    // remove block
-                    node.remove()
-                }
+            emit(node.startOffset, "Unnecessary block (\"{}\")") {
+                // remove space between declaration and block
+                node.prevSibling.takeIf { it.isWhiteSpace }?.remove()
+                // remove block
+                node.remove()
+            }
         }
     }
 

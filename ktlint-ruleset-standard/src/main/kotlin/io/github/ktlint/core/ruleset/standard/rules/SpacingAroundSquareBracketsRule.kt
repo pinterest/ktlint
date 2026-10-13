@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COLLECTION_LITERAL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DESTRUCTURING_DECLARATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_MARKDOWN_LINK
@@ -10,7 +9,6 @@ import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
 import io.github.ktlint.core.rule.engine.core.api.parent
@@ -27,10 +25,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 @SinceKtlint("1.2", EXPERIMENTAL)
 @SinceKtlint("1.8", STABLE)
 public class SpacingAroundSquareBracketsRule : StandardRule("square-brackets-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == LBRACKET || node.elementType == RBRACKET) {
             val prevLeaf = node.prevLeaf
             val nextLeaf = node.nextLeaf
@@ -78,21 +73,18 @@ public class SpacingAroundSquareBracketsRule : StandardRule("square-brackets-spa
                 node.elementType == LBRACKET && nextLeaf.isWhiteSpaceWithoutNewline
             when {
                 spacingBefore && spacingAfter -> {
-                    emit(node.startOffset, "Unexpected spacing around '${node.text}'", true)
-                        .ifAutocorrectAllowed {
-                            prevLeaf?.remove()
-                            nextLeaf?.remove()
-                        }
+                    emit(node.startOffset, "Unexpected spacing around '${node.text}'") {
+                        prevLeaf?.remove()
+                        nextLeaf?.remove()
+                    }
                 }
 
                 spacingBefore -> {
-                    emit(prevLeaf!!.startOffset, "Unexpected spacing before '${node.text}'", true)
-                        .ifAutocorrectAllowed { prevLeaf.remove() }
+                    emit(prevLeaf!!.startOffset, "Unexpected spacing before '${node.text}'") { prevLeaf.remove() }
                 }
 
                 spacingAfter -> {
-                    emit(node.startOffset + 1, "Unexpected spacing after '${node.text}'", true)
-                        .ifAutocorrectAllowed { nextLeaf!!.remove() }
+                    emit(node.startOffset + 1, "Unexpected spacing after '${node.text}'") { nextLeaf!!.remove() }
                 }
             }
         }

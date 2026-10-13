@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATED_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
@@ -37,7 +36,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_P
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.SafeEnumValueParser
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.isCode
@@ -97,10 +95,7 @@ public class FunctionSignatureRule :
         maxLineLength = editorConfig.maxLineLength()
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == FUN) {
             node
                 .functionSignatureNodes()
@@ -114,7 +109,7 @@ public class FunctionSignatureRule :
                     return
                 }
 
-            visitFunctionSignature(node, emit)
+            visitFunctionSignature(node)
         }
     }
 
@@ -183,10 +178,7 @@ public class FunctionSignatureRule :
         return result ?: nextCodeSibling
     }
 
-    private fun visitFunctionSignature(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitFunctionSignature(node: ASTNode) {
         require(node.elementType == FUN)
 
         val forceMultilineSignature =
@@ -194,7 +186,7 @@ public class FunctionSignatureRule :
                 node.containsMultilineParameter() ||
                 (codeStyle == KTLINT_OFFICIAL && node.containsAnnotatedParameter())
         if (isMaxLineLengthSet()) {
-            val singleLineFunctionSignatureLength = calculateFunctionSignatureLengthAsSingleLineSignature(node, emit)
+            val singleLineFunctionSignatureLength = calculateFunctionSignatureLengthAsSingleLineSignature(node)
             // Function signatures not having parameters, should not be reformatted automatically. It would result in function signatures
             // like below, which are not acceptable:
             //     fun aVeryLongFunctionName(
@@ -207,21 +199,21 @@ public class FunctionSignatureRule :
             val rewriteFunctionSignatureWithParameters =
                 node.countParameters() > 0 && (node.hasNoMaxLineLengthSuppression() && singleLineFunctionSignatureLength > maxLineLength)
             if (forceMultilineSignature || rewriteFunctionSignatureWithParameters) {
-                fixWhiteSpacesInValueParameterList(node, emit, multiline = true, dryRun = false)
+                fixWhiteSpacesInValueParameterList(node, multiline = true, dryRun = false)
                 if (node.findChildByType(EQ) == null) {
-                    fixWhitespaceBeforeFunctionBodyBlock(node, emit, dryRun = false)
+                    fixWhitespaceBeforeFunctionBodyBlock(node, dryRun = false)
                 } else {
                     // Due to rewriting the function signature, the remaining length on the last line of the multiline signature needs to be
                     // recalculated
                     val lengthOfLastLine = recalculateRemainingLengthForFirstLineOfBodyExpression(node)
-                    fixFunctionBodyExpression(node, emit, maxLineLength - lengthOfLastLine)
+                    fixFunctionBodyExpression(node, maxLineLength - lengthOfLastLine)
                 }
             } else {
-                fixWhiteSpacesInValueParameterList(node, emit, multiline = false, dryRun = false)
+                fixWhiteSpacesInValueParameterList(node, multiline = false, dryRun = false)
                 if (node.findChildByType(EQ) == null) {
-                    fixWhitespaceBeforeFunctionBodyBlock(node, emit, dryRun = false)
+                    fixWhitespaceBeforeFunctionBodyBlock(node, dryRun = false)
                 } else {
-                    fixFunctionBodyExpression(node, emit, maxLineLength - singleLineFunctionSignatureLength)
+                    fixFunctionBodyExpression(node, maxLineLength - singleLineFunctionSignatureLength)
                 }
             }
         } else {
@@ -233,11 +225,11 @@ public class FunctionSignatureRule :
                     .functionSignatureNodes()
                     .none { it.textContains('\n') }
             if (!forceMultilineSignature && rewriteToSingleLineFunctionSignature) {
-                fixWhiteSpacesInValueParameterList(node, emit, multiline = false, dryRun = false)
+                fixWhiteSpacesInValueParameterList(node, multiline = false, dryRun = false)
             } else {
-                fixWhiteSpacesInValueParameterList(node, emit, multiline = true, dryRun = false)
+                fixWhiteSpacesInValueParameterList(node, multiline = true, dryRun = false)
             }
-            fixFunctionBodyExpression(node, emit, MAX_LINE_LENGTH_PROPERTY_OFF)
+            fixFunctionBodyExpression(node, MAX_LINE_LENGTH_PROPERTY_OFF)
         }
     }
 
@@ -278,19 +270,16 @@ public class FunctionSignatureRule :
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
-    private fun calculateFunctionSignatureLengthAsSingleLineSignature(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ): Int {
+    private fun calculateFunctionSignatureLengthAsSingleLineSignature(node: ASTNode): Int {
         val actualFunctionSignatureLength = node.getFunctionSignatureLength()
 
         // Calculate the length of the function signature in case it would be rewritten as single line (and without a
         // maximum line length). The white space correction will be calculated via a dry run of the actual fix.
         return actualFunctionSignatureLength +
             // Calculate the white space correction in case the signature would be rewritten to a single line
-            fixWhiteSpacesInValueParameterList(node, emit, multiline = false, dryRun = true) +
+            fixWhiteSpacesInValueParameterList(node, multiline = false, dryRun = true) +
             if (node.findChildByType(EQ) == null) {
-                fixWhitespaceBeforeFunctionBodyBlock(node, emit, dryRun = true)
+                fixWhitespaceBeforeFunctionBodyBlock(node, dryRun = true)
             } else {
                 0
             }
@@ -305,7 +294,6 @@ public class FunctionSignatureRule :
 
     private fun fixWhiteSpacesInValueParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
@@ -320,11 +308,11 @@ public class FunctionSignatureRule :
         whiteSpaceCorrection +=
             if (firstParameterInList == null) {
                 // handle empty parameter list
-                fixWhiteSpacesInEmptyValueParameterList(node, emit, dryRun)
+                fixWhiteSpacesInEmptyValueParameterList(node, dryRun)
             } else {
-                fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, emit, multiline, dryRun) +
-                    fixWhiteSpacesBetweenParametersInValueParameterList(node, emit, multiline, dryRun) +
-                    fixWhiteSpaceBeforeClosingParenthesis(node, emit, multiline, dryRun)
+                fixWhiteSpacesBeforeFirstParameterInValueParameterList(node, multiline, dryRun) +
+                    fixWhiteSpacesBetweenParametersInValueParameterList(node, multiline, dryRun) +
+                    fixWhiteSpaceBeforeClosingParenthesis(node, multiline, dryRun)
             }
 
         return whiteSpaceCorrection
@@ -332,7 +320,6 @@ public class FunctionSignatureRule :
 
     private fun fixWhiteSpacesInEmptyValueParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         dryRun: Boolean,
     ): Int {
         var whiteSpaceCorrection = 0
@@ -349,11 +336,7 @@ public class FunctionSignatureRule :
             }.firstOrNull()
             ?.let { whiteSpace ->
                 if (!dryRun) {
-                    emit(
-                        whiteSpace.startOffset,
-                        "No whitespace expected in empty parameter list",
-                        true,
-                    ).ifAutocorrectAllowed { whiteSpace.remove() }
+                    emit(whiteSpace.startOffset, "No whitespace expected in empty parameter list") { whiteSpace.remove() }
                 } else {
                     whiteSpaceCorrection -= whiteSpace.textLength
                 }
@@ -364,7 +347,6 @@ public class FunctionSignatureRule :
 
     private fun fixWhiteSpacesBeforeFirstParameterInValueParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
@@ -387,11 +369,7 @@ public class FunctionSignatureRule :
                         whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                     ) {
                         if (!dryRun) {
-                            emit(
-                                firstParameterInList.startOffset,
-                                "Newline expected after opening parenthesis",
-                                true,
-                            ).ifAutocorrectAllowed {
+                            emit(firstParameterInList.startOffset, "Newline expected after opening parenthesis") {
                                 valueParameterList.firstChildNode.upsertWhitespaceAfterMe(expectedParameterIndent)
                             }
                         } else {
@@ -404,8 +382,7 @@ public class FunctionSignatureRule :
                             emit(
                                 firstParameter!!.startOffset,
                                 "No whitespace expected between opening parenthesis and first parameter name",
-                                true,
-                            ).ifAutocorrectAllowed { whiteSpaceBeforeIdentifier.remove() }
+                            ) { whiteSpaceBeforeIdentifier.remove() }
                         } else {
                             whiteSpaceCorrection -= whiteSpaceBeforeIdentifier.textLength
                         }
@@ -418,7 +395,6 @@ public class FunctionSignatureRule :
 
     private fun fixWhiteSpacesBetweenParametersInValueParameterList(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
@@ -434,28 +410,24 @@ public class FunctionSignatureRule :
             .children
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
-            .forEach { whiteSpaceCorrection += it.fixWhiteSpacesAroundValueParameter(emit, multiline, dryRun) }
+            .forEach { whiteSpaceCorrection += it.fixWhiteSpacesAroundValueParameter(multiline, dryRun) }
 
         return whiteSpaceCorrection
     }
 
     private fun ASTNode.fixWhiteSpacesAroundValueParameter(
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
         require(elementType == VALUE_PARAMETER)
         return if (multiline) {
-            fixWhiteSpacesAroundValueParameterInMultilineParameterList(emit, dryRun)
+            fixWhiteSpacesAroundValueParameterInMultilineParameterList(dryRun)
         } else {
-            this.fixWhiteSpacesAroundValueParameterInSingleLineParameterList(emit, dryRun)
+            this.fixWhiteSpacesAroundValueParameterInSingleLineParameterList(dryRun)
         }
     }
 
-    private fun ASTNode.fixWhiteSpacesAroundValueParameterInMultilineParameterList(
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-        dryRun: Boolean,
-    ): Int {
+    private fun ASTNode.fixWhiteSpacesAroundValueParameterInMultilineParameterList(dryRun: Boolean): Int {
         require(elementType == VALUE_PARAMETER)
         var whiteSpaceCorrection = 0
         val firstChildNodeInValueParameter = this.firstChildNode
@@ -468,8 +440,9 @@ public class FunctionSignatureRule :
                     whiteSpaceBeforeIdentifier.text != expectedParameterIndent
                 ) {
                     if (!dryRun && hasNoMaxLineLengthSuppression()) {
-                        emit(this.startOffset, "Parameter should start on a newline", true)
-                            .ifAutocorrectAllowed { firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent) }
+                        emit(this.startOffset, "Parameter should start on a newline") {
+                            firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent)
+                        }
                     } else {
                         whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                     }
@@ -478,10 +451,7 @@ public class FunctionSignatureRule :
         return whiteSpaceCorrection
     }
 
-    private fun ASTNode.fixWhiteSpacesAroundValueParameterInSingleLineParameterList(
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-        dryRun: Boolean,
-    ): Int {
+    private fun ASTNode.fixWhiteSpacesAroundValueParameterInSingleLineParameterList(dryRun: Boolean): Int {
         require(this.elementType == VALUE_PARAMETER)
         var whiteSpaceCorrection = 0
         val firstChildNodeInValueParameter = this.firstChildNode
@@ -491,8 +461,9 @@ public class FunctionSignatureRule :
             .let { whiteSpaceBeforeIdentifier ->
                 if (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != " ") {
                     if (!dryRun) {
-                        emit(firstChildNodeInValueParameter!!.startOffset, "Single whitespace expected before parameter", true)
-                            .ifAutocorrectAllowed { firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ") }
+                        emit(firstChildNodeInValueParameter!!.startOffset, "Single whitespace expected before parameter") {
+                            firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ")
+                        }
                     } else {
                         whiteSpaceCorrection += 1 - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
                     }
@@ -503,7 +474,6 @@ public class FunctionSignatureRule :
 
     private fun fixWhiteSpaceBeforeClosingParenthesis(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         multiline: Boolean,
         dryRun: Boolean,
     ): Int {
@@ -522,11 +492,7 @@ public class FunctionSignatureRule :
                         whiteSpaceBeforeClosingParenthesis.text != newlineAndIndent
                     ) {
                         if (!dryRun) {
-                            emit(
-                                closingParenthesis!!.startOffset,
-                                "Newline expected before closing parenthesis",
-                                true,
-                            ).ifAutocorrectAllowed {
+                            emit(closingParenthesis!!.startOffset, "Newline expected before closing parenthesis") {
                                 closingParenthesis.upsertWhitespaceBeforeMe(newlineAndIndent)
                             }
                         } else {
@@ -541,8 +507,7 @@ public class FunctionSignatureRule :
                             emit(
                                 whiteSpaceBeforeClosingParenthesis.startOffset,
                                 "No whitespace expected between last parameter and closing parenthesis",
-                                true,
-                            ).ifAutocorrectAllowed { whiteSpaceBeforeClosingParenthesis.remove() }
+                            ) { whiteSpaceBeforeClosingParenthesis.remove() }
                         } else {
                             whiteSpaceCorrection -= whiteSpaceBeforeClosingParenthesis.textLength
                         }
@@ -554,7 +519,6 @@ public class FunctionSignatureRule :
 
     private fun fixFunctionBodyExpression(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         maxLengthRemainingForFirstLineOfBodyExpression: Int,
     ) {
         val lastNodeOfFunctionSignatureWithBodyExpression =
@@ -585,7 +549,7 @@ public class FunctionSignatureRule :
                             maxLengthRemainingForFirstLineOfBodyExpression,
                         )
                     ) {
-                        whiteSpaceBeforeFunctionBodyExpression.mergeFunctionSignatureAndBodyExpressionOnSameLine(emit)
+                        whiteSpaceBeforeFunctionBodyExpression.mergeFunctionSignatureAndBodyExpressionOnSameLine()
                     }
                 } else if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithoutNewlineOrNull) {
                     if (node.shouldHaveSingleSpaceBeforeFunctionExpressionBody(
@@ -594,14 +558,14 @@ public class FunctionSignatureRule :
                         )
                     ) {
                         if (whiteSpaceBeforeFunctionBodyExpression == null || whiteSpaceBeforeFunctionBodyExpression.text != " ") {
-                            functionBodyExpressionNodes.first().insertSpaceBeforeFunctionExpressionBody(emit)
+                            functionBodyExpressionNodes.first().insertSpaceBeforeFunctionExpressionBody()
                         }
                     } else if (node.shouldWrapFunctionBodyExpression(
                             functionBodyExpressionLines,
                             maxLengthRemainingForFirstLineOfBodyExpression,
                         )
                     ) {
-                        functionBodyExpressionNodes.first().wrapFunctionBodyExpression(emit)
+                        functionBodyExpressionNodes.first().wrapFunctionBodyExpression()
                     }
                 }
             }
@@ -628,10 +592,9 @@ public class FunctionSignatureRule :
             }
         }
 
-    private fun ASTNode.mergeFunctionSignatureAndBodyExpressionOnSameLine(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+    private fun ASTNode.mergeFunctionSignatureAndBodyExpressionOnSameLine() {
         require(isWhiteSpaceWithNewline)
-        emit(startOffset, "First line of body expression fits on same line as function signature", true)
-            .ifAutocorrectAllowed { replaceTextWith(" ") }
+        emit(startOffset, "First line of body expression fits on same line as function signature") { replaceTextWith(" ") }
     }
 
     private fun ASTNode.shouldHaveSingleSpaceBeforeFunctionExpressionBody(
@@ -642,9 +605,8 @@ public class FunctionSignatureRule :
             firstLineOfBodyExpression.length + 1 <= maxLengthRemainingForFirstLineOfBodyExpression &&
             functionBodyExpressionWrapping != ALWAYS
 
-    private fun ASTNode.insertSpaceBeforeFunctionExpressionBody(emit: (Int, String, Boolean) -> AutocorrectDecision) {
-        emit(startOffset, "Single whitespace expected before expression body", true)
-            .ifAutocorrectAllowed { upsertWhitespaceBeforeMe(" ") }
+    private fun ASTNode.insertSpaceBeforeFunctionExpressionBody() {
+        emit(startOffset, "Single whitespace expected before expression body") { upsertWhitespaceBeforeMe(" ") }
     }
 
     private fun ASTNode.shouldWrapFunctionBodyExpression(
@@ -658,9 +620,10 @@ public class FunctionSignatureRule :
                     functionBodyExpressionLines.first().length + 1 > maxLengthRemainingForFirstLineOfBodyExpression
             )
 
-    private fun ASTNode.wrapFunctionBodyExpression(emit: (Int, String, Boolean) -> AutocorrectDecision) {
-        emit(this.startOffset, "Newline expected before expression body", true)
-            .ifAutocorrectAllowed { upsertWhitespaceBeforeMe(indentConfig.childIndentOf(parent { it.elementType == FUN }!!)) }
+    private fun ASTNode.wrapFunctionBodyExpression() {
+        emit(this.startOffset, "Newline expected before expression body") {
+            upsertWhitespaceBeforeMe(indentConfig.childIndentOf(parent { it.elementType == FUN }!!))
+        }
     }
 
     private fun List<ASTNode>.isMultilineStringTemplate() =
@@ -689,7 +652,6 @@ public class FunctionSignatureRule :
 
     private fun fixWhitespaceBeforeFunctionBodyBlock(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         dryRun: Boolean,
     ): Int {
         var whiteSpaceCorrection = 0
@@ -704,10 +666,9 @@ public class FunctionSignatureRule :
                     .let { whiteSpaceBeforeBlock ->
                         if (whiteSpaceBeforeBlock == null || whiteSpaceBeforeBlock.text != " ") {
                             if (!dryRun) {
-                                emit(block.startOffset, "Expected a single space before body block", true)
-                                    .ifAutocorrectAllowed {
-                                        block.upsertWhitespaceBeforeMe(" ")
-                                    }
+                                emit(block.startOffset, "Expected a single space before body block") {
+                                    block.upsertWhitespaceBeforeMe(" ")
+                                }
                             } else {
                                 whiteSpaceCorrection += 1 - (whiteSpaceBeforeBlock?.textLength ?: 0)
                             }

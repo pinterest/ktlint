@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ELSE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ELSE_KEYWORD
@@ -18,7 +17,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
@@ -60,19 +58,13 @@ public class IfElseBracingRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == IF) {
-            visitIfStatement(node, emit)
+            visitIfStatement(node)
         }
     }
 
-    private fun visitIfStatement(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitIfStatement(node: ASTNode) {
         val thenNode =
             requireNotNull(node.findChildByType(THEN)) {
                 "Can not find THEN branch in IF"
@@ -89,11 +81,11 @@ public class IfElseBracingRule :
         val elseBracing = elseNode.hasBracing()
         if (parentIfBracing || thenBracing || elseBracing) {
             if (!thenBracing) {
-                visitBranchWithoutBraces(thenNode, emit)
+                visitBranchWithoutBraces(thenNode)
             }
             if (!elseBracing) {
                 if (elseNode.firstChildNode?.elementType != IF) {
-                    visitBranchWithoutBraces(elseNode, emit)
+                    visitBranchWithoutBraces(elseNode)
                 } else {
                     // Postpone changing the else-if until that node is being processed
                 }
@@ -120,15 +112,11 @@ public class IfElseBracingRule :
             }
         }
 
-    private fun visitBranchWithoutBraces(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ): Boolean {
+    private fun visitBranchWithoutBraces(node: ASTNode): Boolean {
         emit(
             node.firstChildNode?.startOffset ?: node.startOffset,
             "All branches of the if statement should be wrapped between braces if at least one branch is wrapped between braces",
-            true,
-        ).ifAutocorrectAllowed {
+        ) {
             autocorrect(node)
         }
         return true

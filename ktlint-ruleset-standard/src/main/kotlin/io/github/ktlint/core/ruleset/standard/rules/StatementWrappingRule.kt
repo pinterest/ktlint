@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
@@ -26,7 +25,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasModifier
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
@@ -61,34 +59,28 @@ public class StatementWrappingRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
             BLOCK -> {
                 if (node.parent?.elementType == FUNCTION_LITERAL) {
                     // LBRACE and RBRACE are outside of BLOCK
-                    visitBlock(node.parent!!, emit)
+                    visitBlock(node.parent!!)
                 } else {
-                    visitBlock(node, emit)
+                    visitBlock(node)
                 }
             }
 
             CLASS_BODY, WHEN -> {
-                visitBlock(node, emit)
+                visitBlock(node)
             }
 
             SEMICOLON -> {
-                visitSemiColon(node, emit)
+                visitSemiColon(node)
             }
         }
     }
 
-    private fun visitBlock(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitBlock(node: ASTNode) {
         node
             .takeUnless {
                 // Allow
@@ -117,14 +109,13 @@ public class StatementWrappingRule :
             }?.let { lbraceOrArrow ->
                 val nextCodeLeaf = lbraceOrArrow.nextCodeLeaf
                 if (nextCodeLeaf != null && noNewLineInClosedRange(lbraceOrArrow, nextCodeLeaf)) {
-                    emit(nextCodeLeaf.startOffset, "Missing newline after '${lbraceOrArrow.text}'", true)
-                        .ifAutocorrectAllowed {
-                            if (node.elementType == WHEN) {
-                                lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsChild)
-                            } else {
-                                lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsSibling)
-                            }
+                    emit(nextCodeLeaf.startOffset, "Missing newline after '${lbraceOrArrow.text}'") {
+                        if (node.elementType == WHEN) {
+                            lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsChild)
+                        } else {
+                            lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsSibling)
                         }
+                    }
                 }
 
                 node
@@ -132,10 +123,9 @@ public class StatementWrappingRule :
                     ?.let { rbrace ->
                         val prevCodeLeaf = rbrace.prevCodeLeaf
                         if (prevCodeLeaf != null && noNewLineInClosedRange(prevCodeLeaf, rbrace)) {
-                            emit(rbrace.startOffset, "Missing newline before '}'", true)
-                                .ifAutocorrectAllowed {
-                                    rbrace.upsertWhitespaceBeforeMe(rbrace.indentAsParent)
-                                }
+                            emit(rbrace.startOffset, "Missing newline before '}'") {
+                                rbrace.upsertWhitespaceBeforeMe(rbrace.indentAsParent)
+                            }
                         }
                     }
             }
@@ -196,10 +186,7 @@ public class StatementWrappingRule :
     private inline val ASTNode.indentAsParent: String
         get() = parent!!.indent
 
-    private fun visitSemiColon(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitSemiColon(node: ASTNode) {
         val previousCodeLeaf = node.prevCodeLeaf
         val nextCodeLeaf = node.nextCodeLeaf
         if (previousCodeLeaf != null && nextCodeLeaf != null) {
@@ -210,10 +197,9 @@ public class StatementWrappingRule :
                 }
 
                 noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf) -> {
-                    emit(node.startOffset + 1, """Missing newline after '${node.text}'""", true)
-                        .ifAutocorrectAllowed {
-                            node.upsertWhitespaceAfterMe(previousCodeLeaf.indent)
-                        }
+                    emit(node.startOffset + 1, """Missing newline after '${node.text}'""") {
+                        node.upsertWhitespaceAfterMe(previousCodeLeaf.indent)
+                    }
                 }
             }
         }

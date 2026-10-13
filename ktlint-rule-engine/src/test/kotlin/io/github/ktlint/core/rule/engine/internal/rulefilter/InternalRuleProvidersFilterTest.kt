@@ -1,7 +1,6 @@
 package io.github.ktlint.core.rule.engine.internal.rulefilter
 
 import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleSetId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
@@ -46,10 +45,7 @@ class InternalRuleProvidersFilterTest {
             ruleId = ruleId,
             about = About(),
         ) {
-        override fun beforeVisitChildNodes(
-            node: ASTNode,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-        ): Unit =
+        override fun beforeVisitChildNodes(node: ASTNode): Unit =
             throw UnsupportedOperationException(
                 "Rule should never be really invoked because that is not the aim of this unit test.",
             )

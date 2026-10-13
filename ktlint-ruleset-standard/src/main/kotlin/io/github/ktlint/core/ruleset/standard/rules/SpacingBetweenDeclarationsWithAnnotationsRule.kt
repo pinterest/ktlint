@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.MODIFIER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.PROPERTY_ACCESSOR
@@ -9,7 +8,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.children
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isDeclaration
@@ -28,32 +26,22 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 @SinceKtlint("0.37", EXPERIMENTAL)
 @SinceKtlint("0.46", STABLE)
 public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spacing-between-declarations-with-annotations") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if ((node.isDeclarationOrPropertyAccessor()) && node.isAnnotated()) {
-            visitDeclaration(node, emit)
+            visitDeclaration(node)
         }
     }
 
     private fun ASTNode.isDeclarationOrPropertyAccessor() = isDeclaration || elementType == PROPERTY_ACCESSOR
 
-    private fun visitDeclaration(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitDeclaration(node: ASTNode) {
         node
             .prevCodeSibling
             ?.takeIf { it.isDeclarationOrPropertyAccessor() }
             ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
             ?.let {
                 val prevLeaf = node.prevCodeLeaf?.nextLeaf { it.isWhiteSpace }!!
-                emit(
-                    prevLeaf.startOffset + 1,
-                    "Declarations and declarations with annotations should have an empty space between.",
-                    true,
-                ).ifAutocorrectAllowed {
+                emit(prevLeaf.startOffset + 1, "Declarations and declarations with annotations should have an empty space between.") {
                     prevLeaf.upsertWhitespaceBeforeMe("\n".plus(node.indent))
                 }
             }

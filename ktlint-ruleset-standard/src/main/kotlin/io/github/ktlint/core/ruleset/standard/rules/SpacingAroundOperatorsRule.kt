@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANDAND
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DIV
@@ -32,7 +31,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
@@ -46,45 +44,36 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 
 @SinceKtlint("0.1", STABLE)
 public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType in OPERATORS ||
             (node.elementType == IDENTIFIER && node.parent?.elementType == OPERATION_REFERENCE)
         ) {
-            visitOperator(node, emit)
+            visitOperator(node)
         }
     }
 
-    private fun visitOperator(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitOperator(node: ASTNode) {
         if (node.shouldCheckSpacing()) {
             val spacingBefore = node.prevLeaf.isWhiteSpace
             val spacingAfter = node.nextLeaf.isWhiteSpace
             when {
                 !spacingBefore && !spacingAfter -> {
-                    emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            node.upsertWhitespaceBeforeMe(" ")
-                            node.upsertWhitespaceAfterMe(" ")
-                        }
+                    emit(node.startOffset, "Missing spacing around \"${node.text}\"") {
+                        node.upsertWhitespaceBeforeMe(" ")
+                        node.upsertWhitespaceAfterMe(" ")
+                    }
                 }
 
                 !spacingBefore -> {
-                    emit(node.startOffset, "Missing spacing before \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            node.upsertWhitespaceBeforeMe(" ")
-                        }
+                    emit(node.startOffset, "Missing spacing before \"${node.text}\"") {
+                        node.upsertWhitespaceBeforeMe(" ")
+                    }
                 }
 
                 !spacingAfter -> {
-                    emit(node.startOffset + node.textLength, "Missing spacing after \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            node.upsertWhitespaceAfterMe(" ")
-                        }
+                    emit(node.startOffset + node.textLength, "Missing spacing after \"${node.text}\"") {
+                        node.upsertWhitespaceAfterMe(" ")
+                    }
                 }
             }
         }

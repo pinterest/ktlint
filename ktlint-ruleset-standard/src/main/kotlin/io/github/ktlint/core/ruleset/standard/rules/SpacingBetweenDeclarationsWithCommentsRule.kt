@@ -1,12 +1,10 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.TokenSets
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isDeclaration
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.parent
@@ -23,39 +21,32 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 @SinceKtlint("0.37", EXPERIMENTAL)
 @SinceKtlint("0.46", STABLE)
 public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-between-declarations-with-comments") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.elementType in TokenSets.COMMENTS }
             ?.takeUnless { it.isTailComment() }
             ?.parent
             ?.takeIf { it.isDeclaration }
             ?.takeIf { it.prevCodeSibling.isDeclaration }
-            ?.let { visitCommentedDeclaration(it, emit) }
+            ?.let { visitCommentedDeclaration(it) }
     }
 
     private fun ASTNode.isTailComment() = startOffset > parent!!.startOffset
 
-    private fun visitCommentedDeclaration(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitCommentedDeclaration(node: ASTNode) {
         node
             .prevSibling
             ?.takeUnless { it.isBlankLine() }
             ?.let { prevSibling ->
-                emit(node.startOffset, "Declarations and declarations with comments should have an empty space between.", true)
-                    .ifAutocorrectAllowed {
-                        val indent =
-                            node
-                                .prevLeaf
-                                ?.text
-                                ?.trim('\n')
-                                ?: ""
-                        prevSibling.replaceTextWith("\n\n$indent")
-                    }
+                emit(node.startOffset, "Declarations and declarations with comments should have an empty space between.") {
+                    val indent =
+                        node
+                            .prevLeaf
+                            ?.text
+                            ?.trim('\n')
+                            ?: ""
+                    prevSibling.replaceTextWith("\n\n$indent")
+                }
             }
     }
 

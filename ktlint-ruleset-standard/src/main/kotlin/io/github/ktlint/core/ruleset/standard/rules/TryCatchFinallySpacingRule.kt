@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CATCH
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FINALLY
@@ -17,7 +16,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
@@ -54,29 +52,23 @@ public class TryCatchFinallySpacingRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isPartOfComment && node.parent?.elementType in TRY_CATCH_FINALLY_TOKEN_SET) {
-            emit(node.startOffset, "No comment expected at this location", false)
+            emit(node.startOffset, "No comment expected at this location")
             return
         }
         when (node.elementType) {
             BLOCK -> {
-                visitBlock(node, emit)
+                visitBlock(node)
             }
 
             CATCH, FINALLY -> {
-                visitClause(node, emit)
+                visitClause(node)
             }
         }
     }
 
-    private fun visitBlock(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitBlock(node: ASTNode) {
         if (node.parent?.elementType !in TRY_CATCH_FINALLY_TOKEN_SET) {
             return
         }
@@ -86,10 +78,9 @@ public class TryCatchFinallySpacingRule :
             .let { lbrace ->
                 val nextSibling = lbrace.nextSibling { !it.isPartOfComment }!!
                 if (!nextSibling.text.startsWith("\n")) {
-                    emit(lbrace.startOffset + 1, "Expected a newline after '{'", true)
-                        .ifAutocorrectAllowed {
-                            lbrace.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
-                        }
+                    emit(lbrace.startOffset + 1, "Expected a newline after '{'") {
+                        lbrace.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
+                    }
                 }
             }
 
@@ -98,24 +89,19 @@ public class TryCatchFinallySpacingRule :
             .let { rbrace ->
                 val prevSibling = rbrace.prevSibling { !it.isPartOfComment }!!
                 if (!prevSibling.text.startsWith("\n")) {
-                    emit(rbrace.startOffset, "Expected a newline before '}'", true)
-                        .ifAutocorrectAllowed {
-                            rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
-                        }
+                    emit(rbrace.startOffset, "Expected a newline before '}'") {
+                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
+                    }
                 }
             }
     }
 
-    private fun visitClause(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitClause(node: ASTNode) {
         val prevLeaf = node.prevLeaf { !it.isPartOfComment }!!
         if (prevLeaf.text != " ") {
-            emit(node.startOffset, "A single space is required before '${node.elementTypeName()}'", true)
-                .ifAutocorrectAllowed {
-                    node.upsertWhitespaceBeforeMe(" ")
-                }
+            emit(node.startOffset, "A single space is required before '${node.elementTypeName()}'") {
+                node.upsertWhitespaceBeforeMe(" ")
+            }
         }
     }
 

@@ -1,13 +1,11 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.PRIMARY_CONSTRUCTOR
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
@@ -20,10 +18,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("0.1", STABLE)
 public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-lines") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isWhiteSpace && node.prevSibling != null) {
             val newLineCount = node.text.count { it == '\n' }
             if (newLineCount < 2) {
@@ -44,19 +39,18 @@ public class NoConsecutiveBlankLinesRule : StandardRule("no-consecutive-blank-li
                         } else {
                             2
                         }
-                emit(offset, "Needless blank line(s)", true)
-                    .ifAutocorrectAllowed {
-                        val newText =
-                            buildString {
-                                append(split.first())
+                emit(offset, "Needless blank line(s)") {
+                    val newText =
+                        buildString {
+                            append(split.first())
+                            append("\n")
+                            if (!eof && !betweenClassAndPrimaryConstructor) {
                                 append("\n")
-                                if (!eof && !betweenClassAndPrimaryConstructor) {
-                                    append("\n")
-                                }
-                                append(split.last())
                             }
-                        node.replaceTextWith(newText)
-                    }
+                            append(split.last())
+                        }
+                    node.replaceTextWith(newText)
+                }
             }
         }
     }

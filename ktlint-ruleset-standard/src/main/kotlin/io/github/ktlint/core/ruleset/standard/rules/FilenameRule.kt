@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
@@ -45,10 +44,7 @@ import org.jetbrains.kotlin.psi.KtFile
  */
 @SinceKtlint("0.23", SinceKtlint.Status.STABLE)
 public class FilenameRule : StandardRule("filename") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isRoot) {
             node as FileASTNode? ?: error("node is not ${FileASTNode::class} but ${node::class}")
 
@@ -69,11 +65,11 @@ public class FilenameRule : StandardRule("filename") {
             if (topLevelClassDeclarations.size == 1) {
                 val topLevelClassDeclaration = topLevelClassDeclarations.first()
                 if (node.hasTopLevelDeclarationNotExtending(topLevelClassDeclaration.identifier)) {
-                    fileName.shouldMatchPascalCase(emit)
+                    fileName.shouldMatchPascalCase()
                 } else {
                     // If the file only contains one (non-private) top level class and possibly some extension functions of
                     // that class, then its filename should be identical to the class name.
-                    fileName.shouldMatchClassName(topLevelClassDeclaration.identifier, emit)
+                    fileName.shouldMatchClassName(topLevelClassDeclaration.identifier)
                 }
             } else {
                 val topLevelDeclarations = node.topLevelDeclarations()
@@ -86,12 +82,12 @@ public class FilenameRule : StandardRule("filename") {
                             topLevelDeclaration
                                 .identifier
                                 .toPascalCase()
-                        fileName.shouldMatchFileName(pascalCaseIdentifier, emit)
+                        fileName.shouldMatchFileName(pascalCaseIdentifier)
                     } else {
-                        fileName.shouldMatchPascalCase(emit)
+                        fileName.shouldMatchPascalCase()
                     }
                 } else {
-                    fileName.shouldMatchPascalCase(emit)
+                    fileName.shouldMatchPascalCase()
                 }
             }
             stopTraversalOfAST()
@@ -123,40 +119,30 @@ public class FilenameRule : StandardRule("filename") {
         elementType == FUN &&
             findChildByType(TYPE_REFERENCE)?.text?.let { !it.contains(className) } ?: true
 
-    private fun String.shouldMatchClassName(
-        className: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun String.shouldMatchClassName(className: String) {
         if (this != className) {
             emit(
                 0,
                 "File '$this.kt' contains a single class, and possibly related top level declarations for that class. The file should be " +
                     "named after the class, '$className.kt'",
-                false,
             )
         }
     }
 
     private fun String.toPascalCase() = replaceFirstChar { it.uppercaseChar() }
 
-    private fun String.shouldMatchFileName(
-        filename: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun String.shouldMatchFileName(filename: String) {
         if (this != filename) {
             emit(
                 0,
                 "File '$this.kt' contains a single top level declaration and should be named '$filename.kt'",
-                false,
             )
         }
     }
 
-    private fun String.shouldMatchPascalCase(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun String.shouldMatchPascalCase() {
         if (!this.matches(PASCAL_CASE_REGEX)) {
-            emit(0, "File name '$this.kt' should conform PascalCase", false)
+            emit(0, "File name '$this.kt' should conform PascalCase")
         }
     }
 

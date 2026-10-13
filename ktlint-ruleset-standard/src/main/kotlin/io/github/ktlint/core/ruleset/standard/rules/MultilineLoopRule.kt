@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BODY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DO_KEYWORD
@@ -15,7 +14,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
@@ -55,10 +53,7 @@ public class MultilineLoopRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.elementType == BODY }
             ?.takeUnless {
@@ -73,10 +68,9 @@ public class MultilineLoopRule :
                 //    do <statement> while (...)
                 it.textContains('\n')
             } ?: return
-        emit(node.firstChildNode.startOffset, "Missing { ... }", true)
-            .ifAutocorrectAllowed {
-                autocorrect(node)
-            }
+        emit(node.firstChildNode.startOffset, "Missing { ... }") {
+            autocorrect(node)
+        }
     }
 
     private fun autocorrect(node: ASTNode) {

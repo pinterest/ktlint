@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS_BODY
 import io.github.ktlint.core.rule.engine.core.api.IndentConfig
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -11,7 +10,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
@@ -40,10 +38,7 @@ public class NoEmptyFirstLineInClassBodyRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == CLASS_BODY) {
             node
                 .firstChildNode // LBRACE
@@ -55,11 +50,7 @@ public class NoEmptyFirstLineInClassBodyRule :
                             .text
                             .count { it == '\n' }
                     if (countNewlines > 1) {
-                        emit(
-                            whitespace.startOffset + 1,
-                            "Class body should not start with blank line",
-                            true,
-                        ).ifAutocorrectAllowed {
+                        emit(whitespace.startOffset + 1, "Class body should not start with blank line") {
                             whitespace.replaceTextWith(indentConfig.childIndentOf(node))
                         }
                     }

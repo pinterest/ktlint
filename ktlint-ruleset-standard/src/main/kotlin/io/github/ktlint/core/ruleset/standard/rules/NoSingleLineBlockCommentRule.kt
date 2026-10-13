@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -11,7 +10,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
@@ -39,10 +37,7 @@ public class NoSingleLineBlockCommentRule :
             ),
     ),
     RuleV2.OfficialCodeStyle {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == BLOCK_COMMENT) {
             val afterBlockComment =
                 node
@@ -54,22 +49,21 @@ public class NoSingleLineBlockCommentRule :
             if (!node.textContains('\n') &&
                 afterBlockComment.nextLeaf.isWhitespaceWithNewlineOrNull()
             ) {
-                emit(node.startOffset, "Replace the block comment with an EOL comment", true)
-                    .ifAutocorrectAllowed {
-                        val beforeBlockComment =
-                            node
-                                .leaves(false)
-                                .takeWhile { it.isWhiteSpaceWithoutNewline }
-                                .firstOrNull()
-                                ?: node.firstChildLeafOrSelf
-                        beforeBlockComment
-                            .prevLeaf
-                            .takeIf { !it.isWhitespaceWithNewlineOrNull() }
-                            ?.let {
-                                node.upsertWhitespaceBeforeMe(" ")
-                            }
-                        node.replaceWithEndOfLineComment()
-                    }
+                emit(node.startOffset, "Replace the block comment with an EOL comment") {
+                    val beforeBlockComment =
+                        node
+                            .leaves(false)
+                            .takeWhile { it.isWhiteSpaceWithoutNewline }
+                            .firstOrNull()
+                            ?: node.firstChildLeafOrSelf
+                    beforeBlockComment
+                        .prevLeaf
+                        .takeIf { !it.isWhitespaceWithNewlineOrNull() }
+                        ?.let {
+                            node.upsertWhitespaceBeforeMe(" ")
+                        }
+                    node.replaceWithEndOfLineComment()
+                }
             }
         }
     }

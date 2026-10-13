@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANDAND
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COMMA
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DIV
@@ -25,7 +24,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -67,95 +65,84 @@ public class ChainWrappingRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (!node.isPartOfComment) {
             when (node.elementType) {
-                in NEXT_LINE_TOKENS -> fixChainOperatorWhichMayNotBeUsedAtEndOfLine(node, emit)
-                in SAME_LINE_TOKENS, in PREFIX_TOKENS -> fixChainOperatorWhichMayNotUsedAtStartOfLine(node, emit)
+                in NEXT_LINE_TOKENS -> fixChainOperatorWhichMayNotBeUsedAtEndOfLine(node)
+                in SAME_LINE_TOKENS, in PREFIX_TOKENS -> fixChainOperatorWhichMayNotUsedAtStartOfLine(node)
             }
         }
     }
 
-    private fun fixChainOperatorWhichMayNotBeUsedAtEndOfLine(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun fixChainOperatorWhichMayNotBeUsedAtEndOfLine(node: ASTNode) {
         val nextLeaf = node.nextCodeLeaf?.prevLeaf
         if (nextLeaf.isWhiteSpaceWithNewline && !node.isElvisOperatorAndComment()) {
-            emit(node.startOffset, "Line must not end with \"${node.text}\"", true)
-                .ifAutocorrectAllowed {
-                    // rewriting
-                    // <prevLeaf><node="."><nextLeaf="\n"> to
-                    // <prevLeaf><delete space if any><nextLeaf="\n"><node="."><space if needed>
-                    // (or)
-                    // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
-                    // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
-                    if (node.elementType == ELVIS) {
-                        node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
-                        node.upsertWhitespaceAfterMe(" ")
-                    } else {
-                        node.remove()
-                        (nextLeaf as LeafElement).rawInsertAfterMe(node as LeafElement)
-                    }
+            emit(node.startOffset, "Line must not end with \"${node.text}\"") {
+                // rewriting
+                // <prevLeaf><node="."><nextLeaf="\n"> to
+                // <prevLeaf><delete space if any><nextLeaf="\n"><node="."><space if needed>
+                // (or)
+                // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
+                // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
+                if (node.elementType == ELVIS) {
+                    node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                    node.upsertWhitespaceAfterMe(" ")
+                } else {
+                    node.remove()
+                    (nextLeaf as LeafElement).rawInsertAfterMe(node as LeafElement)
                 }
+            }
         }
     }
 
-    private fun fixChainOperatorWhichMayNotUsedAtStartOfLine(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ): Boolean =
+    private fun fixChainOperatorWhichMayNotUsedAtStartOfLine(node: ASTNode): Boolean =
         if (node.isPartOfSpread() || node.isInPrefixPosition()) {
             true
         } else {
             val prevLeaf = node.prevLeaf
             if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline) {
-                emit(node.startOffset, "Line must not begin with \"${node.text}\"", true)
-                    .ifAutocorrectAllowed {
-                        // rewriting
-                        // <insertionPoint><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
-                        // <insertionPoint><prevLeaf=" "><node="&&"><nextLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                        // (or)
-                        // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
-                        // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                        val nextLeaf = node.nextLeaf
-                        val whiteSpaceToBeDeleted =
-                            when {
-                                nextLeaf.isWhiteSpaceWithNewline -> {
-                                    // Node is preceded and followed by whitespace. Prefer to remove the whitespace before the node as this will
-                                    // change the indent of the next line
-                                    prevLeaf
-                                }
-
-                                nextLeaf.isWhiteSpaceWithoutNewline -> {
-                                    nextLeaf
-                                }
-
-                                else -> {
-                                    null
-                                }
+                emit(node.startOffset, "Line must not begin with \"${node.text}\"") {
+                    // rewriting
+                    // <insertionPoint><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
+                    // <insertionPoint><prevLeaf=" "><node="&&"><nextLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
+                    // (or)
+                    // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
+                    // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
+                    val nextLeaf = node.nextLeaf
+                    val whiteSpaceToBeDeleted =
+                        when {
+                            nextLeaf.isWhiteSpaceWithNewline -> {
+                                // Node is preceded and followed by whitespace. Prefer to remove the whitespace before the node as this will
+                                // change the indent of the next line
+                                prevLeaf
                             }
 
-                        val parent = node.parent
-                        if (parent?.elementType == OPERATION_REFERENCE) {
-                            val insertBeforeSibling =
-                                parent
-                                    .prevCodeSibling
-                                    ?.nextSibling
-                            parent.remove()
-                            insertBeforeSibling?.parent?.addChild(parent, insertBeforeSibling)
-                            parent.upsertWhitespaceBeforeMe(" ")
-                        } else {
-                            val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
-                            (node as LeafPsiElement).remove()
-                            insertionPoint.rawInsertAfterMe(node)
-                            (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
+                            nextLeaf.isWhiteSpaceWithoutNewline -> {
+                                nextLeaf
+                            }
+
+                            else -> {
+                                null
+                            }
                         }
-                        whiteSpaceToBeDeleted?.remove()
+
+                    val parent = node.parent
+                    if (parent?.elementType == OPERATION_REFERENCE) {
+                        val insertBeforeSibling =
+                            parent
+                                .prevCodeSibling
+                                ?.nextSibling
+                        parent.remove()
+                        insertBeforeSibling?.parent?.addChild(parent, insertBeforeSibling)
+                        parent.upsertWhitespaceBeforeMe(" ")
+                    } else {
+                        val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
+                        (node as LeafPsiElement).remove()
+                        insertionPoint.rawInsertAfterMe(node)
+                        (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
                     }
+                    whiteSpaceToBeDeleted?.remove()
+                }
             }
             false
         }

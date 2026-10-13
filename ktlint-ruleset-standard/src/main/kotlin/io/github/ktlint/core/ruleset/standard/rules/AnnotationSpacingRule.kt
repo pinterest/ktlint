@@ -1,13 +1,11 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.MODIFIER_LIST
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
@@ -34,10 +32,7 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
 @SinceKtlint("0.39", EXPERIMENTAL)
 @SinceKtlint("0.46", STABLE)
 public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType != MODIFIER_LIST) {
             return
         }
@@ -49,14 +44,13 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 .toList()
                 .ifEmpty { return }
 
-        fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(annotations, node, emit)
-        fixCommentsBetweenAnnotationsAndAnnotatedConstruct(node, emit)
+        fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(annotations, node)
+        fixCommentsBetweenAnnotationsAndAnnotatedConstruct(node)
     }
 
     private fun fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(
         annotations: List<ASTNode>,
         node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
     ) {
         // Join the nodes that immediately follow the annotations (whitespace), then add the final whitespace
         // if it's not a child of root. This happens when a new line separates the annotations from the annotated
@@ -75,18 +69,14 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         whiteSpaces
             .filter { it.containsMultipleNewlines() }
             .forEach {
-                emit(it.startOffset + 1, "No blank line(s) expected between annotation and annotated construct", true)
-                    .ifAutocorrectAllowed {
-                        removeIntraLineBreaks(node, annotations.last())
-                        removeExtraLineBreaks(node)
-                    }
+                emit(it.startOffset + 1, "No blank line(s) expected between annotation and annotated construct") {
+                    removeIntraLineBreaks(node, annotations.last())
+                    removeExtraLineBreaks(node)
+                }
             }
     }
 
-    private fun fixCommentsBetweenAnnotationsAndAnnotatedConstruct(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun fixCommentsBetweenAnnotationsAndAnnotatedConstruct(node: ASTNode) {
         require(node.elementType == MODIFIER_LIST)
         // Collect all modifiers from the list itself
         val modifiers = node.children()
@@ -95,20 +85,19 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
             .filter { it.isPartOfComment && !it.isCommentOnSameLineAsPrevLeaf() }
             .toList()
             .forEach { comment ->
-                emit(comment.startOffset, "No comment(s) expected between annotation and the annotated construct", true)
-                    .ifAutocorrectAllowed {
-                        // Remove the comment and whitespace preceding it from the modifier list
-                        comment.prevSibling { it.isWhiteSpace }?.remove()
-                        comment.remove()
+                emit(comment.startOffset, "No comment(s) expected between annotation and the annotated construct") {
+                    // Remove the comment and whitespace preceding it from the modifier list
+                    comment.prevSibling { it.isWhiteSpace }?.remove()
+                    comment.remove()
 
-                        // Re-insert the comment and newline prior to the modifier list
-                        val beforeAnchor = node
-                        node.parent!!
-                            .apply {
-                                addChild(comment, beforeAnchor)
-                                addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
-                            }
-                    }
+                    // Re-insert the comment and newline prior to the modifier list
+                    val beforeAnchor = node
+                    node.parent!!
+                        .apply {
+                            addChild(comment, beforeAnchor)
+                            addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
+                        }
+                }
             }
     }
 

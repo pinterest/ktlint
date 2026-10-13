@@ -1,8 +1,6 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.logger.api.initKtLintKLogger
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
@@ -60,7 +58,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_P
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNewLineInClosedRange
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
@@ -127,27 +124,21 @@ public class WrappingRule :
         maxLineLength = editorConfig.maxLineLength()
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
-            BLOCK -> beforeVisitBlock(node, emit)
-            LPAR, LBRACE, LBRACKET -> rearrangeBlock(node, emit)
-            SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, emit)
-            VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, emit)
-            TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST -> rearrangeTypeArgumentList(node, emit)
-            WHERE_KEYWORD -> rearrangeTypeConstraintList(node, emit)
-            ARROW -> rearrangeArrow(node, emit)
+            BLOCK -> beforeVisitBlock(node)
+            LPAR, LBRACE, LBRACKET -> rearrangeBlock(node)
+            SUPER_TYPE_LIST -> rearrangeSuperTypeList(node)
+            VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node)
+            TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST -> rearrangeTypeArgumentList(node)
+            WHERE_KEYWORD -> rearrangeTypeConstraintList(node)
+            ARROW -> rearrangeArrow(node)
             WHITE_SPACE -> line += node.text.count { it == '\n' }
-            CLOSING_QUOTE -> rearrangeClosingQuote(node, emit)
+            CLOSING_QUOTE -> rearrangeClosingQuote(node)
         }
     }
 
-    private fun beforeVisitBlock(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun beforeVisitBlock(node: ASTNode) {
         require(node.elementType == BLOCK)
 
         val lbrace =
@@ -166,7 +157,7 @@ public class WrappingRule :
             ?.takeIf { it.elementType == RBRACE }
             ?.let { rbrace ->
                 if (hasNewLineInClosedRange(lbrace, rbrace)) {
-                    requireNewlineAfterLeaf(lbrace, emit)
+                    requireNewlineAfterLeaf(lbrace)
                 }
             }
 
@@ -183,7 +174,7 @@ public class WrappingRule :
                     .takeWhile { !it.isWhiteSpaceWithNewline }
                     .sumOf { it.textLength }
             if (lengthUntilBeginOfLine + lengthUntilEndOfLine > maxLineLength) {
-                requireNewlineAfterLeaf(lbrace, emit)
+                requireNewlineAfterLeaf(lbrace)
             }
         }
     }
@@ -206,10 +197,7 @@ public class WrappingRule :
                 ?.nextCodeSibling
                 ?.elementType
 
-    private fun rearrangeBlock(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun rearrangeBlock(node: ASTNode) {
         val closingElement = node.findMatchingClosingElement()
         if (node.shouldNotRearrangeBlock(closingElement)) {
             return
@@ -225,10 +213,10 @@ public class WrappingRule :
             //
             node.nextSibling?.elementType != CONDITION
         ) {
-            requireNewlineAfterLeaf(node, emit)
+            requireNewlineAfterLeaf(node)
         }
         if (!closingElement.prevLeaf.isWhiteSpaceWithNewline) {
-            requireNewlineBeforeLeaf(closingElement, emit, indentConfig.parentIndentOf(node))
+            requireNewlineBeforeLeaf(closingElement, indentConfig.parentIndentOf(node))
         }
     }
 
@@ -291,10 +279,7 @@ public class WrappingRule :
                 !it.isPartOfComment && !it.isWhiteSpaceWithoutNewline && it.textLength > 0
             }.isWhiteSpaceWithNewline
 
-    private fun rearrangeSuperTypeList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun rearrangeSuperTypeList(node: ASTNode) {
         val entries = (node.psi as KtSuperTypeList).entries
         // e.g. class A : B, C, D (multi-line) but not class A : B, C, D({})
         val isLastEntryACallButNotAllOthersAreEntries =
@@ -310,7 +295,7 @@ public class WrappingRule :
                     !colon.prevLeaf.isWhiteSpaceWithNewline &&
                     colon.prevCodeLeaf.let { it?.elementType != RPAR || !it.prevLeaf.isWhiteSpaceWithNewline }
                 ) {
-                    requireNewlineAfterLeaf(colon, emit)
+                    requireNewlineAfterLeaf(colon)
                 }
             }
             // put entries on separate lines
@@ -319,11 +304,7 @@ public class WrappingRule :
                     !c.nextSibling.isWhiteSpaceWithNewline &&
                     !c.isFollowedByCommentOnSameLine()
                 ) {
-                    requireNewlineAfterLeaf(
-                        nodeAfterWhichNewlineIsRequired = c,
-                        emit = emit,
-                        indent = node.indent,
-                    )
+                    requireNewlineAfterLeaf(nodeAfterWhichNewlineIsRequired = c, indent = node.indent)
                 }
             }
         }
@@ -333,10 +314,7 @@ public class WrappingRule :
         nextLeaf { !it.isWhiteSpaceWithoutNewline }
             ?.isPartOfComment == true
 
-    private fun rearrangeValueList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun rearrangeValueList(node: ASTNode) {
         for (c in node.children) {
             val hasLineBreak =
                 when (c.elementType) {
@@ -363,7 +341,7 @@ public class WrappingRule :
                     prevSibling?.elementType == COMMA &&
                     !prevSibling.nextSibling.isWhiteSpaceWithNewline
                 ) {
-                    requireNewlineAfterLeaf(prevSibling, emit)
+                    requireNewlineAfterLeaf(prevSibling)
                 }
                 // insert \n after multi-line value
                 val nextSibling = c.nextSibling { !it.isWhiteSpace }
@@ -376,7 +354,7 @@ public class WrappingRule :
                         // value( // ), // a comment // c, d
                         nextSibling.nextSibling?.nextSibling?.let { !TokenSets.COMMENTS.contains(it.elementType) } != false
                 if (needsNewlineAfterComma) {
-                    requireNewlineAfterLeaf(nextSibling, emit)
+                    requireNewlineAfterLeaf(nextSibling)
                 }
             }
         }
@@ -386,10 +364,7 @@ public class WrappingRule :
         elementType == VALUE_PARAMETER &&
             siblings().none { it.elementType == VALUE_PARAMETER }
 
-    private fun rearrangeTypeArgumentList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun rearrangeTypeArgumentList(node: ASTNode) {
         if (node.textContains('\n')) {
             // Each type projection must be preceded with a whitespace containing a newline
             node
@@ -400,10 +375,9 @@ public class WrappingRule :
                         .prevSibling { !it.isPartOfComment }
                         .let { prevSibling ->
                             if (prevSibling?.elementType == LT || prevSibling.isWhiteSpaceWithoutNewline) {
-                                emit(typeProjection.startOffset, "A newline was expected before '${typeProjection.text}'", true)
-                                    .ifAutocorrectAllowed {
-                                        typeProjection.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                                    }
+                                emit(typeProjection.startOffset, "A newline was expected before '${typeProjection.text}'") {
+                                    typeProjection.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                                }
                             }
                         }
                 }
@@ -414,19 +388,15 @@ public class WrappingRule :
                 ?.let { closingAngle ->
                     val prevSibling = closingAngle.prevSibling { !it.isPartOfComment }
                     if (!prevSibling.isWhiteSpaceWithNewline) {
-                        emit(closingAngle.startOffset, "A newline was expected before '${closingAngle.text}'", true)
-                            .ifAutocorrectAllowed {
-                                closingAngle.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                            }
+                        emit(closingAngle.startOffset, "A newline was expected before '${closingAngle.text}'") {
+                            closingAngle.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                        }
                     }
                 }
         }
     }
 
-    private fun rearrangeTypeConstraintList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun rearrangeTypeConstraintList(node: ASTNode) {
         require(node.elementType == WHERE_KEYWORD)
 
         if (hasNewLineInClosedRange(node, node.nextSibling { it.elementType == TYPE_CONSTRAINT_LIST } ?: node)) {
@@ -435,10 +405,9 @@ public class WrappingRule :
                 .prevSibling { !it.isPartOfComment }
                 .let { prevSibling ->
                     if (prevSibling.isWhiteSpaceWithoutNewline) {
-                        emit(node.startOffset, "A newline was expected before 'where'", true)
-                            .ifAutocorrectAllowed {
-                                node.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                            }
+                        emit(node.startOffset, "A newline was expected before 'where'") {
+                            node.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                        }
                     }
                 }
 
@@ -448,74 +417,63 @@ public class WrappingRule :
                 ?.children
                 ?.forEach { child ->
                     when (child.elementType) {
-                        COMMA -> rearrangeCommaInTypeConstraintList(child, emit)
-                        TYPE_CONSTRAINT -> rearrangeTypeConstraintInTypeConstraintList(child, emit)
+                        COMMA -> rearrangeCommaInTypeConstraintList(child)
+                        TYPE_CONSTRAINT -> rearrangeTypeConstraintInTypeConstraintList(child)
                     }
                 }
         }
     }
 
-    private fun rearrangeCommaInTypeConstraintList(
-        child: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun rearrangeCommaInTypeConstraintList(child: ASTNode) {
         require(child.elementType == COMMA && child.parent!!.elementType == TYPE_CONSTRAINT_LIST)
         child
             .prevSibling
             ?.takeIf { it.isWhiteSpaceWithNewline }
             ?.let { whitespaceWithNewline ->
-                emit(child.startOffset, "No whitespace was expected before '${child.text}'", true)
-                    .ifAutocorrectAllowed {
-                        if (whitespaceWithNewline.prevLeaf?.elementType == EOL_COMMENT) {
-                            // In case the comma was preceded by an EOL_COMMENT then move the comma before that comment
-                            //        where T : CharSequence // Some comment
-                            //            , T : Comparable<T>
-                            val eolCommentBeforeComma = whitespaceWithNewline.prevLeaf!!
-                            val insertCommaBefore =
-                                eolCommentBeforeComma
-                                    .prevLeaf
-                                    .takeIf { it.isWhiteSpace }
-                                    ?: eolCommentBeforeComma
-                            eolCommentBeforeComma.treeParent.addChild(LeafPsiElement(COMMA, ","), insertCommaBefore)
-                            child
-                                .nextSibling
-                                ?.takeIf { it.isWhiteSpace }
-                                ?.remove()
-                            child.remove()
-                        } else {
-                            whitespaceWithNewline.remove()
-                        }
+                emit(child.startOffset, "No whitespace was expected before '${child.text}'") {
+                    if (whitespaceWithNewline.prevLeaf?.elementType == EOL_COMMENT) {
+                        // In case the comma was preceded by an EOL_COMMENT then move the comma before that comment
+                        //        where T : CharSequence // Some comment
+                        //            , T : Comparable<T>
+                        val eolCommentBeforeComma = whitespaceWithNewline.prevLeaf!!
+                        val insertCommaBefore =
+                            eolCommentBeforeComma
+                                .prevLeaf
+                                .takeIf { it.isWhiteSpace }
+                                ?: eolCommentBeforeComma
+                        eolCommentBeforeComma.treeParent.addChild(LeafPsiElement(COMMA, ","), insertCommaBefore)
+                        child
+                            .nextSibling
+                            ?.takeIf { it.isWhiteSpace }
+                            ?.remove()
+                        child.remove()
+                    } else {
+                        whitespaceWithNewline.remove()
                     }
+                }
             }
     }
 
-    private fun rearrangeTypeConstraintInTypeConstraintList(
-        child: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun rearrangeTypeConstraintInTypeConstraintList(child: ASTNode) {
         require(child.elementType == TYPE_CONSTRAINT)
         child
             .prevSibling { !it.isPartOfComment }
             .let { prevSibling ->
                 if (prevSibling.isWhiteSpaceWithoutNewline) {
-                    emit(child.startOffset, "A newline was expected before '${child.text}'", true)
-                        .ifAutocorrectAllowed {
-                            child.upsertWhitespaceBeforeMe(
-                                indentConfig.siblingIndentOf(
-                                    child
-                                        .parent { it.elementType == FUN }
-                                        ?.findChildByType(WHERE_KEYWORD)!!,
-                                ),
-                            )
-                        }
+                    emit(child.startOffset, "A newline was expected before '${child.text}'") {
+                        child.upsertWhitespaceBeforeMe(
+                            indentConfig.siblingIndentOf(
+                                child
+                                    .parent { it.elementType == FUN }
+                                    ?.findChildByType(WHERE_KEYWORD)!!,
+                            ),
+                        )
+                    }
                 }
             }
     }
 
-    private fun rearrangeClosingQuote(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun rearrangeClosingQuote(node: ASTNode) {
         node
             .parent
             ?.takeIf { it.elementType == STRING_TEMPLATE }
@@ -533,15 +491,8 @@ public class WrappingRule :
                 //     text
                 // _
                 // """.trimIndent()
-                emit(
-                    node.startOffset,
-                    "Missing newline before \"\"\"",
-                    true,
-                ).also { autocorrectDecision ->
-                    LOGGER.trace {
-                        "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline before (closing) \"\"\""
-                    }
-                }.ifAutocorrectAllowed {
+                emit(node.startOffset, "Missing newline before \"\"\"") {
+                    LOGGER.trace { "$line: inserted newline before (closing) \"\"\"" }
                     node as LeafPsiElement
                     node.rawInsertBeforeMe(LeafPsiElement(LITERAL_STRING_TEMPLATE_ENTRY, "\n"))
                 }
@@ -572,10 +523,7 @@ public class WrappingRule :
         return nextCodeSibling?.textContains('\n') == false
     }
 
-    private fun rearrangeArrow(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun rearrangeArrow(node: ASTNode) {
         val parent = node.parent!!
         // Only check `{ p -> ... }` and `when { m -> ... }` that span multiple lines
         val arrowDoesNotRequireNewlineRearrangement =
@@ -587,47 +535,31 @@ public class WrappingRule :
             return
         }
         if (!node.nextCodeLeaf?.prevLeaf.isWhiteSpaceWithNewline) {
-            requireNewlineAfterLeaf(node, emit)
+            requireNewlineAfterLeaf(node)
         }
         val r = node.nextSibling { it.elementType == RBRACE } ?: return
         if (!r.prevLeaf.isWhiteSpaceWithNewline) {
-            requireNewlineBeforeLeaf(r, emit, node.indent)
+            requireNewlineBeforeLeaf(r, node.indent)
         }
     }
 
     private fun requireNewlineBeforeLeaf(
         node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         indent: String,
     ) {
-        emit(
-            node.startOffset - 1,
-            """Missing newline before "${node.text}"""",
-            true,
-        ).also { autocorrectDecision ->
-            LOGGER.trace {
-                "$line: " + (if (autocorrectDecision == NO_AUTOCORRECT) "would have " else "") + "inserted newline before ${node.text}"
-            }
-        }.ifAutocorrectAllowed {
+        emit(node.startOffset - 1, """Missing newline before "${node.text}"""") {
+            LOGGER.trace { "$line: inserted newline before ${node.text}" }
             node.upsertWhitespaceBeforeMe(indent)
         }
     }
 
     private fun requireNewlineAfterLeaf(
         nodeAfterWhichNewlineIsRequired: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
         indent: String? = null,
         nodeToFix: ASTNode = nodeAfterWhichNewlineIsRequired,
     ) {
-        emit(
-            nodeAfterWhichNewlineIsRequired.startOffset + 1,
-            """Missing newline after "${nodeAfterWhichNewlineIsRequired.text}"""",
-            true,
-        ).also { autocorrectDecision ->
-            LOGGER.trace {
-                "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
-            }
-        }.ifAutocorrectAllowed {
+        emit(nodeAfterWhichNewlineIsRequired.startOffset + 1, """Missing newline after "${nodeAfterWhichNewlineIsRequired.text}"""") {
+            LOGGER.trace { "$line: inserted newline after ${nodeAfterWhichNewlineIsRequired.text}" }
             val tempIndent = indent ?: (indentConfig.childIndentOf(nodeToFix))
             nodeToFix.upsertWhitespaceAfterMe(tempIndent)
         }
@@ -687,10 +619,7 @@ public class WrappingRule :
                 parent?.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
             }
 
-    override fun afterVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun afterVisitChildNodes(node: ASTNode) {
         if (node.elementType == BLOCK) {
             val lbrace =
                 node
@@ -703,11 +632,7 @@ public class WrappingRule :
                 ?.takeUnless { it.isPrecededByNewline() }
                 ?.let { rbrace ->
                     if (hasNewLineInClosedRange(lbrace, rbrace)) {
-                        requireNewlineBeforeLeaf(
-                            rbrace,
-                            emit,
-                            indentConfig.parentIndentOf(node),
-                        )
+                        requireNewlineBeforeLeaf(rbrace, indentConfig.parentIndentOf(node))
                     }
                 }
         }

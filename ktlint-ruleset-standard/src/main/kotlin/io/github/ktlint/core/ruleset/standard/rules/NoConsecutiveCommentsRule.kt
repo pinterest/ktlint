@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_END
@@ -28,10 +27,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class NoConsecutiveCommentsRule :
     StandardRule("no-consecutive-comments"),
     RuleV2.OfficialCodeStyle {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.isStartOfComment() }
             ?.prevLeaf { !it.isWhiteSpace }
@@ -53,11 +49,7 @@ public class NoConsecutiveCommentsRule :
                         //     */
                         //
                         //    //
-                        emit(
-                            node.startOffset,
-                            "${node.commentType()} may not be preceded by ${previousComment.commentType()}",
-                            false,
-                        )
+                        emit(node.startOffset, "${node.commentType()} may not be preceded by ${previousComment.commentType()}")
                         true
                     }
 
@@ -72,7 +64,6 @@ public class NoConsecutiveCommentsRule :
                             node.startOffset,
                             "${node.commentType()} may not be preceded by ${previousComment.commentType()}. Reversed order is allowed " +
                                 "though when separated by a newline.",
-                            false,
                         )
                         true
                     }
@@ -86,11 +77,7 @@ public class NoConsecutiveCommentsRule :
                         //    /**
                         //     * Block comment 2
                         //     */
-                        emit(
-                            node.startOffset,
-                            "${node.commentType()} may not be preceded by ${previousComment.commentType()}",
-                            false,
-                        )
+                        emit(node.startOffset, "${node.commentType()} may not be preceded by ${previousComment.commentType()}")
                     }
 
                     previousComment.elementType == EOL_COMMENT && node.elementType == EOL_COMMENT -> {
@@ -114,9 +101,7 @@ public class NoConsecutiveCommentsRule :
                     else -> {
                         emit(
                             node.startOffset,
-                            "${node.commentType()} may not be preceded by ${previousComment.commentType()} unless separated by a blank " +
-                                "line",
-                            false,
+                            "${node.commentType()} may not be preceded by ${previousComment.commentType()} unless separated by a blank line",
                         )
                     }
                 }

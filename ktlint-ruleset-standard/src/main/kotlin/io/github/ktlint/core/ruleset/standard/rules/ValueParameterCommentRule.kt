@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -20,10 +19,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  */
 @SinceKtlint("1.1", STABLE)
 public class ValueParameterCommentRule : StandardRule("value-parameter-comment") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isPartOfComment && node.parent?.elementType == VALUE_PARAMETER) {
             if (node.elementType == KDOC && node.parent?.firstChildNode == node) {
                 // Allow KDoc to be the first element of a value parameter. EOL and block comments directly before a value parameter are
@@ -47,7 +43,6 @@ public class ValueParameterCommentRule : StandardRule("value-parameter-comment")
                     node.startOffset,
                     "A comment inside or on same line after a 'value_parameter' is not allowed. It may be placed on a separate line " +
                         "above.",
-                    false,
                 )
             }
         }

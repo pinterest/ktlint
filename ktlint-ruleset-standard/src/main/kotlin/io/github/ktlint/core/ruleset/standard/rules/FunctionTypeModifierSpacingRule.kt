@@ -1,13 +1,11 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.MODIFIER_LIST
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.nextCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.prevSibling
@@ -21,20 +19,16 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 @SinceKtlint("1.0", EXPERIMENTAL)
 @SinceKtlint("1.3", STABLE)
 public class FunctionTypeModifierSpacingRule : StandardRule("function-type-modifier-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.elementType == MODIFIER_LIST }
             ?.nextCodeSibling
             ?.takeIf { it.elementType == FUNCTION_TYPE }
             ?.takeUnless { it.isPrecededBySingleSpace() }
             ?.let { functionTypeNode ->
-                emit(functionTypeNode.startOffset, "Expected a single space between the modifier list and the function type", true)
-                    .ifAutocorrectAllowed {
-                        functionTypeNode.upsertWhitespaceBeforeMe(" ")
-                    }
+                emit(functionTypeNode.startOffset, "Expected a single space between the modifier list and the function type") {
+                    functionTypeNode.upsertWhitespaceBeforeMe(" ")
+                }
             }
     }
 

@@ -14,7 +14,6 @@ import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.CodeStyleValue as CodeStyleValueComPinterestKtlint
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RULE_EXECUTION_PROPERTY_TYPE as RULE_EXECUTION_PROPERTY_TYPE_COM_PINTEREST_KTLINT
 import com.pinterest.ktlint.rule.engine.core.api.editorconfig.RuleExecution as RuleExecutionComPinterestKtlint
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision as AutocorrectDecisionIoGithubKtlint
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY_TYPE as CODE_STYLE_PROPERTY_TYPE_IO_GITHUB_KTLINT
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue as CodeStyleValueIoGithubKtlint
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig as EditorConfigIoGithubKtlint
@@ -318,37 +317,30 @@ public fun Rule.toRuleV2(): RuleV2 =
                         ),
                     usesEditorConfigProperties = rule.usesEditorConfigProperties.mapToEditorConfigPropertiesIoGithubKtlint(),
                 ) {
+                // The legacy (V1) Rule expects the AutocorrectDecision to be returned by the emitter. As the RuleV2 emitter does not support
+                // that natively, the RuleV2 emitter is wrapped.
+                private val emitV1 = { offset: Int, errorMessage: String, canBeAutoCorrected: Boolean ->
+                    var autocorrectDecision = NO_AUTOCORRECT
+                    if (canBeAutoCorrected) {
+                        emit(offset, errorMessage) {
+                            autocorrectDecision = ALLOW_AUTOCORRECT
+                        }
+                    }
+                    autocorrectDecision
+                }
+
                 override fun beforeFirstNode(editorConfig: EditorConfigIoGithubKtlint) {
                     rule.beforeFirstNode(editorConfig.mapToEditorConfigComPinterestKtlint())
                 }
 
-                override fun beforeVisitChildNodes(
-                    node: ASTNode,
-                    emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecisionIoGithubKtlint,
-                ) {
+                override fun beforeVisitChildNodes(node: ASTNode) {
                     // Call the legacy version which previously was provided via RuleAutocorrectApproveHandler. Note that the
                     // AutocorrectDecision has to be transformed
-                    (rule as RuleAutocorrectApproveHandler).beforeVisitChildNodes(
-                        node,
-                        emitAndTransformAutoCorrectDecision(emit),
-                    )
+                    (rule as RuleAutocorrectApproveHandler).beforeVisitChildNodes(node, emit = emitV1)
                 }
 
-                private fun emitAndTransformAutoCorrectDecision(
-                    emit: (Int, String, Boolean) -> AutocorrectDecisionIoGithubKtlint,
-                ): (Int, String, Boolean) -> AutocorrectDecision =
-                    { offset: Int, errorMessage: String, canBeAutoCorrected: Boolean ->
-                        when (emit(offset, errorMessage, canBeAutoCorrected)) {
-                            AutocorrectDecisionIoGithubKtlint.NO_AUTOCORRECT -> NO_AUTOCORRECT
-                            AutocorrectDecisionIoGithubKtlint.ALLOW_AUTOCORRECT -> ALLOW_AUTOCORRECT
-                        }
-                    }
-
-                override fun afterVisitChildNodes(
-                    node: ASTNode,
-                    emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecisionIoGithubKtlint,
-                ) {
-                    (rule as RuleAutocorrectApproveHandler).afterVisitChildNodes(node, emitAndTransformAutoCorrectDecision(emit))
+                override fun afterVisitChildNodes(node: ASTNode) {
+                    (rule as RuleAutocorrectApproveHandler).afterVisitChildNodes(node, emit = emitV1)
                 }
 
                 override fun afterLastNode() {

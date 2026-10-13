@@ -5,7 +5,6 @@ import io.github.ktlint.core.rule.engine.api.Code
 import io.github.ktlint.core.rule.engine.api.EditorConfigOverride.Companion.from
 import io.github.ktlint.core.rule.engine.api.KtLintRuleEngine
 import io.github.ktlint.core.rule.engine.api.LintError
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
@@ -29,7 +28,6 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.File
 import java.io.FileWriter
 import java.nio.file.Path
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed as ifAutocorrectAllowedLegacy
 
 /**
  * The KtLintRuleEngine is used by the Ktlint CLI and external API Consumers. Although most functionalities of the RuleEngine are already
@@ -598,15 +596,11 @@ class KtLintRuleEngineTest {
     private class DemoRule :
         RuleV2(ruleId = DEMO_RULE_ID, about = About()),
         RuleV2.Experimental {
-        override fun beforeVisitChildNodes(
-            node: ASTNode,
-            emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-        ) {
+        override fun beforeVisitChildNodes(node: ASTNode) {
             if (node.elementType == EOL_COMMENT && node.text == "// bar") {
-                emit(node.startOffset, "Bar comment", true)
-                    .ifAutocorrectAllowedLegacy {
-                        node.replaceTextWith("// BAR")
-                    }
+                emit(node.startOffset, "Bar comment") {
+                    node.replaceTextWith("// BAR")
+                }
             }
         }
 

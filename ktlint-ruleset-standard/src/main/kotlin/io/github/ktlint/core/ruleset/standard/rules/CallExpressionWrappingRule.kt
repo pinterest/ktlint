@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_LITERAL
@@ -23,7 +22,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.leavesOnLine
@@ -60,57 +58,45 @@ public class CallExpressionWrappingRule :
         maxLineLength = editorConfig[MAX_LINE_LENGTH_PROPERTY]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == CALL_EXPRESSION) {
-            visitCallExpression(node, emit)
+            visitCallExpression(node)
         }
     }
 
-    private fun visitCallExpression(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitCallExpression(node: ASTNode) {
         node
             .findChildByType(REFERENCE_EXPRESSION)
             ?.nextSibling { it.elementType == VALUE_ARGUMENT_LIST }
-            ?.let { visitReferenceExpressionValueArgumentList(it, emit) }
+            ?.let { visitReferenceExpressionValueArgumentList(it) }
         node
             .findChildByType(LAMBDA_ARGUMENT)
-            ?.let { visitLambdaArgument(it, emit) }
+            ?.let { visitLambdaArgument(it) }
     }
 
-    private fun visitReferenceExpressionValueArgumentList(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitReferenceExpressionValueArgumentList(node: ASTNode) {
         require(node.elementType == VALUE_ARGUMENT_LIST)
         if (node.textContains('\n') || node.exceedsMaxLineLength(node.lastChildLeafOrSelf)) {
             node
                 .findChildByType(LPAR)
                 ?.takeUnless { it.nextSibling.isWhiteSpaceWithNewline }
                 ?.let { lpar ->
-                    emit(lpar.startOffset, "Expected new line after '('", true)
-                        .ifAutocorrectAllowed { lpar.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(lpar)) }
+                    emit(lpar.startOffset, "Expected new line after '('") {
+                        lpar.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(lpar))
+                    }
                 }
             node
                 .findChildByType(RPAR)
                 ?.takeUnless { it.prevSibling.isWhiteSpaceWithNewline }
                 ?.let { rbrace ->
-                    emit(rbrace.startOffset, "Expected new line before ')'", true)
-                        .ifAutocorrectAllowed {
-                            rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
-                        }
+                    emit(rbrace.startOffset, "Expected new line before ')'") {
+                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
+                    }
                 }
         }
     }
 
-    private fun visitLambdaArgument(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
+    private fun visitLambdaArgument(node: ASTNode) {
         require(node.elementType == LAMBDA_ARGUMENT)
         if (node.textContains('\n') || node.exceedsMaxLineLength(node.lastChildLeafOrSelf)) {
             val functionLiteral =
@@ -124,25 +110,26 @@ public class CallExpressionWrappingRule :
                     ?.findChildByType(LBRACE)
                     .takeUnless { it?.nextSibling.isWhiteSpaceWithNewline }
                     ?.let { lbrace ->
-                        emit(lbrace.startOffset, "Expected new line after '{'", true)
-                            .ifAutocorrectAllowed { lbrace.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(lbrace)) }
+                        emit(lbrace.startOffset, "Expected new line after '{'") {
+                            lbrace.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(lbrace))
+                        }
                     }
             } else {
                 arrow
                     .takeUnless { it.nextSibling.isWhiteSpaceWithNewline }
                     ?.let {
-                        emit(arrow.startOffset + 1, "Expected new line after '->'", true)
-                            .ifAutocorrectAllowed { arrow.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(arrow)) }
+                        emit(arrow.startOffset + 1, "Expected new line after '->'") {
+                            arrow.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(arrow))
+                        }
                     }
             }
             functionLiteral
                 ?.findChildByType(RBRACE)
                 ?.takeUnless { it.prevLeaf.isWhiteSpaceWithNewline }
                 ?.let { rbrace ->
-                    emit(rbrace.startOffset, "Expected new line before '}'", true)
-                        .ifAutocorrectAllowed {
-                            rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
-                        }
+                    emit(rbrace.startOffset, "Expected new line before '}'") {
+                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
+                    }
                 }
         }
     }
