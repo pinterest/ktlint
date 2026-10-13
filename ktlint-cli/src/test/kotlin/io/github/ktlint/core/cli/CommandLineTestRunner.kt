@@ -310,7 +310,6 @@ class CommandLineTestRunner(
     }
 }
 
-@Suppress("unused")
 private fun String.followedByIndentedList(
     lines: List<String>,
     indentLevel: Int = 1,
@@ -321,25 +320,21 @@ private fun String.followedByIndentedList(
             "    ".repeat(indentLevel).plus(it)
         }
 
-@Suppress("unused")
 internal fun ListAssert<String>.containsLineMatching(string: String): ListAssert<String> =
     this.anyMatch {
         it.contains(string)
     }
 
-@Suppress("unused")
 internal fun ListAssert<String>.containsLineMatching(regex: Regex): ListAssert<String> =
     this.anyMatch {
         it.matches(regex)
     }
 
-@Suppress("unused")
 internal fun ListAssert<String>.doesNotContainLineMatching(string: String): ListAssert<String> =
     this.noneMatch {
         it.contains(string)
     }
 
-@Suppress("unused")
 internal fun ListAssert<String>.doesNotContainLineMatching(regex: Regex): ListAssert<String> =
     this.noneMatch {
         it.matches(regex)

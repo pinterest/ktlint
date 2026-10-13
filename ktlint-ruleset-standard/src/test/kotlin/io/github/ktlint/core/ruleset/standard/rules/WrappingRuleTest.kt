@@ -532,7 +532,7 @@ internal class WrappingRuleTest {
             fun foo() {
             ${TAB}println($MULTILINE_STRING_QUOTE
             ${TAB}${TAB}line1
-            ${TAB}${TAB}    line2
+            ${TAB}$TAB    line2
             ${TAB}${TAB}$MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
@@ -542,9 +542,9 @@ internal class WrappingRuleTest {
             ${TAB}println(
             ${TAB}${TAB}$MULTILINE_STRING_QUOTE
             ${TAB}${TAB}line1
-            ${TAB}${TAB}    line2
+            ${TAB}$TAB    line2
             ${TAB}${TAB}$MULTILINE_STRING_QUOTE.trimIndent()
-            ${TAB})
+            $TAB)
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)

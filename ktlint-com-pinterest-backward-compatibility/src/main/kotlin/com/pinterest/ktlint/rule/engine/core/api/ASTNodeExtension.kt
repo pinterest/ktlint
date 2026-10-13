@@ -687,7 +687,6 @@ private fun ASTNode.indentInternal(): String =
  *  Print content of a node and the element type of the node, its parent and its direct children. Utility is meant to
  *  be used during development only. Please do not remove.
  */
-@Suppress("unused")
 @Deprecated(message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Don't use for RuleV2")
 public fun ASTNode.logStructure(): ASTNode =
     also {

@@ -19,7 +19,6 @@ import org.jetbrains.kotlin.gradle.dsl.abi.ExperimentalAbiValidation
 import org.jetbrains.kotlin.gradle.dsl.kotlinExtension
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-@Suppress("unused") // See build.gradle.kts in build-logic
 abstract class KotlinCommonPlugin : Plugin<Project> {
     override fun apply(target: Project): Unit =
         with(target) {
