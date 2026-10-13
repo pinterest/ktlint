@@ -1866,13 +1866,13 @@ If you are behind a proxy see - <a href="https://curl.haxx.se/docs/manpage.html#
 <p><code>ktlint.asc</code> contains PGP signature which you can verify with:</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Ktlint 2.x has been moved to a separate organization, and no longer affiliated with Pinterest open source projects. Our public signature can be downloaded from the Unbuntu Key Server.</p>
+<p>Ktlint 2.x has been moved to a separate organization, and no longer affiliated with Pinterest open source projects. Our public signature can be downloaded from the Ubuntu Key Server.</p>
 </div>
 <div class="highlight"><span class="filename">Verify releases 2.0 and up</span><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>curl<span class="w"> </span>-sS<span class="w"> </span><span class="s2">"https://keyserver.ubuntu.com/pks/lookup?op=get&amp;search=0x0F631C1DD2A656869B1F47350FDF10E71780F7FD"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gpg<span class="w"> </span>--import<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>gpg<span class="w"> </span>--verify<span class="w"> </span>ktlint.asc
 </code></pre></div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>As reported in <a href="https://github.com/ktlint/ktlint/issues/3130">this issue</a> the https://keybase.io/ktlint/pgp_keys.asc is no longer available. Our public signature can be downloaded from the Unbuntu Key Server.</p>
+<p>As reported in <a href="https://github.com/ktlint/ktlint/issues/3130">this issue</a> the https://keybase.io/ktlint/pgp_keys.asc is no longer available. Our public signature can be downloaded from the Ubuntu Key Server.</p>
 </div>
 <div class="highlight"><span class="filename">Verify releases 0.32.0 - 1.8.0</span><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>curl<span class="w"> </span>-sS<span class="w"> </span><span class="s2">"https://keyserver.ubuntu.com/pks/lookup?op=get&amp;search=0xadbc987d1a7b91db6b0aaa81995efbf4a3d20beb"</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>gpg<span class="w"> </span>--import<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>gpg<span class="w"> </span>--verify<span class="w"> </span>ktlint.asc
 </code></pre></div>
