@@ -15,7 +15,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * Loads given list of paths to jar files.
  */
 internal fun loadRuleProviders(urls: List<URL>): Set<RuleV2Provider> {
-    val ruleSetV2Providers = RuleSetV2Provider::class.java.loadFromKtlintCliJar({ it.id.value })
+    val ruleSetV2Providers = RuleSetV2Provider::class.java.loadFromKtlintCliJar { it.id.value }
     val ruleSetV2ProviderIds = ruleSetV2Providers.map { it.id.value }
 
     val ruleV2Providers = mutableListOf<RuleV2Provider>()
