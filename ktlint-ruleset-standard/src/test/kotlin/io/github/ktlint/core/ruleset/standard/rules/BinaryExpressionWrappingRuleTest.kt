@@ -245,12 +245,12 @@ class BinaryExpressionWrappingRuleTest {
     @Test
     fun `Given a binary expression inside a raw string literal then do not wrap it`() {
         val code =
-            """
-            // $MAX_LINE_LENGTH_MARKER           $EOL_CHAR
+            $$"""
+            // $$MAX_LINE_LENGTH_MARKER           $$EOL_CHAR
             val foo =
-                $MULTILINE_STRING_QUOTE
-                foooooooooooooo ${'$'}{bar * bar - 123}
-                $MULTILINE_STRING_QUOTE
+                $$MULTILINE_STRING_QUOTE
+                foooooooooooooo ${bar * bar - 123}
+                $$MULTILINE_STRING_QUOTE
             """.trimIndent()
         binaryExpressionWrappingRuleAssertThat(code)
             .setMaxLineLength()

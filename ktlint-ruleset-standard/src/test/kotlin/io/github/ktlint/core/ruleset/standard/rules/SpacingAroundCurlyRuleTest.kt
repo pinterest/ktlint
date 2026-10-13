@@ -205,10 +205,10 @@ class SpacingAroundCurlyRuleTest {
     @Test
     fun `Given curly braces inside a string template`() {
         val code =
-            """
+            $$"""
             data class Foo(val bar: String)
             val foo = Foo("foobar").also {
-                println("Bar = ${'$'}{it.bar}") // In real code the $ would not have been escaped
+                println("Bar = ${it.bar}") // In real code the $ would not have been escaped
             }
             """.trimIndent()
         spacingAroundCurlyRuleAssertThat(code)

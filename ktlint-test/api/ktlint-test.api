@@ -79,11 +79,6 @@ public final class io/github/ktlint/core/test/LintViolation {
 	public fun toString ()Ljava/lang/String;
 }
 
-public final class io/github/ktlint/core/test/ReplaceStringTemplatePlaceholderKt {
-	public static final fun replaceStringTemplatePlaceholder (Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
-	public static synthetic fun replaceStringTemplatePlaceholder$default (Ljava/lang/String;Ljava/lang/String;ILjava/lang/Object;)Ljava/lang/String;
-}
-
 public class io/github/ktlint/core/test/RuleSetProviderTest {
 	public fun <init> (Ljava/lang/Class;Ljava/lang/String;)V
 	public final fun checkAllRulesInPackageAreProvidedByRuleSetProvider ()V

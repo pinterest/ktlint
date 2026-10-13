@@ -14,7 +14,6 @@ import io.github.ktlint.core.test.LintViolation
 import io.github.ktlint.core.test.MULTILINE_STRING_QUOTE
 import io.github.ktlint.core.test.SPACE
 import io.github.ktlint.core.test.TAB
-import io.github.ktlint.core.test.replaceStringTemplatePlaceholder
 import org.ec4j.core.model.PropertyType
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Disabled
@@ -1905,37 +1904,34 @@ internal class IndentationRuleTest {
 
     @Test
     fun `Given a multiline string template containing an incorrectly indented expression `() {
-        // Interpret "$." in code samples below as "$". It is used whenever the code which has to be inspected should
-        // actually contain a string template. Using "$" instead of "$." would result in a String in which the string
-        // templates would have been evaluated before the code would actually be processed by the rule.
         val code =
-            """
+            $$"""
             fun foo1() =
-                "Sum of uneven numbers = $.{
+                "Sum of uneven numbers = ${
                     listOf(1,2,3)
                         .filter { it % 2 == 0 }
                         .sum()
                 }"
-            fun foo2() = "Sum of uneven numbers = $.{
+            fun foo2() = "Sum of uneven numbers = ${
             listOf(1,2,3)
                 .filter { it % 2 == 0 }
                 .sum()
             }"
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         val formattedCode =
-            """
+            $$"""
             fun foo1() =
-                "Sum of uneven numbers = $.{
+                "Sum of uneven numbers = ${
                     listOf(1,2,3)
                         .filter { it % 2 == 0 }
                         .sum()
                 }"
-            fun foo2() = "Sum of uneven numbers = $.{
+            fun foo2() = "Sum of uneven numbers = ${
                 listOf(1,2,3)
                     .filter { it % 2 == 0 }
                     .sum()
             }"
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(8, 1, "Unexpected indentation (0) (should be 4)"),
@@ -2405,27 +2401,24 @@ internal class IndentationRuleTest {
 
     @Test
     fun `Given a multiline string containing a string-template as parameter value but then wrap the value to a start and end on separate lines`() {
-        // Interpret "$." in code samples below as "$". It is used here as otherwise the indentation in the code sample
-        // is disapproved when running ktlint on the unit tests during the build process (not that the indent rule can
-        // not be disabled for a block).
         val code =
-            """
+            $$"""
             fun foo() {
-                println("$.{
+                println("${
                 true
                 }")
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         val formattedCode =
-            """
+            $$"""
             fun foo() {
                 println(
-                    "$.{
+                    "${
                         true
                     }"
                 )
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         indentationRuleAssertThat(code)
             .addAdditionalRuleProvider { WrappingRule() }
             .hasLintViolation(3, 1, "Unexpected indentation (4) (should be 8)")
@@ -2481,35 +2474,35 @@ internal class IndentationRuleTest {
     @Test
     fun `Given some multiline raw string literal contain multiline string templates`() {
         val code =
-            """
+            $$"""
             fun foo1() {
                 foo2(
-                $MULTILINE_STRING_QUOTE$.{
+                $$MULTILINE_STRING_QUOTE${
             true
                 }
                 text
-            _$.{
+            _${
             true
-                }$MULTILINE_STRING_QUOTE.trimIndent(),
-                ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
+                }$$MULTILINE_STRING_QUOTE.trimIndent(),
+                $${MULTILINE_STRING_QUOTE}text$$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         val formattedCode =
-            """
+            $$"""
             fun foo1() {
                 foo2(
-                    $MULTILINE_STRING_QUOTE$.{
+                    $$MULTILINE_STRING_QUOTE${
                         true
                     }
                 text
-            _$.{
+            _${
                         true
-                    }$MULTILINE_STRING_QUOTE.trimIndent(),
-                    ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
+                    }$$MULTILINE_STRING_QUOTE.trimIndent(),
+                    $${MULTILINE_STRING_QUOTE}text$$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         indentationRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(3, 1, "Unexpected indentation (4) (should be 8)"),
@@ -3512,42 +3505,41 @@ internal class IndentationRuleTest {
 
         @Test
         fun `format raw string literal containing a template string as the first non blank element on the line`() {
-            // Escape '${true}' as '${"$"}{true}' to prevent evaluation before actually processing the multiline string
             val code =
-                """
+                $$"""
                 fun foo() {
                     println(
-                        $MULTILINE_STRING_QUOTE
-                        ${"$"}{true}
+                        $$MULTILINE_STRING_QUOTE
+                        ${true}
 
-                            ${"$"}{true}
-                    $MULTILINE_STRING_QUOTE.trimIndent()
+                            ${true}
+                    $$MULTILINE_STRING_QUOTE.trimIndent()
                     )
                     println(
-                $MULTILINE_STRING_QUOTE
-                ${"$"}{true}
+                $$MULTILINE_STRING_QUOTE
+                ${true}
 
-                    ${"$"}{true}
-                $MULTILINE_STRING_QUOTE.trimIndent()
+                    ${true}
+                $$MULTILINE_STRING_QUOTE.trimIndent()
                     )
                 }
                 """.trimIndent()
             val formattedCode =
-                """
+                $$"""
                 fun foo() {
                     println(
-                        $MULTILINE_STRING_QUOTE
-                        ${"$"}{true}
+                        $$MULTILINE_STRING_QUOTE
+                        ${true}
 
-                            ${"$"}{true}
-                        $MULTILINE_STRING_QUOTE.trimIndent()
+                            ${true}
+                        $$MULTILINE_STRING_QUOTE.trimIndent()
                     )
                     println(
-                $MULTILINE_STRING_QUOTE
-                ${"$"}{true}
+                $$MULTILINE_STRING_QUOTE
+                ${true}
 
-                    ${"$"}{true}
-                $MULTILINE_STRING_QUOTE.trimIndent()
+                    ${true}
+                $$MULTILINE_STRING_QUOTE.trimIndent()
                     )
                 }
                 """.trimIndent()

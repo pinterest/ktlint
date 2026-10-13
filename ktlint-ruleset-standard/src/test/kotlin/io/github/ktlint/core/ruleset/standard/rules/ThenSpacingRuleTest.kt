@@ -2,7 +2,6 @@ package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRule
 import io.github.ktlint.core.test.LintViolation
-import io.github.ktlint.core.test.replaceStringTemplatePlaceholder
 import org.junit.jupiter.api.Test
 
 class ThenSpacingRuleTest {
@@ -17,7 +16,7 @@ class ThenSpacingRuleTest {
                 if (true)(0)else (1)
                 if (true)print(0)else (1)
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         val formattedCode =
             """
             fun foo() {
@@ -25,7 +24,7 @@ class ThenSpacingRuleTest {
                 if (true) (0) else (1)
                 if (true) print(0) else (1)
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         thenSpacingRuleAssertThat(code)
             .hasLintViolations(
                 LintViolation(2, 14, "Expected a whitespace before 'then' block"),

@@ -213,10 +213,10 @@ class IfElseWrappingRuleTest {
     @Test
     fun `Given an if-else statement inside a string template which is correctly indented then do not report a violation`() {
         val code =
-            """
+            $$"""
             fun foo() {
                 logger.log(
-                    "<-- ${'$'}{if (true)
+                    "<-- ${if (true)
                         ""
                     else
                         ' ' +

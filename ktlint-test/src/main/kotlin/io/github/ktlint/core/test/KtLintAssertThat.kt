@@ -359,7 +359,7 @@ public class KtLintAssertThat(
              * of the constant MAX_LINE_LENGTH_MARKER.
              */
             require("$".plus(::MAX_LINE_LENGTH_MARKER.name).length == MAX_LINE_LENGTH_MARKER.length) {
-                "Length of the value of the string '${'$'}MAX_LINE_LENGTH_MARKER' must be identical to length of the value of the " +
+                $$"Length of the value of the string '$MAX_LINE_LENGTH_MARKER' must be identical to length of the value of the " +
                     "constant. Tests using this constant will not work as intended otherwise."
             }
         }

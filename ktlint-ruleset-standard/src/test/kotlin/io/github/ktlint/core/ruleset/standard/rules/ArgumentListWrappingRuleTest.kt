@@ -597,23 +597,23 @@ class ArgumentListWrappingRuleTest {
     @Test
     fun `Given some multiline raw string literal containing a string template and the the content of the string template exceeds the max line length then do wrap`() {
         val code =
-            """
+            $$"""
             val foo = someMethod(
-                $MULTILINE_STRING_QUOTE
+                $$MULTILINE_STRING_QUOTE
                 some text
-                ${'$'}{println("longtext longtext longtext longtext longtext longtext")}
-                $MULTILINE_STRING_QUOTE.trimIndent()
+                ${println("longtext longtext longtext longtext longtext longtext")}
+                $$MULTILINE_STRING_QUOTE.trimIndent()
             )
             """.trimIndent()
         val formattedCode =
-            """
+            $$"""
             val foo = someMethod(
-                $MULTILINE_STRING_QUOTE
+                $$MULTILINE_STRING_QUOTE
                 some text
-                ${'$'}{println(
+                ${println(
                     "longtext longtext longtext longtext longtext longtext"
                 )}
-                $MULTILINE_STRING_QUOTE.trimIndent()
+                $$MULTILINE_STRING_QUOTE.trimIndent()
             )
             """.trimIndent()
         argumentListWrappingRuleAssertThat(code)
@@ -627,16 +627,16 @@ class ArgumentListWrappingRuleTest {
     @Test
     fun `Given some multiline raw string literal containing a string template not exceeding the max line length then do not wrap`() {
         val code =
-            """
+            $$"""
             fun foo() {
                 json(
-                    $MULTILINE_STRING_QUOTE
+                    $$MULTILINE_STRING_QUOTE
                     {
                         "array": [
-                            ${'$'}{function(arg1, arg2, arg3)}
+                            ${function(arg1, arg2, arg3)}
                         ]
                     }
-                    $MULTILINE_STRING_QUOTE.trimIndent()
+                    $$MULTILINE_STRING_QUOTE.trimIndent()
                 )
             }
             """.trimIndent()
@@ -842,12 +842,12 @@ class ArgumentListWrappingRuleTest {
     @Test
     fun `Issue 1198 - Given a parameter list with assignment and no dot qualified expression`() {
         val code =
-            """
+            $$"""
             fun foo() {
                 tasks.test {
                     systemProperties = mutableMapOf(
                         "junit.jupiter.displayname.generator.default" to
-                            "org.junit.jupiter.api.DisplayNameGenerator\${'$'}ReplaceUnderscores",
+                            "org.junit.jupiter.api.DisplayNameGenerator\$ReplaceUnderscores",
 
                         "junit.jupiter.execution.parallel.enabled" to
                             doParallelTesting.toString() as Any,
