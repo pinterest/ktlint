@@ -49,7 +49,7 @@ public class PlainSummaryReporter(
         out.println(header)
         toList()
             .sortedWith(COUNT_DESC_AND_RULE_ID_ASC_COMPARATOR)
-            .map { out.println("  ${it.first}: ${it.second}") }
+            .forEach { out.println("  ${it.first}: ${it.second}") }
     }
 
     private fun KtlintCliError.causedBy() =
@@ -61,10 +61,9 @@ public class PlainSummaryReporter(
 
     private companion object {
         val COUNT_DESC_AND_RULE_ID_ASC_COMPARATOR =
-            kotlin
-                .Comparator<Pair<String, Long>> { left, right ->
-                    compareValuesBy(left, right) { it.second }
-                }.reversed()
+            Comparator<Pair<String, Long>> { left, right ->
+                compareValuesBy(left, right) { it.second }
+            }.reversed()
                 .thenComparator { left, right ->
                     compareValuesBy(left, right) { it.first }
                 }
