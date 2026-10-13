@@ -5,10 +5,10 @@ import io.github.ktlint.core.rule.engine.core.api.RuleV2Provider
 import java.io.Serializable
 
 /**
- * KtLint uses [ServiceLoader](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to
- * discover all available [RuleSetV2Provider]`s on the classpath and so each [RuleSetV2Provider] must be registered using
- * `META-INF/services/io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider` (see `ktlint-ruleset-standard/src/main/resources`
- * for an example).
+ * KtLint uses [ServiceLoader](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to discover all available
+ * [RuleSetV2Provider]'s on the classpath and so each [RuleSetV2Provider] must be registered using
+ * `META-INF/services/io.github.ktlint.core.cli.ruleset.core.api.RuleSetV2Provider` (see `ktlint-ruleset-standard/src/main/resources` for an
+ * example).
  */
 public abstract class RuleSetV2Provider(
     public val id: RuleSetId,

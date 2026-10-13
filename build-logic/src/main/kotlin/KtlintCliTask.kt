@@ -8,7 +8,7 @@ import org.gradle.api.tasks.PathSensitivity
 import org.gradle.api.tasks.TaskAction
 import javax.inject.Inject
 
-// Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behaviour.
+// Implements https://github.com/brianm/really-executable-jars-maven-plugin maven plugin behavior.
 // To check details how it works, see https://skife.org/java/unix/2011/06/20/really_executable_jars.html.
 abstract class KtlintCliTask
     @Inject

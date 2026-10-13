@@ -56,7 +56,7 @@ public class TypeParameterCommentRule : StandardRule("type-parameter-comment") {
                             //         in Bar, // some comment 1
                             //         // some comment 2
                             //         in Bar2,
-                            //     )
+                            //     >
                             // It is not clear whether "some comment 2" belongs to bar1 as a continuation of "some comment 1" or that it
                             // belongs to bar2. Note both comments are direct children of the value_argument_list.
                             emit(

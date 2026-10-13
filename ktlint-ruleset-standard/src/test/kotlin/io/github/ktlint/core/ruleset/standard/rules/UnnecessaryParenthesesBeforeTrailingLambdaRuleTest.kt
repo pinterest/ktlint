@@ -36,7 +36,7 @@ class UnnecessaryParenthesesBeforeTrailingLambdaRuleTest {
     }
 
     @Test
-    fun `Issue 3016 - Given some nested call expressions, and outmost call expression does not have arguments, and ending with a lambda argument then do not remove empty parameter list`() {
+    fun `Issue 3016 - Given some nested call expressions, and outer most call expression does not have arguments, and ending with a lambda argument then do not remove empty parameter list`() {
         val code =
             """
             class Foo

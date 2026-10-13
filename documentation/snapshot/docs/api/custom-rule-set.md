@@ -25,7 +25,7 @@ A rule has to implement one or more of hooks below:
 !!! Tip
     See `ktlint-ruleset-standard` for examples of rules that implement the hooks above.
 
-Upon traversal of the Abstract Syntax Tree (AST), the hooks of the Rule are visited as indicated by their names. The [Jetbrains PsiViewer plugin for IntelliJ IDEA](https://plugins.jetbrains.com/plugin/227-psiviewer) is a convenient tool to inspect the AST for any piece of code.
+Upon traversal of the Abstract Syntax Tree (AST), the hooks of the Rule are visited as indicated by their names. The [JetBrains PsiViewer plugin for IntelliJ IDEA](https://plugins.jetbrains.com/plugin/227-psiviewer) is a convenient tool to inspect the AST for any piece of code.
 
 ![Image](../assets/images/psi-viewer.png)
 

@@ -48,7 +48,7 @@ public object KtlintKotlinCompiler {
      */
     public fun createASTNodeFromText(text: String): ASTNode? =
         // For a code snippet which is not necessarily compilable if it was compiled as a standalone file, it is better to compile it as
-        // kotlin script.
+        // Kotlin script.
         createPsiFileFromText("File.kts", text)
             .node
             .findChildByType(SCRIPT)

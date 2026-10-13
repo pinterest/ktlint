@@ -6,18 +6,18 @@ As maintainer of Ktlint, I advise setup below to maximize your productivity, and
 
 1. `ktlint-intellij-plugin` for direct feedback while coding
 2. Git pre-commit hook for feedback when committing
-3. Build pipeline as last defence
+3. Build pipeline as last defense
 
 ## `ktlint-intellij-plugin` for direct feedback while coding
 
 !!! tip
-    Ensure to install version `0.20.0` (or later) of the Ktlint plugin via the Intellij Plugin Marketplace to get benefits described below.
+    Ensure to install version `0.20.0` (or later) of the Ktlint plugin via the IntelliJ Plugin Marketplace to get benefits described below.
 
 The `ktlint-intellij-plugin` gives direct feedback while writing code. The plugin can be used in 'distract free' and 'manual' mode, or be disabled entirely. This is a per-project setting.
 
 ![ktlint-intellij-plugin-preferences.png](../assets/images/ktlint-intellij-plugin-preferences.png)
 
-In `distract free` mode, the plugin only shows the violations which need to be manually corrected. Ktlint formatting will be applied automatically after apply Intellij IDEA format, or on save of the file. This works bests for projects for which the `.editorconfig` already has been set up properly for the project.
+In `distract free` mode, the plugin only shows the violations which need to be manually corrected. Ktlint formatting will be applied automatically after apply IntelliJ IDEA format, or on save of the file. This works bests for projects for which the `.editorconfig` already has been set up properly for the project.
 
 ![ktlint-intellij-plugin-distract-free-mode-1.png](../assets/images/ktlint-intellij-plugin-distract-free-mode-1.png)
 
@@ -33,9 +33,9 @@ Violations reported by ktlint can be suppressed by adding a `@Suppress` annotati
 
 ![ktlint-intellij-plugin-suppress-violation.png](../assets/images/ktlint-intellij-plugin-suppress-violation.png)
 
-As of Ktlint `1.1.0` the maintainer of Ktlint has joined the [ktlint-intellij-plugin project](https://github.com/nbadal/ktlint-intellij-plugin) to ensure that the plugin stays up to date with releases of ktlint and releases of Intellij IDEA.
+As of Ktlint `1.1.0` the maintainer of Ktlint has joined the [ktlint-intellij-plugin project](https://github.com/nbadal/ktlint-intellij-plugin) to ensure that the plugin stays up to date with releases of ktlint and releases of IntelliJ IDEA.
 
-The `ktlint-intellij-plugin` can be installed as [plugin in Intellij IDEA](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-).
+The `ktlint-intellij-plugin` can be installed as [plugin in IntelliJ IDEA](https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-).
 
 ## Git pre-commit hook for feedback when committing
 
@@ -43,8 +43,8 @@ The [git pre-commit hook](cli.md#git-hooks), protects against committing code co
 
 Ktlint CLI can generate a pre-commit hook, or you can find it [here](https://github.com/ktlint/ktlint/blob/master/ktlint-cli/src/main/kotlin/io/github/ktlint/core/cli/internal/GitPreCommitHookSubCommand.kt#L23).
 
-## Build pipeline as last defence
+## Build pipeline as last defense
 
-As last defence, to ensure that the code base does not contain lint violations, `ktlint-cli` is run in the (local and remote) build pipeline (see [integrations](integrations.md)). 
+As last defense, to ensure that the code base does not contain lint violations, `ktlint-cli` is run in the (local and remote) build pipeline (see [integrations](integrations.md)). 
 
 For example, in my maven projects I have bound the [ktlint (linting) task](integrations.md#maven-integration) to the maven `compile` lifecycle. If after compile a lint violation is found the build is failed. This circumvents that developers disable running of the git hooks on their local machine. And in case that the code was not build locally, the remote build pipeline fails as last resort.

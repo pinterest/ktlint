@@ -344,7 +344,7 @@ class KdocDelimiterRuleTest {
 
         @Test
         fun `Given a single-line KDoc comment ending with an extra closing asterisk then only report the violation`() {
-            // The extra asterisk is real content (e.g. the closing asterisk of markdown emphasis) that needs to be
+            // The extra asterisk is real content (e.g. the closing asterisk of Markdown emphasis) that needs to be
             // moved out of the KDOC_END token. As that requires replacing that token, which would conflict with
             // rules (such as IndentationRule) that may already be tracking a reference to it when run in the same
             // pass, this specific case is reported without autocorrect.
@@ -359,7 +359,7 @@ class KdocDelimiterRuleTest {
 
         @Test
         fun `Given a single-line KDoc comment ending with an extra closing asterisk then format but avoid conflict with indentation`() {
-            // The extra asterisk is real content (e.g. the closing asterisk of markdown emphasis) that needs to be
+            // The extra asterisk is real content (e.g. the closing asterisk of Markdown emphasis) that needs to be
             // moved out of the KDOC_END token. As that requires replacing that token, which would conflict with
             // rules (such as IndentationRule) that may already be tracking a reference to it when run in the same
             // pass, this specific case is reported without autocorrect.

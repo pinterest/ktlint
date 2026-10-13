@@ -17,7 +17,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 /**
  * Consecutive comments should be disallowed in following cases:
- *   - Any mix of a consecutive kdoc, a block comment or an EOL comment unless separated by a blank line in between
+ *   - Any mix of a consecutive KDoc, a block comment or an EOL comment unless separated by a blank line in between
  *   - Consecutive KDocs (even when separated by a blank line)
  *   - Consecutive block comments (even when separated by a blank line)
  *

@@ -131,10 +131,10 @@ public class MultiLineIfElseRule :
                 //    if (...) <statement> // no else statement
                 //    if (...) <statement> else <statement>
                 // but not when
-                //    if (...) <statement> else if (..) <statement>
+                //    if (...) <statement> else if (...) <statement>
                 if (parent?.parent?.elementType == ELSE) {
                     // Except in case nested if-else-if on single line
-                    //    if (...) <statement> else if (..) <statement>
+                    //    if (...) <statement> else if (...) <statement>
                     false
                 } else {
                     true

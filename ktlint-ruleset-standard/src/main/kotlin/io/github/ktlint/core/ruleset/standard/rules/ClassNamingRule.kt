@@ -36,7 +36,7 @@ public class ClassNamingRule : StandardRule("class-naming") {
                 ?.text
                 ?.takeIf { it.startsWith("org.junit.jupiter.api") }
                 ?.let {
-                    // Assume that each file that imports a Junit Jupiter Api class is a test class
+                    // Assume that each file that imports a JUnit Jupiter Api class is a test class
                     allowBacktickedClassName = true
                 }
         }

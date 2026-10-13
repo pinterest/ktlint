@@ -223,7 +223,7 @@ public class BinaryExpressionWrappingRule :
                         .prevLeaf { it.isWhiteSpace }
                         .takeUnless { it.isWhiteSpaceWithNewline }
                         ?.let {
-                            // Wrapping after the elvis operator leads to violating the 'chain-wrapping' rule, so it must wrapped itself
+                            // Wrapping after the elvis operator leads to violating the 'chain-wrapping' rule, so it must be wrapped itself
                             emit(operationReference.startOffset, "Line is exceeding max line length. Break line before '?:'", true)
                                 .ifAutocorrectAllowed {
                                     operationReference.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(operationReference))

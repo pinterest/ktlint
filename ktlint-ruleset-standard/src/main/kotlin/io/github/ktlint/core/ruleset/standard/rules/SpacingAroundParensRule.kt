@@ -93,7 +93,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
                 // Disallow:
                 //     fun foo () {}
                 // and
-                //     @Deprecated ("bar)
+                //     @Deprecated ("bar")
                 //     fun foo() {}
                 it.prevLeaf?.elementType == IDENTIFIER
             }?.let {

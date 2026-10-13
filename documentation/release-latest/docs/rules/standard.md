@@ -1626,7 +1626,7 @@ Enforce naming of function.
     When using Compose, you might want to configure the `function-naming` rule with `.editorconfig` property `ktlint_function_naming_ignore_when_annotated_with=Composable`. Furthermore, you can use a dedicated ktlint ruleset like [Compose Rules](https://mrmans0n.github.io/compose-rules/ktlint/) for checking naming conventions for Composable functions. 
 
 !!! note
-    Functions in files which import a class from package `io.kotest`, `junit.framework`, `kotlin.test`, `org.junit`, or `org.testng` are considered to be test functions. Functions in such classes are allowed to have underscores in the name. Also, function names enclosed between backticks do not need to adhere to the normal naming convention.
+    Functions in files which import a class from package `io.kotest`, `junit.framework`, `kotlin.test`, `org.junit`, or `org.testng` are considered to be test-functions. Functions in such classes are allowed to have underscores in the name. Also, function names enclosed between backticks do not need to adhere to the normal naming convention.
 
 This rule can also be suppressed with the IntelliJ IDEA inspection suppression `FunctionName`.
 
@@ -1949,7 +1949,7 @@ Suppress or disable rule (1)
 
 Consecutive comments are disallowed in following cases:
 
-- Any mix of a consecutive kdoc, a block comment or an EOL comment unless separated by a blank line in between
+- Any mix of a consecutive KDoc, a block comment or an EOL comment unless separated by a blank line in between
 
 - Consecutive KDocs (even when separated by a blank line)
 
@@ -2832,7 +2832,7 @@ No wildcard imports except whitelisted imports.
 | `ij_kotlin_packages_to_use_import_on_demand`<br/><i>Defines allowed wildcard imports as a comma separated list.</i> |        -        | `java.util.*,`<br/>`kotlinx.android.synthetic.**` | `java.util.*,`<br/>`kotlinx.android.synthetic.**` |
 
 !!! warning
-    In case property `ij_kotlin_packages_to_use_import_on_demand` is not explicitly set, Intellij IDEA allows wildcards imports like `java.util.*` which lead to conflicts with the `no-wildcard-imports` rule. See [Intellij IDEA configuration](configuration-intellij-idea.md) to prevent such conflicts.
+    In case property `ij_kotlin_packages_to_use_import_on_demand` is not explicitly set, IntelliJ IDEA allows wildcards imports like `java.util.*` which lead to conflicts with the `no-wildcard-imports` rule. See [IntelliJ IDEA configuration](configuration-intellij-idea.md) to prevent such conflicts.
 
 Rule id: `standard:no-wildcard-imports`
 
@@ -3441,7 +3441,7 @@ Suppress or disable rule (1)
     ktlint_standard_fun-keyword-spacing = disabled
     ```
 
-### Kdoc wrapping
+### KDoc wrapping
 
 A KDoc comment should start and end on a line that does not contain any other element.
 

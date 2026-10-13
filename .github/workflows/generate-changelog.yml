@@ -28,7 +28,7 @@ jobs:
         uses: mikepenz/release-changelog-builder-action@v6
         with:
           fromTag: "${{ env.version }}"
-          # This Github action is run before building a new release. All PR's created after last release and between current HEAD are to be
+          # This GitHub Action is run before building a new release. All PR's created after last release and between current HEAD are to be
           # included
           toTag: "HEAD"
           configurationJson: |

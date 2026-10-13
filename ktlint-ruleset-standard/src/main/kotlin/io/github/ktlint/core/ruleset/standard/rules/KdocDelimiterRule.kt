@@ -77,7 +77,7 @@ public class KdocDelimiterRule :
                     //    /**
                     //     *
                     //     */
-                    // Note that a non auto-correctable error is reported for the empty Kdoc. Removing the empty line, but not removing the
+                    // Note that a non auto-correctable error is reported for the empty KDoc. Removing the empty line, but not removing the
                     // KDOC_START and KDOC_END is confusing.
                 } else {
                     visitLeadingAsterisk(node, emit)
@@ -409,7 +409,7 @@ public class KdocDelimiterRule :
             // - KDOC_START = `/**`
             // - KDOC_SECTION = `*Foo`
             // - KDOC_END = `***/`
-            // Those extra leading asterisks are actual content (typically the closing asterisk of markdown emphasis) and are treated as such
+            // Those extra leading asterisks are actual content (typically the closing asterisk of Markdown emphasis) and are treated as such
             // below.
             val extraClosingAsterisks = node.text.dropLast(2)
             val kdocSectionContent = node.prevSibling!!.text + extraClosingAsterisks

@@ -30,7 +30,7 @@ class CommandLineTestRunner(
      * Run ktlint CLI in a separate process. All files in directory [testProjectName] are copied to a temporary
      * directory. Paths in the [arguments] that refer to files in directory [testProjectName] need to be prefixed with
      * the placeholder [BASE_DIR_PLACEHOLDER] to obtain a fully qualified path. During the test execution this
-     * placeholder is replaces with the actual directory name that is created for that unit test.
+     * placeholder is replaced with the actual directory name that is created for that unit test.
      */
     fun run(
         testProjectName: String,
@@ -286,7 +286,7 @@ class CommandLineTestRunner(
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
         private val WAIT_INTERVAL_MAX_OCCURRENCES =
-            // The local machine is most often faster than the Github CICD when running the CLI tests. A system environment property has
+            // The local machine is most often faster than the GitHub CICD when running the CLI tests. A system environment property has
             // been defined in the gradle-pr-build workflow to increase the timeout.
             System
                 .getenv("CLI_TEST_MAX_DURATION_IN_SECONDS")
