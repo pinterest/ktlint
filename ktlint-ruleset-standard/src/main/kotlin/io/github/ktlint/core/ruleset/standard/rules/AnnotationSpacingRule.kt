@@ -7,17 +7,14 @@ import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.endOffset
 import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
-import io.github.ktlint.core.rule.engine.core.api.nextCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
-import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.prevSibling
 import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
@@ -116,28 +113,6 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
     }
 
     private fun ASTNode.containsMultipleNewlines() = text.count { it == '\n' } > 1
-
-    private inline fun ASTNode.nextSiblingWithAtLeastOneOf(
-        p: (ASTNode) -> Boolean,
-        needsToOccur: (ASTNode) -> Boolean,
-    ): ASTNode? {
-        var node = this.nextSibling
-        var occurrenceCount = 0
-        while (node != null) {
-            if (needsToOccur(node)) {
-                occurrenceCount++
-            }
-            if (p(node)) {
-                return if (occurrenceCount > 0) {
-                    node
-                } else {
-                    null
-                }
-            }
-            node = node.nextSibling
-        }
-        return null
-    }
 
     private fun removeExtraLineBreaks(node: ASTNode) {
         val next =
