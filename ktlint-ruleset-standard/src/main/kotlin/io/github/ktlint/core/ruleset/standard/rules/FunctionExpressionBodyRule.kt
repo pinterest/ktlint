@@ -164,7 +164,7 @@ public class FunctionExpressionBodyRule :
             .createASTNodeFromText("fun foo(): Unit {}")
             ?.findChildByType(FUN)
             ?.findChildByType(TYPE_REFERENCE)
-            ?: throw IllegalStateException("Can not create function with unit type reference")
+            ?: error("Can not create function with unit type reference")
 }
 
 public val FUNCTION_EXPRESSION_BODY_RULE_ID: RuleId = FunctionExpressionBodyRule().ruleId

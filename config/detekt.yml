@@ -1,0 +1,34 @@
+style:
+  # Already enforced by ktlint's own `standard:max-line-length` rule, using the `max_line_length = 140` value set in
+  # this project's .editorconfig. detekt's default threshold (120) does not know about that override and would
+  # otherwise flag ~2280 lines that ktlintCheck already accepts.
+  MaxLineLength:
+    active: false
+  # Disallowing comments with keywords like "TODO" and "FIXME" is counterproductive for situations in which something cannot be done or
+  # fixed at the moment. Activating this rule could lead to writing same comment without the keyword.
+  ForbiddenComment:
+    active: false
+
+complexity:
+  LargeClass:
+    excludes:
+      # Logic for rules is kept intentionally inside the Rule classes. As a result Rule classes can be large.
+      - '**/*Rule.kt'
+      # Allow test classes to be large when there are many tests for the same (Rule) class
+      - '**/*Test.kt'
+  TooManyFunctions:
+    # Logic for rules is kept intentionally inside the Rule classes. Shared logic for traversing and manipulating the AST is stored in the
+    # `ASTNodeExtension.kt` only. As a result Rule classes can contain a lot of private functions.
+    ignorePrivate: true
+    excludes:
+      # Allow test classes to contain too many public functions
+      - '**/*Test.kt'
+  LongMethod:
+    excludes:
+      # Allow long methods in test classes as extracting logic from tests to functions might reduce readability
+      - '**/*Test.kt'
+
+naming:
+  # Already enforced by ktlint rule `standard:enum-entry-name-case`
+  EnumNaming:
+    active: false

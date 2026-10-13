@@ -380,4 +380,19 @@ class StringTemplateRuleTest {
             .hasNoLintViolationsForRuleId(NO_UNUSED_IMPORTS_RULE_ID)
             .isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Indent rule should not throw exception after redundant curly braces are removed`() {
+        // Interpret "$." in code samples below as "$". It is used whenever the code which has to be inspected should
+        // actually contain a string template. Using "$" instead of "$." would result in a String in which the string
+        // templates would have been evaluated before the code would actually be processed by the rule.
+        val code =
+            """
+            const val packageName = "some.package.name"
+            val foo = "${'$'}{packageName}"
+            """.trimIndent().replaceStringTemplatePlaceholder()
+        stringTemplateRuleAssertThat(code)
+            .addAdditionalRuleProvider { IndentationRule() }
+            .hasLintViolation(2, 13, "Redundant curly braces")
+    }
 }

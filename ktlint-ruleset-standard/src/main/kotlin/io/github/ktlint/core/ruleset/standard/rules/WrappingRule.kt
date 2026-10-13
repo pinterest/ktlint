@@ -133,7 +133,7 @@ public class WrappingRule :
     ) {
         when (node.elementType) {
             BLOCK -> beforeVisitBlock(node, emit)
-            LPAR, LBRACKET -> rearrangeBlock(node, emit)
+            LPAR, LBRACE, LBRACKET -> rearrangeBlock(node, emit)
             SUPER_TYPE_LIST -> rearrangeSuperTypeList(node, emit)
             VALUE_PARAMETER_LIST, VALUE_ARGUMENT_LIST -> rearrangeValueList(node, emit)
             TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST -> rearrangeTypeArgumentList(node, emit)
@@ -155,11 +155,7 @@ public class WrappingRule :
                 .getStartOfBlock()
                 ?.takeIf { it.elementType == LBRACE }
                 ?: return
-        if (lbrace.followedByNewline() ||
-            lbrace.followedByEolComment() ||
-            lbrace.followedByFunctionLiteralParameterList() ||
-            lbrace.isPartOf(LONG_STRING_TEMPLATE_ENTRY)
-        ) {
+        if (lbrace.lbraceStartsSpecialBlock()) {
             // String template inside raw string literal may exceed the maximum line length
             return
         }
@@ -192,6 +188,12 @@ public class WrappingRule :
         }
     }
 
+    private fun ASTNode.lbraceStartsSpecialBlock() =
+        followedByNewline() ||
+            followedByEolComment() ||
+            followedByFunctionLiteralParameterList() ||
+            isPartOf(LONG_STRING_TEMPLATE_ENTRY)
+
     private fun ASTNode.followedByEolComment() =
         null !=
             leaves()
@@ -208,76 +210,19 @@ public class WrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        val closingElementType = MATCHING_RTOKEN_MAP[node.elementType]
-        var newlineInBetween = false
-        var parameterListInBetween = false
-        var numberOfArgs = 0
-        var firstArg: ASTNode? = null
-        // matching ), ] or }
-        val closingElement =
-            node.nextSibling {
-                val isValueArgument = it.elementType == VALUE_ARGUMENT
-                val hasLineBreak = if (isValueArgument) it.hasLineBreak(LAMBDA_EXPRESSION, FUN) else it.hasLineBreak()
-                newlineInBetween = newlineInBetween || hasLineBreak
-                parameterListInBetween = parameterListInBetween || it.elementType == VALUE_PARAMETER_LIST
-                if (isValueArgument) {
-                    numberOfArgs++
-                    firstArg = it
-                }
-                it.elementType == closingElementType
-            }!!
-        if (
-            !newlineInBetween ||
-            // keep { p ->
-            // }
-            (node.elementType == LBRACE && parameterListInBetween) ||
-            // keep ({
-            // }) and (object : C {
-            // })
-            (
-                numberOfArgs == 1 &&
-                    firstArg
-                        ?.firstChildNode
-                        ?.elementType
-                        ?.let { it == OBJECT_LITERAL || it == LAMBDA_EXPRESSION } == true
-            )
-        ) {
+        val closingElement = node.findMatchingClosingElement()
+        if (node.shouldNotRearrangeBlock(closingElement)) {
             return
         }
-        if (node.isPartOfForLoopConditionWithMultilineExpression()) {
-            // keep:
-            // for (foo in listOf(
-            //     "foo-1",
-            //     "foo-2"
-            // )) { ... }
-            // but reject:
-            // for (
-            //     foo in listOf(
-            //         "foo-1",
-            //         "foo-2"
-            //     )
-            // ) { ... }
-            return
-        }
-        if (!node
-                .nextCodeLeaf
-                ?.prevLeaf {
-                    // Skip comments, whitespace, and empty nodes
-                    !it.isPartOfComment &&
-                        !it.isWhiteSpaceWithoutNewline &&
-                        it.textLength > 0
-                }.isWhiteSpaceWithNewline &&
-            // IDEA quirk:
-            // if (true &&
-            //     true
-            // ) {
-            // }
-            // instead of
-            // if (
-            //     true &&
-            //     true
-            // ) {
-            // }
+        if (!isFollowedByNewline(node) &&
+            // Allow:
+            //    if (foo(
+            //            "bar",
+            //            "baz",
+            //        )
+            //     ) {
+            //        // something
+            //
             node.nextSibling?.elementType != CONDITION
         ) {
             requireNewlineAfterLeaf(node, emit)
@@ -287,31 +232,77 @@ public class WrappingRule :
         }
     }
 
+    private fun ASTNode.shouldNotRearrangeBlock(closingElement: ASTNode): Boolean =
+        hasNoDisallowedNewlines(closingElement) ||
+            containsMultilineValueParameterList(this) ||
+            hasSingleValueArgument(OBJECT_LITERAL, LAMBDA_EXPRESSION) ||
+            isPartOfForLoopConditionWithMultilineExpression()
+
+    private fun ASTNode.findMatchingClosingElement(): ASTNode {
+        val closingElementType =
+            when (elementType) {
+                LPAR -> RPAR
+                LBRACE -> RBRACE
+                LBRACKET -> RBRACKET
+                LT -> GT
+                else -> error("Unexpected element type $elementType")
+            }
+        return requireNotNull(nextSibling { it.elementType == closingElementType })
+    }
+
+    private fun ASTNode.hasNoDisallowedNewlines(closingElement: ASTNode): Boolean =
+        siblings()
+            .takeWhile { it != closingElement }
+            .none {
+                if (it.elementType == VALUE_ARGUMENT) {
+                    it.hasLineBreak(LAMBDA_EXPRESSION, FUN)
+                } else {
+                    it.hasLineBreak()
+                }
+            }
+
+    private fun containsMultilineValueParameterList(node: ASTNode): Boolean =
+        // keep
+        //     { p ->
+        //     }
+        node.elementType == LBRACE && node.siblings().any { it.elementType == VALUE_PARAMETER_LIST }
+
+    private fun ASTNode.hasSingleValueArgument(vararg elementTypes: IElementType): Boolean =
+        // keep
+        //     (object : C {
+        //     })
+        // and
+        //     ({
+        //     })
+        siblings()
+            .filter { it.elementType == VALUE_ARGUMENT }
+            .takeIf { it.count() == 1 }
+            ?.first()
+            ?.firstChildNode
+            ?.elementType
+            ?.let { it in elementTypes }
+            ?: false
+
+    private fun isFollowedByNewline(node: ASTNode): Boolean =
+        node
+            .nextCodeLeaf
+            ?.prevLeaf {
+                // Skip comments, whitespace, and empty nodes
+                !it.isPartOfComment && !it.isWhiteSpaceWithoutNewline && it.textLength > 0
+            }.isWhiteSpaceWithNewline
+
     private fun rearrangeSuperTypeList(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val entries = (node.psi as KtSuperTypeList).entries
-        if (
-            node.textContains('\n') &&
-            entries.size > 1 &&
-            // e.g.
-            //
-            // class A : B, C,
-            //     D
-            // or
-            // class A : B, C({
-            // }), D
-            //
-            // but not
-            //
-            // class A : B, C, D({
-            // })
-            !(
-                entries.dropLast(1).all { it.iElementType == SUPER_TYPE_ENTRY } &&
-                    entries.last().iElementType == SUPER_TYPE_CALL_ENTRY
-            )
-        ) {
+        // e.g. class A : B, C, D (multi-line) but not class A : B, C, D({})
+        val isLastEntryACallButNotAllOthersAreEntries =
+            entries.dropLast(1).all { it.iElementType == SUPER_TYPE_ENTRY } &&
+                entries.last().iElementType == SUPER_TYPE_CALL_ENTRY
+        val requiresSuperTypeSeparation =
+            node.textContains('\n') && entries.size > 1 && !isLastEntryACallButNotAllOthersAreEntries
+        if (requiresSuperTypeSeparation) {
             // put space after :
             if (!node.prevLeaf.isWhiteSpaceWithNewline) {
                 val colon = node.prevCodeLeaf!!
@@ -378,15 +369,13 @@ public class WrappingRule :
                 val nextSibling = c.nextSibling { !it.isWhiteSpace }
                 val hasDestructuringDeclarationAsLastValueParameter =
                     c.isLastValueParameter() && c.firstChildNode.elementType == DESTRUCTURING_DECLARATION
-                if (
+                val needsNewlineAfterComma =
                     nextSibling?.elementType == COMMA &&
-                    !hasDestructuringDeclarationAsLastValueParameter &&
-                    !nextSibling.nextSibling.isWhiteSpaceWithNewline &&
-                    // value(
-                    // ), // a comment
-                    // c, d
-                    nextSibling.nextSibling?.nextSibling?.let { !TokenSets.COMMENTS.contains(it.elementType) } != false
-                ) {
+                        !hasDestructuringDeclarationAsLastValueParameter &&
+                        !nextSibling.nextSibling.isWhiteSpaceWithNewline &&
+                        // value( // ), // a comment // c, d
+                        nextSibling.nextSibling?.nextSibling?.let { !TokenSets.COMMENTS.contains(it.elementType) } != false
+                if (needsNewlineAfterComma) {
                     requireNewlineAfterLeaf(nextSibling, emit)
                 }
             }
@@ -459,55 +448,68 @@ public class WrappingRule :
                 ?.children
                 ?.forEach { child ->
                     when (child.elementType) {
-                        COMMA -> {
-                            child
-                                .prevSibling
-                                ?.takeIf { it.isWhiteSpaceWithNewline }
-                                ?.let { whitespaceWithNewline ->
-                                    emit(child.startOffset, "No whitespace was expected before '${child.text}'", true)
-                                        .ifAutocorrectAllowed {
-                                            if (whitespaceWithNewline.prevLeaf?.elementType == EOL_COMMENT) {
-                                                // In case the comma was preceded by an EOL_COMMENT then move the comma before that comment
-                                                //        where T : CharSequence // Some comment
-                                                //            , T : Comparable<T>
-                                                val eolCommentBeforeComma = whitespaceWithNewline.prevLeaf!!
-                                                val insertCommaBefore =
-                                                    eolCommentBeforeComma
-                                                        .prevLeaf
-                                                        .takeIf { it.isWhiteSpace }
-                                                        ?: eolCommentBeforeComma
-                                                eolCommentBeforeComma.treeParent.addChild(LeafPsiElement(COMMA, ","), insertCommaBefore)
-                                                child
-                                                    .nextSibling
-                                                    ?.takeIf { it.isWhiteSpace }
-                                                    ?.remove()
-                                                child.remove()
-                                            } else {
-                                                whitespaceWithNewline.remove()
-                                            }
-                                        }
-                                }
-                        }
-
-                        TYPE_CONSTRAINT -> {
-                            child
-                                .prevSibling { !it.isPartOfComment }
-                                .let { prevSibling ->
-                                    if (prevSibling.isWhiteSpaceWithoutNewline) {
-                                        emit(child.startOffset, "A newline was expected before '${child.text}'", true)
-                                            .ifAutocorrectAllowed {
-                                                child.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
-                                            }
-                                    }
-                                }
-                        }
-
-                        else -> {
-                            // No-op
-                        }
+                        COMMA -> rearrangeCommaInTypeConstraintList(child, emit)
+                        TYPE_CONSTRAINT -> rearrangeTypeConstraintInTypeConstraintList(child, emit)
                     }
                 }
         }
+    }
+
+    private fun rearrangeCommaInTypeConstraintList(
+        child: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        require(child.elementType == COMMA && child.parent!!.elementType == TYPE_CONSTRAINT_LIST)
+        child
+            .prevSibling
+            ?.takeIf { it.isWhiteSpaceWithNewline }
+            ?.let { whitespaceWithNewline ->
+                emit(child.startOffset, "No whitespace was expected before '${child.text}'", true)
+                    .ifAutocorrectAllowed {
+                        if (whitespaceWithNewline.prevLeaf?.elementType == EOL_COMMENT) {
+                            // In case the comma was preceded by an EOL_COMMENT then move the comma before that comment
+                            //        where T : CharSequence // Some comment
+                            //            , T : Comparable<T>
+                            val eolCommentBeforeComma = whitespaceWithNewline.prevLeaf!!
+                            val insertCommaBefore =
+                                eolCommentBeforeComma
+                                    .prevLeaf
+                                    .takeIf { it.isWhiteSpace }
+                                    ?: eolCommentBeforeComma
+                            eolCommentBeforeComma.treeParent.addChild(LeafPsiElement(COMMA, ","), insertCommaBefore)
+                            child
+                                .nextSibling
+                                ?.takeIf { it.isWhiteSpace }
+                                ?.remove()
+                            child.remove()
+                        } else {
+                            whitespaceWithNewline.remove()
+                        }
+                    }
+            }
+    }
+
+    private fun rearrangeTypeConstraintInTypeConstraintList(
+        child: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        require(child.elementType == TYPE_CONSTRAINT)
+        child
+            .prevSibling { !it.isPartOfComment }
+            .let { prevSibling ->
+                if (prevSibling.isWhiteSpaceWithoutNewline) {
+                    emit(child.startOffset, "A newline was expected before '${child.text}'", true)
+                        .ifAutocorrectAllowed {
+                            child.upsertWhitespaceBeforeMe(
+                                indentConfig.siblingIndentOf(
+                                    child
+                                        .parent { it.elementType == FUN }
+                                        ?.findChildByType(WHERE_KEYWORD)!!,
+                                ),
+                            )
+                        }
+                }
+            }
     }
 
     private fun rearrangeClosingQuote(
@@ -575,29 +577,13 @@ public class WrappingRule :
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val parent = node.parent!!
-        if (
-            // check
-            // `{ p -> ... }`
-            // and
-            // `when { m -> ... }`
-            // only
+        // Only check `{ p -> ... }` and `when { m -> ... }` that span multiple lines
+        val arrowDoesNotRequireNewlineRearrangement =
             parent.elementType.let { it != FUNCTION_LITERAL && it != WHEN_ENTRY } ||
-            // ... and only if expression after -> spans multiple lines
-            !parent.textContains('\n') ||
-            // permit
-            // when {
-            //     m -> 0 + d({
-            //     })
-            // }
-            (parent.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node)) ||
-            // permit
-            // when (this) {
-            //     in 0x1F600..0x1F64F, // Emoticons
-            //     0x200D // Zero-width Joiner
-            //     -> true
-            // }
-            (parent.elementType == WHEN_ENTRY && node.prevLeaf.isWhiteSpaceWithNewline)
-        ) {
+                !parent.textContains('\n') ||
+                (parent.elementType == WHEN_ENTRY && mustBeFollowedByNewline(node)) ||
+                (parent.elementType == WHEN_ENTRY && node.prevLeaf.isWhiteSpaceWithNewline)
+        if (arrowDoesNotRequireNewlineRearrangement) {
             return
         }
         if (!node.nextCodeLeaf?.prevLeaf.isWhiteSpaceWithNewline) {
@@ -693,26 +679,13 @@ public class WrappingRule :
      *         )
      *     ) { ... }
      */
-    private fun ASTNode.isPartOfForLoopConditionWithMultilineExpression(): Boolean {
-        if (parent?.elementType != FOR) {
-            return false
-        }
-        if (this.elementType != LPAR) {
-            return parent?.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
-        }
-        require(elementType == LPAR) {
-            "Node should be the LPAR of the FOR loop"
-        }
-
-        var node: ASTNode? = this
-        while (node != null && node.elementType != RPAR) {
-            if (node.isWhiteSpaceWithNewline) {
-                return false
+    private fun ASTNode.isPartOfForLoopConditionWithMultilineExpression(): Boolean =
+        parent?.elementType == FOR &&
+            if (elementType == LPAR) {
+                nextSibling { it.elementType == RPAR || it.isWhiteSpaceWithNewline }?.elementType == RPAR
+            } else {
+                parent?.findChildByType(LPAR)!!.isPartOfForLoopConditionWithMultilineExpression()
             }
-            node = node.nextSibling
-        }
-        return true
-    }
 
     override fun afterVisitChildNodes(
         node: ASTNode,

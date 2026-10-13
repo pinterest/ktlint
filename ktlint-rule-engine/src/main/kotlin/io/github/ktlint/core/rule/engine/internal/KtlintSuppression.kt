@@ -113,64 +113,60 @@ internal fun ASTNode.insertKtlintRuleSuppression(
  * Finds the node on which the [Suppress] may be added. This is either a declaration or an exception with some exceptions.
  */
 private fun ASTNode.findParentDeclarationOrExpression(forceFileAnnotation: Boolean): ASTNode {
-    if (!forceFileAnnotation && isTopLevel()) {
-        return this
-    }
-
     var targetPsiElement = psi
     var isAnnotationForBinaryExpression = false
-    while (
-        forceFileAnnotation ||
-        targetPsiElement is KtClassInitializer ||
-        targetPsiElement is KtBinaryExpression ||
-        targetPsiElement is KtBlockExpression ||
-        targetPsiElement is KtPrimaryConstructor ||
-        targetPsiElement is KtFunctionLiteral ||
-        targetPsiElement is KtLambdaExpression ||
-        targetPsiElement.parent is KtStringTemplateExpression ||
-        (
-            targetPsiElement is KtExpression &&
-                targetPsiElement.parent is KtExpression &&
-                targetPsiElement.parent !is KtBlockExpression &&
-                targetPsiElement.parent !is KtDeclaration
-        ) ||
-        (targetPsiElement !is KtDeclaration && targetPsiElement !is KtExpression)
-    ) {
+    var stopTraversal = !forceFileAnnotation && isTopLevel()
+    while (!stopTraversal && targetPsiElement.shouldInspectParentElement(forceFileAnnotation)) {
         if (targetPsiElement is KtBinaryExpression) {
             isAnnotationForBinaryExpression = true
         }
-        targetPsiElement =
-            when {
-                targetPsiElement.parent == null -> {
-                    // Prevents null pointer when already at a root node
-                    return targetPsiElement.node
-                }
+        stopTraversal =
+            // Prevents null pointer when already at a root node
+            targetPsiElement.parent == null ||
+            // If a suppression is added to an inner element of a list element, then the annotation should be put on that element
+            // unless this is binary expression. Inserting the annotation on the root of the binary expression would result in
+            // applying that annotation only on the left hand side of the root expression instead of on the entire binary
+            // expression.
+            (targetPsiElement.node.elementType in listElementTypeTokenSet && !isAnnotationForBinaryExpression)
+        if (!stopTraversal) {
+            targetPsiElement =
+                when {
+                    targetPsiElement.isIgnorableListElement() -> {
+                        // If a suppression is added on a direct child of the list type but not inside in a list element then the annotation is
+                        // moved to the next list element. When no such element is found, it will be moved to the parent of the list type
+                        targetPsiElement
+                            .node
+                            .nextCodeSibling
+                            ?.firstChildLeafOrSelf
+                            ?.psi
+                            ?.parent
+                    }
 
-                targetPsiElement.node.elementType in listElementTypeTokenSet && !isAnnotationForBinaryExpression -> {
-                    // If a suppression is added to an inner element of a list element, then the annotation should be put on that element
-                    // unless this is binary expression. Inserting the annotation on the root of the binary expression would result in
-                    // applying that annotation only on the left hand side of the root expression instead of on the entire binary
-                    // expression.
-                    return targetPsiElement.node
+                    else -> {
+                        targetPsiElement.parent
+                    }
                 }
-
-                targetPsiElement.isIgnorableListElement() -> {
-                    // If a suppression is added on a direct child of the list type but not inside in a list element then the annotation is
-                    // moved to the next list element. When no such element is found, it will be moved to the parent of the list type
-                    targetPsiElement
-                        .node
-                        .nextCodeSibling
-                        ?.firstChildLeafOrSelf
-                        ?.psi
-                }
-
-                else -> {
-                    targetPsiElement
-                }
-            }?.parent
+        }
     }
     return targetPsiElement.node
 }
+
+private fun PsiElement.shouldInspectParentElement(forceFileAnnotation: Boolean) =
+    forceFileAnnotation ||
+        this is KtClassInitializer ||
+        this is KtBinaryExpression ||
+        this is KtBlockExpression ||
+        this is KtPrimaryConstructor ||
+        this is KtFunctionLiteral ||
+        this is KtLambdaExpression ||
+        parent is KtStringTemplateExpression ||
+        (
+            this is KtExpression &&
+                parent is KtExpression &&
+                parent !is KtBlockExpression &&
+                parent !is KtDeclaration
+        ) ||
+        (this !is KtDeclaration && this !is KtExpression)
 
 private val listTypeTokenSet = TokenSet.create(TYPE_ARGUMENT_LIST, TYPE_PARAMETER_LIST, VALUE_ARGUMENT_LIST, VALUE_PARAMETER_LIST)
 private val listElementTypeTokenSet = TokenSet.create(TYPE_PROJECTION, TYPE_PARAMETER, VALUE_ARGUMENT, VALUE_PARAMETER)
@@ -273,13 +269,13 @@ private fun ASTNode.createSuppressAnnotation(
 
     when (psi) {
         is KtFile -> {
-            val fileAnnotation = targetNode.createFileAnnotation(suppressType, suppressions)
+            val fileAnnotation = createFileAnnotation(suppressType, suppressions)
             this.createFileAnnotationList(fileAnnotation)
         }
 
         is KtAnnotationEntry -> {
             if (psi.parent is KtFileAnnotationList) {
-                val fileAnnotation = targetNode.createFileAnnotation(suppressType, suppressions)
+                val fileAnnotation = createFileAnnotation(suppressType, suppressions)
                 this.replaceWith(fileAnnotation.firstChildNode)
             } else {
                 val modifierListWithAnnotation = createModifierListWithAnnotationEntry(suppressType, suppressions)
@@ -309,7 +305,7 @@ private fun ASTNode.createSuppressAnnotation(
     }
 }
 
-private fun ASTNode.createFileAnnotation(
+private fun createFileAnnotation(
     suppressType: SuppressAnnotationType,
     suppressions: Set<String>,
 ): ASTNode =
@@ -322,7 +318,7 @@ private fun ASTNode.createFileAnnotation(
                 .createPsiFileFromText("file.kt", annotation)
                 .firstChild
                 ?.node
-                ?: throw IllegalStateException("Can not create annotation '$annotation'")
+                ?: error("Can not create annotation '$annotation'")
         }
 
 private fun ASTNode.createFileAnnotationList(annotation: ASTNode) {
@@ -358,7 +354,7 @@ private fun createModifierListWithAnnotationEntry(
                     """.trimIndent(),
                 )?.findChildByType(FUN)
                 ?.findChildByType(MODIFIER_LIST)
-                ?: throw IllegalStateException("Can not create annotation '$annotation'")
+                ?: error("Can not create annotation '$annotation'")
         }
 
 private fun ASTNode.createAnnotatedExpression(
@@ -377,7 +373,7 @@ private fun ASTNode.createAnnotatedExpression(
                     |${this.indentWithoutNewlinePrefix}${this.text}
                     """.trimMargin(),
                 )?.findChildByType(ANNOTATED_EXPRESSION)
-                ?: throw IllegalStateException("Can not create annotation '$annotation'")
+                ?: error("Can not create annotation '$annotation'")
         }
 
 private enum class SuppressAnnotationType(

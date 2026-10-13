@@ -14,39 +14,31 @@ public class PatternEntry(
 ) {
     private val packageName = packageName.removeSuffix(".*")
 
-    private fun matchesPackageName(otherPackageName: String): Boolean {
-        if (this == ALL_OTHER_IMPORTS_ENTRY || this == ALL_OTHER_ALIAS_IMPORTS_ENTRY) return true
-        if (this == BLANK_LINE_ENTRY) return false
-
-        if (otherPackageName.startsWith(packageName)) {
-            if (otherPackageName.length == packageName.length) {
-                return true
-            }
-            if (withSubpackages && otherPackageName[packageName.length] == '.') {
-                return true
-            }
+    private fun matchesPackageName(otherPackageName: String): Boolean =
+        when {
+            this == ALL_OTHER_IMPORTS_ENTRY || this == ALL_OTHER_ALIAS_IMPORTS_ENTRY -> true
+            this == BLANK_LINE_ENTRY -> false
+            otherPackageName.startsWith(packageName) -> otherPackageName.length == packageName.length || isSubPackageOf(otherPackageName)
+            else -> false
         }
-        return false
-    }
+
+    private fun isSubPackageOf(otherPackageName: String): Boolean = withSubpackages && otherPackageName[packageName.length] == '.'
 
     internal fun matches(import: ImportPath): Boolean = matchesPackageName(import.pathStr.removeSuffix(".*"))
 
     internal fun isBetterMatchForPackageThan(
         entry: PatternEntry?,
         import: ImportPath,
-    ): Boolean {
-        if (hasAlias != import.hasAlias() || !matchesPackageName(import.pathStr)) return false
-        if (entry == null) return true
-
-        if (entry.hasAlias != hasAlias) return false
-        // Any matched package is better than ALL_OTHER_IMPORTS_ENTRY
-        if (this == ALL_OTHER_IMPORTS_ENTRY) return false
-        if (entry == ALL_OTHER_IMPORTS_ENTRY) return true
-
-        if (entry.withSubpackages != withSubpackages) return !withSubpackages
-
-        return entry.packageName.count { it == '.' } < packageName.count { it == '.' }
-    }
+    ): Boolean =
+        when {
+            hasAlias != import.hasAlias() || !matchesPackageName(import.pathStr) -> false
+            entry == null -> true
+            entry.hasAlias != hasAlias -> false
+            this == ALL_OTHER_IMPORTS_ENTRY -> false
+            entry == ALL_OTHER_IMPORTS_ENTRY -> true
+            entry.withSubpackages != withSubpackages -> !withSubpackages
+            else -> entry.packageName.count { it == '.' } < packageName.count { it == '.' }
+        }
 
     override fun toString(): String =
         when (this) {

@@ -127,6 +127,31 @@ internal class FileUtilsTest {
     }
 
     @Test
+    fun `Given a glob and a file path not matched by the glob then all files matched by the glob and the files specified by path are found`() {
+        val foundFiles =
+            getFiles(
+                patterns =
+                    listOf(
+                        "project1/**/*.kt",
+                        "project1/*.kt",
+                        someFileInOtherProjectRootDirectory,
+                    ),
+            )
+
+        assertThat(foundFiles)
+            .containsExactlyInAnyOrder(
+                ktFileInProjectRootDirectory,
+                ktFile1InProjectSubDirectory,
+                ktFile2InProjectSubDirectory,
+                someFileInOtherProjectRootDirectory,
+            ).doesNotContain(
+                javaFileInHiddenDirectory,
+                ktFileInHiddenDirectory,
+                ktsFileInHiddenDirectory,
+            )
+    }
+
+    @Test
     fun `Given the root directory where scanning starts is hidden, then the patterns should work`() {
         val foundFiles =
             getFiles(

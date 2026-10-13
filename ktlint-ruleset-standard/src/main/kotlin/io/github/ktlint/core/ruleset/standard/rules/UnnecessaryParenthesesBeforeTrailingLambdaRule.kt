@@ -31,12 +31,7 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unne
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.isEmptyArgumentList() &&
-            node.isPartOf(CALL_EXPRESSION) &&
-            node.isNotPrecededByCallExpressionEndingWithLambdaArgument() &&
-            node.nextCodeSibling?.elementType == LAMBDA_ARGUMENT &&
-            node.prevCodeSibling?.elementType != CALL_EXPRESSION
-        ) {
+        if (node.isUnnecessaryEmptyArgumentListBeforeLambda()) {
             emit(
                 node.startOffset,
                 "Empty parentheses in function call followed by lambda are unnecessary",
@@ -44,6 +39,13 @@ public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unne
             ).ifAutocorrectAllowed { node.remove() }
         }
     }
+
+    private fun ASTNode.isUnnecessaryEmptyArgumentListBeforeLambda() =
+        isEmptyArgumentList() &&
+            isPartOf(CALL_EXPRESSION) &&
+            isNotPrecededByCallExpressionEndingWithLambdaArgument() &&
+            nextCodeSibling?.elementType == LAMBDA_ARGUMENT &&
+            prevCodeSibling?.elementType != CALL_EXPRESSION
 
     private fun ASTNode.isEmptyArgumentList(): Boolean =
         elementType == VALUE_ARGUMENT_LIST &&

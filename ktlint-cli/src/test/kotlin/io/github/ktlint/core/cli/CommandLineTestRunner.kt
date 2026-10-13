@@ -143,7 +143,7 @@ class CommandLineTestRunner(
 
                     System
                         .getProperty("java.specification.version")
-                        .javaVersionAsInt()
+                        ?.javaVersionAsInt()
                         ?.let { javaVersion ->
                             if (javaVersion >= 24) {
                                 // Suppress warning "sun.misc.Unsafe::objectFieldOffset" on Java24+ (https://github.com/ktlint/ktlint/issues/2973)
@@ -166,23 +166,14 @@ class CommandLineTestRunner(
             }.joinToString(separator = " ")
             .also { LOGGER.debug { "Command to be executed: $it" } }
 
-    private fun String?.javaVersionAsInt(): Int? {
-        if (this == null) {
-            return null
+    private fun String.javaVersionAsInt(): Int? {
+        val matchResult = JAVA_VERSION_REGEX.matchEntire(this)
+        return if (matchResult == null) {
+            // Java 9+ has no leading `1.` as prefix in the version number
+            toIntOrNull()
+        } else {
+            matchResult.groups["version"]?.value?.toIntOrNull()
         }
-
-        val matchResult =
-            JAVA_VERSION_REGEX
-                .matchEntire(this)
-                ?: // Java 9+ has no leading `1.` as prefix in the version number
-                return toIntOrNull()
-
-        val matchGroup =
-            matchResult
-                .groups["version"]
-                ?: return null
-
-        return matchGroup.value.toIntOrNull()
     }
 
     private fun ProcessBuilder.prependPathWithJavaBinHome() {

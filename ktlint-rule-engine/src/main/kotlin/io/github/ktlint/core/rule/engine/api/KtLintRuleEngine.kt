@@ -113,7 +113,6 @@ public class KtLintRuleEngine(
     public fun format(
         code: Code,
         rerunAfterAutocorrect: Boolean = true,
-        defaultAutocorrect: Boolean = true,
         callback: (LintError) -> AutocorrectDecision,
     ): String =
         codeFormatter.format(

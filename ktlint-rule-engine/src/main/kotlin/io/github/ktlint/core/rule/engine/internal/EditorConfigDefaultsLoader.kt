@@ -36,24 +36,24 @@ internal class EditorConfigDefaultsLoader(
         }
 
         val editorConfigFilePath = path.editorConfigFilePath()
-        if (editorConfigFilePath.notExists()) {
+        return if (editorConfigFilePath.notExists()) {
             LOGGER.warn { "File or directory '$path' is not found. Can not load '.editorconfig' properties" }
-            return EMPTY_EDITOR_CONFIG_DEFAULTS
+            EMPTY_EDITOR_CONFIG_DEFAULTS
+        } else {
+            THREAD_SAFE_EDITOR_CONFIG_CACHE
+                .get(editorConfigFilePath.resource(), editorConfigLoaderEc4j.editorConfigLoader)
+                .also {
+                    LOGGER.debug {
+                        it
+                            .toString()
+                            .split("\n")
+                            .joinToString(
+                                prefix = "Loaded .editorconfig-properties from file '$editorConfigFilePath':\n\t",
+                                separator = "\n\t",
+                            )
+                    }
+                }.let { EditorConfigDefaults(it) }
         }
-
-        return THREAD_SAFE_EDITOR_CONFIG_CACHE
-            .get(editorConfigFilePath.resource(), editorConfigLoaderEc4j.editorConfigLoader)
-            .also {
-                LOGGER.debug {
-                    it
-                        .toString()
-                        .split("\n")
-                        .joinToString(
-                            prefix = "Loaded .editorconfig-properties from file '$editorConfigFilePath':\n\t",
-                            separator = "\n\t",
-                        )
-                }
-            }.let { EditorConfigDefaults(it) }
     }
 
     private fun Path.editorConfigFilePath() =

@@ -52,4 +52,9 @@ public class KtlintCliError(
          */
         KTLINT_RULE_ENGINE_EXCEPTION,
     }
+
+    private companion object {
+        @Suppress("unused")
+        private const val serialVersionUID: Long = 1L
+    }
 }

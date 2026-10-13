@@ -78,6 +78,8 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * }
  * ```
  */
+private const val SPACE_AND_ARROW_LENGTH = " ->".length
+
 @SinceKtlint("1.0", EXPERIMENTAL)
 @SinceKtlint("1.3", STABLE)
 public class FunctionLiteralRule :
@@ -170,7 +172,7 @@ public class FunctionLiteralRule :
             lineLengthIncludingLbrace()
                 .plus(1) // space before parameter list
                 .plus(lengthOfParameterListWhenOnSingleLine())
-                .plus(3) // space after parameter list followed by ->
+                .plus(SPACE_AND_ARROW_LENGTH) // space after parameter list followed by ->
         return hasNoMaxLineLengthSuppression() && lineLength > maxLineLength
     }
 

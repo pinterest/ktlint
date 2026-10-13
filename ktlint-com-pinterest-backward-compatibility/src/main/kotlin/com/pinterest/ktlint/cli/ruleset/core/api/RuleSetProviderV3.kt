@@ -36,4 +36,9 @@ public abstract class RuleSetProviderV3(
      * ```
      */
     public abstract fun getRuleProviders(): Set<RuleProvider>
+
+    private companion object {
+        @Suppress("unused")
+        private const val serialVersionUID: Long = 1L
+    }
 }

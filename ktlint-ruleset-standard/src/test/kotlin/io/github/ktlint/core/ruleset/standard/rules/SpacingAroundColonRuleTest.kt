@@ -442,5 +442,46 @@ class SpacingAroundColonRuleTest {
                     LintViolation(17, 15, "Unexpected newline before \":\""),
                 ).isFormattedAs(formattedCode)
         }
+
+        @Test
+        fun `Object declaration with colon on next line`() {
+            val code =
+                """
+                val foo1 = object
+                    : Foo() {}
+
+                val foo2 = object// comment
+                    : Foo() {}
+
+                val foo3 = object // comment
+                    : Foo() {}
+
+                val foo4 = object
+                    // comment
+                    : Foo() {}
+                """.trimIndent()
+            val formattedCode =
+                """
+                val foo1 = object :
+                    Foo() {}
+
+                val foo2 = object : // comment
+                    Foo() {}
+
+                val foo3 = object : // comment
+                    Foo() {}
+
+                val foo4 = object :
+                    // comment
+                    Foo() {}
+                """.trimIndent()
+            spacingAroundColonRuleAssertThat(code)
+                .hasLintViolations(
+                    LintViolation(1, 18, "Unexpected newline before \":\""),
+                    LintViolation(4, 28, "Unexpected newline before \":\""),
+                    LintViolation(7, 29, "Unexpected newline before \":\""),
+                    LintViolation(11, 15, "Unexpected newline before \":\""),
+                ).isFormattedAs(formattedCode)
+        }
     }
 }

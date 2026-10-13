@@ -281,12 +281,8 @@ public class ArgumentListWrappingRule :
     }
 
     private fun ASTNode.isOnSameLineAsControlFlowKeyword(): Boolean {
-        var prevLeaf = prevLeaf ?: return false
-        while (prevLeaf.elementType !in TokenSets.CONTROL_FLOW_KEYWORDS) {
-            if (prevLeaf.isWhiteSpaceWithNewline) return false
-            prevLeaf = prevLeaf.prevLeaf ?: return false
-        }
-        return true
+        val prevLeaf = prevLeaf { it.isWhiteSpaceWithNewline || it.elementType in TokenSets.CONTROL_FLOW_KEYWORDS }
+        return prevLeaf != null && !prevLeaf.isWhiteSpaceWithNewline
     }
 
     public companion object {

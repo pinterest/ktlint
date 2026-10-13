@@ -152,10 +152,10 @@ class ClassNamingRuleTest {
         classNamingRuleAssertThat(code).hasNoLintViolations()
     }
 
-    companion object {
-        @Suppress("UnstableApiUsage")
+    private companion object {
+        @Suppress("UnstableApiUsage", "UnusedPrivateMember")
         @JvmStatic
-        private fun ktTokens() =
+        fun ktTokens() =
             KtTokens.KEYWORDS.types
                 .plus(KtTokens.SOFT_KEYWORDS.types)
                 .filterNot { it == KtTokens.AS_SAFE || it == KtTokens.NOT_IN || it == KtTokens.NOT_IS }

@@ -118,4 +118,16 @@ class EnumEntryNameCaseRuleTest {
                 .hasLintViolationWithoutAutoCorrect(2, 5, "Enum entry name should be upper camel-case like \"EnumEntry\"")
         }
     }
+
+    @Test
+    fun `Given an enum value surrounded with backticks`() {
+        val code =
+            """
+            enum class SomeEnum {
+                `SurroundedWithBackticks`,
+                NotSurroundedWithBackticks,
+            }
+            """.trimIndent()
+        enumEntryNameCaseRuleAssertThat(code).hasNoLintViolations()
+    }
 }

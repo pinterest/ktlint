@@ -23,12 +23,14 @@ public class NoLineBreakAfterElseRule : StandardRule("no-line-break-after-else")
     ) {
         if (node.isWhiteSpaceWithNewline &&
             node.prevLeaf?.elementType == ELSE_KEYWORD &&
-            node.nextLeaf?.elementType.let { it == IF_KEYWORD || it == LBRACE }
+            node.isFollowedByIfOrBlock()
         ) {
             emit(node.startOffset + 1, "Unexpected line break after \"else\"", true)
                 .ifAutocorrectAllowed { node.replaceTextWith(" ") }
         }
     }
+
+    private fun ASTNode.isFollowedByIfOrBlock() = nextLeaf?.elementType.let { it == IF_KEYWORD || it == LBRACE }
 }
 
 public val NO_LINE_BREAK_AFTER_ELSE_RULE_ID: RuleId = NoLineBreakAfterElseRule().ruleId

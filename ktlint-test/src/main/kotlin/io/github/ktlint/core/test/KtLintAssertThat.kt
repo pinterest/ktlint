@@ -68,7 +68,7 @@ private val KTLINT_TEST_FILE_SYSTEM = KtlintTestFileSystem()
  * }
  * ```
  */
-@Suppress("MemberVisibilityCanBePrivate")
+@Suppress("MemberVisibilityCanBePrivate", "TooManyFunctions")
 public class KtLintAssertThat(
     /**
      * Provider of a rule which is the subject of the test, e.g. the rule for which the AssertThat is created.

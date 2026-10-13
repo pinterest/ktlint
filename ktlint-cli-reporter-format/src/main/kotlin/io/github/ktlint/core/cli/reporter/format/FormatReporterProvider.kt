@@ -12,10 +12,7 @@ public class FormatReporterProvider : ReporterProviderV2<FormatReporter> {
     ): FormatReporter =
         FormatReporter(
             out,
-            format =
-                opt
-                    .getOrElse("format") { throw IllegalArgumentException("Format is not specified in config options") }
-                    .toBooleanStrict(),
+            format = requireNotNull(opt["format"]) { "Format is not specified in config options" }.toBooleanStrict(),
             shouldColorOutput = opt["color"]?.emptyOrTrue() ?: false,
             outputColor = getColor(opt["color_name"]),
         )
@@ -23,7 +20,5 @@ public class FormatReporterProvider : ReporterProviderV2<FormatReporter> {
     private fun String.emptyOrTrue() = this == "" || this == "true"
 
     private fun getColor(color: String?): Color =
-        Color.entries.firstOrNull {
-            it.name == color
-        } ?: throw IllegalArgumentException("Invalid color parameter.")
+        requireNotNull(Color.entries.firstOrNull { it.name == color }) { "Invalid color parameter." }
 }

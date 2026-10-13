@@ -119,7 +119,8 @@ public class FunctionSignatureRule :
     }
 
     private fun ASTNode.functionSignatureNodes(): List<ASTNode> {
-        // Find the signature including the element that has to be placed on the same line as the function signature
+        // Find the signature including the element that has to be placed on the same line as the function signature excluding the elements
+        // like the context parameter list, annotations and comments that have to placed on separate lines.
         //     fun foo(bar: String) {
         // or
         //     fun foo(bar: String) =
@@ -143,43 +144,43 @@ public class FunctionSignatureRule :
             } else {
                 this
             }
-        funNode
-            ?.findChildByType(MODIFIER_LIST)
-            ?.let { modifierList ->
-                val iterator = modifierList.children.iterator()
-                var currentNode: ASTNode
-                while (iterator.hasNext()) {
-                    currentNode = iterator.next()
-                    if (currentNode.elementType == CONTEXT_PARAMETER_LIST) {
-                        return currentNode
+        val modifierList = funNode?.findChildByType(MODIFIER_LIST)
+        return if (modifierList == null) {
+            funNode?.nextCodeLeaf
+        } else {
+            modifierList.firstCodeChildFromFunctionModifierList()
+        }
+    }
+
+    private fun ASTNode.firstCodeChildFromFunctionModifierList(): ASTNode? {
+        require(elementType == MODIFIER_LIST)
+        val iterator = children.iterator()
+        var result: ASTNode? = null
+        while (iterator.hasNext() && result == null) {
+            val currentNode = iterator.next()
+            result =
+                when {
+                    currentNode.elementType == CONTEXT_PARAMETER_LIST -> {
+                        currentNode
                             .lastChildLeafOrSelf
                             .nextLeaf
-                            .let { leafAfterCompositeContextReceiverList ->
-                                if (leafAfterCompositeContextReceiverList.isWhiteSpaceWithNewline) {
-                                    // Ignore context receiver when followed by newline or EOL comment. Also, ignore that newline or EOL
-                                    // comment.
-                                    //     context(Foo)
-                                    //     fun foo()
-                                    // or
-                                    //     context(_: Foo)
-                                    //     fun foo()
-                                    // Same when using context parameter instead of context receiver
-                                    leafAfterCompositeContextReceiverList?.nextLeaf
-                                } else {
-                                    currentNode
-                                }
-                            }
-                    } else if (currentNode.elementType != ANNOTATION &&
+                            .takeIf { it.isWhiteSpaceWithNewline }
+                            ?.nextLeaf
+                            ?: currentNode
+                    }
+
+                    currentNode.elementType != ANNOTATION &&
                         currentNode.elementType != ANNOTATION_ENTRY &&
-                        currentNode.elementType != WHITE_SPACE
-                    ) {
-                        return currentNode
+                        currentNode.elementType != WHITE_SPACE -> {
+                        currentNode
+                    }
+
+                    else -> {
+                        null
                     }
                 }
-                return modifierList.nextCodeSibling
-            }
-
-        return funNode?.nextCodeLeaf
+        }
+        return result ?: nextCodeSibling
     }
 
     private fun visitFunctionSignature(
@@ -433,47 +434,70 @@ public class FunctionSignatureRule :
             .children
             .filter { it.elementType == VALUE_PARAMETER }
             .filter { it != firstParameterInList }
-            .forEach { valueParameter ->
-                val firstChildNodeInValueParameter = valueParameter.firstChildNode
-                firstChildNodeInValueParameter
-                    ?.prevLeaf
-                    ?.takeIf { it.isWhiteSpace }
-                    .let { whiteSpaceBeforeIdentifier ->
-                        if (multiline) {
-                            val expectedParameterIndent = indentConfig.childIndentOf(node)
-                            if (whiteSpaceBeforeIdentifier == null ||
-                                whiteSpaceBeforeIdentifier.text != expectedParameterIndent
-                            ) {
-                                if (!dryRun && valueParameterList.hasNoMaxLineLengthSuppression()) {
-                                    emit(
-                                        valueParameter.startOffset,
-                                        "Parameter should start on a newline",
-                                        true,
-                                    ).ifAutocorrectAllowed {
-                                        firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent)
-                                    }
-                                } else {
-                                    whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
-                                }
-                            }
-                        } else {
-                            if (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != " ") {
-                                if (!dryRun) {
-                                    emit(
-                                        firstChildNodeInValueParameter!!.startOffset,
-                                        "Single whitespace expected before parameter",
-                                        true,
-                                    ).ifAutocorrectAllowed {
-                                        firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ")
-                                    }
-                                } else {
-                                    whiteSpaceCorrection += 1 - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
-                                }
-                            }
-                        }
-                    }
-            }
+            .forEach { whiteSpaceCorrection += it.fixWhiteSpacesAroundValueParameter(emit, multiline, dryRun) }
 
+        return whiteSpaceCorrection
+    }
+
+    private fun ASTNode.fixWhiteSpacesAroundValueParameter(
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+        multiline: Boolean,
+        dryRun: Boolean,
+    ): Int {
+        require(elementType == VALUE_PARAMETER)
+        return if (multiline) {
+            fixWhiteSpacesAroundValueParameterInMultilineParameterList(emit, dryRun)
+        } else {
+            this.fixWhiteSpacesAroundValueParameterInSingleLineParameterList(emit, dryRun)
+        }
+    }
+
+    private fun ASTNode.fixWhiteSpacesAroundValueParameterInMultilineParameterList(
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+        dryRun: Boolean,
+    ): Int {
+        require(elementType == VALUE_PARAMETER)
+        var whiteSpaceCorrection = 0
+        val firstChildNodeInValueParameter = this.firstChildNode
+        firstChildNodeInValueParameter
+            ?.prevLeaf
+            ?.takeIf { it.isWhiteSpace }
+            .let { whiteSpaceBeforeIdentifier ->
+                val expectedParameterIndent = indentConfig.childIndentOf(this.parent { it.elementType == FUN }!!)
+                if (whiteSpaceBeforeIdentifier == null ||
+                    whiteSpaceBeforeIdentifier.text != expectedParameterIndent
+                ) {
+                    if (!dryRun && hasNoMaxLineLengthSuppression()) {
+                        emit(this.startOffset, "Parameter should start on a newline", true)
+                            .ifAutocorrectAllowed { firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(expectedParameterIndent) }
+                    } else {
+                        whiteSpaceCorrection += expectedParameterIndent.length - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
+                    }
+                }
+            }
+        return whiteSpaceCorrection
+    }
+
+    private fun ASTNode.fixWhiteSpacesAroundValueParameterInSingleLineParameterList(
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+        dryRun: Boolean,
+    ): Int {
+        require(this.elementType == VALUE_PARAMETER)
+        var whiteSpaceCorrection = 0
+        val firstChildNodeInValueParameter = this.firstChildNode
+        firstChildNodeInValueParameter
+            ?.prevLeaf
+            ?.takeIf { it.isWhiteSpace }
+            .let { whiteSpaceBeforeIdentifier ->
+                if (whiteSpaceBeforeIdentifier == null || whiteSpaceBeforeIdentifier.text != " ") {
+                    if (!dryRun) {
+                        emit(firstChildNodeInValueParameter!!.startOffset, "Single whitespace expected before parameter", true)
+                            .ifAutocorrectAllowed { firstChildNodeInValueParameter.upsertWhitespaceBeforeMe(" ") }
+                    } else {
+                        whiteSpaceCorrection += 1 - (whiteSpaceBeforeIdentifier?.textLength ?: 0)
+                    }
+                }
+            }
         return whiteSpaceCorrection
     }
 
@@ -550,76 +574,93 @@ public class FunctionSignatureRule :
             .firstOrNull()
             ?.also { firstLineOfBodyExpression ->
                 if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithNewline) {
-                    lastNodeOfFunctionSignatureWithBodyExpression
-                        .nextCodeSibling
-                        .takeIf { it?.elementType == ANNOTATED_EXPRESSION }
-                        ?.let {
-                            // Never merge an annotated expression body with function signature as this conflicts with the Annotation rule
-                            return
-                        }
-                    val mergeWithFunctionSignature =
-                        when {
-                            functionBodyExpressionWrapping == ALWAYS -> {
-                                false
-                            }
-
-                            firstLineOfBodyExpression.length < maxLengthRemainingForFirstLineOfBodyExpression -> {
-                                (functionBodyExpressionWrapping == DEFAULT && !functionBodyExpressionNodes.isMultilineStringTemplate()) ||
-                                    (functionBodyExpressionWrapping == MULTILINE && functionBodyExpressionLines.size == 1) ||
-                                    node.isMultilineFunctionSignatureWithoutExplicitReturnType(
-                                        lastNodeOfFunctionSignatureWithBodyExpression,
-                                    )
-                            }
-
-                            else -> {
-                                false
-                            }
-                        }
-                    if (mergeWithFunctionSignature) {
-                        emit(
-                            whiteSpaceBeforeFunctionBodyExpression!!.startOffset,
-                            "First line of body expression fits on same line as function signature",
-                            true,
-                        ).ifAutocorrectAllowed { whiteSpaceBeforeFunctionBodyExpression.replaceTextWith(" ") }
+                    if (lastNodeOfFunctionSignatureWithBodyExpression.nextCodeSibling?.elementType == ANNOTATED_EXPRESSION) {
+                        // Never merge an annotated expression body with function signature as this conflicts with the Annotation rule
+                        return
+                    }
+                    if (whiteSpaceBeforeFunctionBodyExpression != null &&
+                        node.shouldMergeFunctionSignatureAndBodyExpressionOnSameLine(
+                            functionBodyExpressionLines,
+                            functionBodyExpressionNodes,
+                            maxLengthRemainingForFirstLineOfBodyExpression,
+                        )
+                    ) {
+                        whiteSpaceBeforeFunctionBodyExpression.mergeFunctionSignatureAndBodyExpressionOnSameLine(emit)
                     }
                 } else if (whiteSpaceBeforeFunctionBodyExpression.isWhiteSpaceWithoutNewlineOrNull) {
-                    if (node.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression) &&
-                        firstLineOfBodyExpression.length + 1 <= maxLengthRemainingForFirstLineOfBodyExpression &&
-                        functionBodyExpressionWrapping != ALWAYS
+                    if (node.shouldHaveSingleSpaceBeforeFunctionExpressionBody(
+                            firstLineOfBodyExpression,
+                            maxLengthRemainingForFirstLineOfBodyExpression,
+                        )
                     ) {
-                        if (whiteSpaceBeforeFunctionBodyExpression == null ||
-                            whiteSpaceBeforeFunctionBodyExpression.text != " "
-                        ) {
-                            emit(
-                                functionBodyExpressionNodes.first().startOffset,
-                                "Single whitespace expected before expression body",
-                                true,
-                            ).ifAutocorrectAllowed {
-                                functionBodyExpressionNodes
-                                    .first()
-                                    .upsertWhitespaceBeforeMe(" ")
-                            }
+                        if (whiteSpaceBeforeFunctionBodyExpression == null || whiteSpaceBeforeFunctionBodyExpression.text != " ") {
+                            functionBodyExpressionNodes.first().insertSpaceBeforeFunctionExpressionBody(emit)
                         }
-                    } else if (
-                        (
-                            node.hasNoMaxLineLengthSuppression() &&
-                                firstLineOfBodyExpression.length + 1 > maxLengthRemainingForFirstLineOfBodyExpression
-                        ) ||
-                        (functionBodyExpressionWrapping == MULTILINE && functionBodyExpressionLines.size > 1) ||
-                        functionBodyExpressionWrapping == ALWAYS
+                    } else if (node.shouldWrapFunctionBodyExpression(
+                            functionBodyExpressionLines,
+                            maxLengthRemainingForFirstLineOfBodyExpression,
+                        )
                     ) {
-                        emit(
-                            functionBodyExpressionNodes.first().startOffset,
-                            "Newline expected before expression body",
-                            true,
-                        ).ifAutocorrectAllowed {
-                            functionBodyExpressionNodes
-                                .first()
-                                .upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
-                        }
+                        functionBodyExpressionNodes.first().wrapFunctionBodyExpression(emit)
                     }
                 }
             }
+    }
+
+    private fun ASTNode.shouldMergeFunctionSignatureAndBodyExpressionOnSameLine(
+        functionBodyExpressionLines: List<String>,
+        functionBodyExpressionNodes: List<ASTNode>,
+        maxLengthRemainingForFirstLineOfBodyExpression: Int,
+    ): Boolean =
+        when {
+            functionBodyExpressionWrapping == ALWAYS -> {
+                false
+            }
+
+            functionBodyExpressionLines.first().length < maxLengthRemainingForFirstLineOfBodyExpression -> {
+                (functionBodyExpressionWrapping == DEFAULT && !functionBodyExpressionNodes.isMultilineStringTemplate()) ||
+                    (functionBodyExpressionWrapping == MULTILINE && functionBodyExpressionLines.size == 1) ||
+                    isMultilineFunctionSignatureWithoutExplicitReturnType()
+            }
+
+            else -> {
+                false
+            }
+        }
+
+    private fun ASTNode.mergeFunctionSignatureAndBodyExpressionOnSameLine(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        require(isWhiteSpaceWithNewline)
+        emit(startOffset, "First line of body expression fits on same line as function signature", true)
+            .ifAutocorrectAllowed { replaceTextWith(" ") }
+    }
+
+    private fun ASTNode.shouldHaveSingleSpaceBeforeFunctionExpressionBody(
+        firstLineOfBodyExpression: String,
+        maxLengthRemainingForFirstLineOfBodyExpression: Int,
+    ): Boolean =
+        isMultilineFunctionSignatureWithoutExplicitReturnType() &&
+            firstLineOfBodyExpression.length + 1 <= maxLengthRemainingForFirstLineOfBodyExpression &&
+            functionBodyExpressionWrapping != ALWAYS
+
+    private fun ASTNode.insertSpaceBeforeFunctionExpressionBody(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        emit(startOffset, "Single whitespace expected before expression body", true)
+            .ifAutocorrectAllowed { upsertWhitespaceBeforeMe(" ") }
+    }
+
+    private fun ASTNode.shouldWrapFunctionBodyExpression(
+        functionBodyExpressionLines: List<String>,
+        maxLengthRemainingForFirstLineOfBodyExpression: Int,
+    ): Boolean =
+        functionBodyExpressionWrapping == ALWAYS ||
+            (functionBodyExpressionWrapping == MULTILINE && functionBodyExpressionLines.size > 1) ||
+            (
+                hasNoMaxLineLengthSuppression() &&
+                    functionBodyExpressionLines.first().length + 1 > maxLengthRemainingForFirstLineOfBodyExpression
+            )
+
+    private fun ASTNode.wrapFunctionBodyExpression(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        emit(this.startOffset, "Newline expected before expression body", true)
+            .ifAutocorrectAllowed { upsertWhitespaceBeforeMe(indentConfig.childIndentOf(parent { it.elementType == FUN }!!)) }
     }
 
     private fun List<ASTNode>.isMultilineStringTemplate() =
@@ -633,8 +674,9 @@ public class FunctionSignatureRule :
                         .startsWith("\n")
             }
 
-    private fun ASTNode.isMultilineFunctionSignatureWithoutExplicitReturnType(lastNodeOfFunctionSignatureWithBodyExpression: ASTNode?) =
-        functionSignatureNodes()
+    private fun ASTNode.isMultilineFunctionSignatureWithoutExplicitReturnType(): Boolean {
+        val lastNodeOfFunctionSignatureWithBodyExpression = findChildByType(EQ)?.nextLeaf
+        return functionSignatureNodes()
             .childrenBetween(
                 startASTNodePredicate = { true },
                 endASTNodePredicate = { it == lastNodeOfFunctionSignatureWithBodyExpression },
@@ -643,6 +685,7 @@ public class FunctionSignatureRule :
             .lastOrNull()
             ?.matches(INDENT_WITH_CLOSING_PARENTHESIS)
             ?: false
+    }
 
     private fun fixWhitespaceBeforeFunctionBodyBlock(
         node: ASTNode,

@@ -45,7 +45,8 @@ internal class ImportSorter(
             }
         }
 
-        if (bestIndex == -1 && path.hasAlias() && allOtherAliasIndex == -1 && allOtherIndex != -1) {
+        val noMatchButHasAliasAndFallbackExists = bestIndex == -1 && path.hasAlias() && allOtherAliasIndex == -1 && allOtherIndex != -1
+        if (noMatchButHasAliasAndFallbackExists) {
             // if no layout for alias imports specified, put them among all others
             bestIndex = allOtherIndex
         }

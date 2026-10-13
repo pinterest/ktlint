@@ -2,19 +2,16 @@ package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
-import io.github.ktlint.core.rule.engine.core.api.ElementType.FILE_ANNOTATION_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.MODIFIER_LIST
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.endOffset
 import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
-import io.github.ktlint.core.rule.engine.core.api.isPartOf
+import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
-import io.github.ktlint.core.rule.engine.core.api.nextCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
@@ -27,6 +24,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.psi.psiUtil.children
 import org.jetbrains.kotlin.psi.psiUtil.leaves
+import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 /**
  * Ensures annotations occur immediately prior to the annotated construct
@@ -36,15 +34,11 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 @SinceKtlint("0.39", EXPERIMENTAL)
 @SinceKtlint("0.46", STABLE)
 public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
-    private companion object {
-        const val ERROR_MESSAGE = "Annotations should occur immediately before the annotated construct"
-    }
-
     override fun beforeVisitChildNodes(
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node.elementType != MODIFIER_LIST && node.elementType != FILE_ANNOTATION_LIST) {
+        if (node.elementType != MODIFIER_LIST) {
             return
         }
 
@@ -53,10 +47,17 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 .children()
                 .filter { it.elementType == ANNOTATION_ENTRY }
                 .toList()
-        if (annotations.isEmpty()) {
-            return
-        }
+                .ifEmpty { return }
 
+        fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(annotations, node, emit)
+        fixCommentsBetweenAnnotationsAndAnnotatedConstruct(node, emit)
+    }
+
+    private fun fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(
+        annotations: List<ASTNode>,
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
         // Join the nodes that immediately follow the annotations (whitespace), then add the final whitespace
         // if it's not a child of root. This happens when a new line separates the annotations from the annotated
         // construct. In the following example, there are no whitespace children of root, but root's next sibling is the
@@ -71,90 +72,47 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 .filter { it.isWhiteSpace }
                 .take(annotations.size)
                 .toList()
-
-        val next =
-            node.nextSiblingWithAtLeastOneOf(
-                {
-                    !it.isWhiteSpace &&
-                        it.textLength > 0 &&
-                        !it.isPartOf(FILE_ANNOTATION_LIST) &&
-                        !it.isCommentOnSameLineAsPrevLeaf()
-                },
-                {
-                    // Disallow multiple white spaces as well as comments
-                    if (it.isWhiteSpace) {
-                        val s = it.text
-                        // Ensure at least one occurrence of two line breaks
-                        s.indexOf("\n") != s.lastIndexOf("\n")
-                    } else {
-                        it.isPartOfComment && !it.isCommentOnSameLineAsPrevLeaf()
-                    }
-                },
-            )
-        if (next != null) {
-            if (node.elementType != FILE_ANNOTATION_LIST && next.isPartOfComment) {
-                emit(node.endOffset, ERROR_MESSAGE, true)
+        whiteSpaces
+            .filter { it.containsMultipleNewlines() }
+            .forEach {
+                emit(it.startOffset + 1, "No blank line(s) expected between annotation and annotated construct", true)
                     .ifAutocorrectAllowed {
-                        // Special-case autocorrection when the annotation is separated from the annotated construct
-                        // by a comment: we need to swap the order of the comment and the annotation
-                        // Remove the annotation and the following whitespace
-                        val eolComment = node.nextSibling { it.isCommentOnSameLineAsPrevLeaf() }
-                        if (eolComment != null) {
-                            eolComment.prevSibling { it.isWhiteSpace }?.remove()
-                            eolComment.nextSibling { it.isWhiteSpace }?.remove()
-                            eolComment.remove()
-                        } else {
-                            node.nextSibling { it.isWhiteSpace }?.remove()
-                        }
-                        node.remove()
+                        removeIntraLineBreaks(node, annotations.last())
+                        removeExtraLineBreaks(node)
+                    }
+            }
+    }
 
-                        // Insert the annotation prior to the annotated construct
-                        val beforeAnchor = next.nextCodeSibling
-                        next
-                            .parent!!
+    private fun fixCommentsBetweenAnnotationsAndAnnotatedConstruct(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        require(node.elementType == MODIFIER_LIST)
+        // Collect all modifiers from the list itself
+        val modifiers = node.children()
+        val noneCodeElementsBetweenModifierListAndAnnotatedConstruct = node.siblings().takeWhile { !it.isCode }
+        (modifiers + noneCodeElementsBetweenModifierListAndAnnotatedConstruct)
+            .filter { it.isPartOfComment && !it.isCommentOnSameLineAsPrevLeaf() }
+            .toList()
+            .forEach { comment ->
+                emit(comment.startOffset, "No comment(s) expected between annotation and the annotated construct", true)
+                    .ifAutocorrectAllowed {
+                        // Remove the comment and whitespace preceding it from the modifier list
+                        comment.prevSibling { it.isWhiteSpace }?.remove()
+                        comment.remove()
+
+                        // Re-insert the comment and newline prior to the modifier list
+                        val beforeAnchor = node
+                        node.parent!!
                             .apply {
-                                addChild(node, beforeAnchor)
-                                if (eolComment != null) {
-                                    addChild(PsiWhiteSpaceImpl(" "), beforeAnchor)
-                                    addChild(eolComment, beforeAnchor)
-                                }
+                                addChild(comment, beforeAnchor)
                                 addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
                             }
                     }
             }
-        }
-        if (node.elementType != FILE_ANNOTATION_LIST && whiteSpaces.any { it.containsMultipleNewlines() }) {
-            emit(node.endOffset, ERROR_MESSAGE, true)
-                .ifAutocorrectAllowed {
-                    removeIntraLineBreaks(node, annotations.last())
-                    removeExtraLineBreaks(node)
-                }
-        }
     }
 
     private fun ASTNode.containsMultipleNewlines() = text.count { it == '\n' } > 1
-
-    private inline fun ASTNode.nextSiblingWithAtLeastOneOf(
-        p: (ASTNode) -> Boolean,
-        needsToOccur: (ASTNode) -> Boolean,
-    ): ASTNode? {
-        var node = this.nextSibling
-        var occurrenceCount = 0
-        while (node != null) {
-            if (needsToOccur(node)) {
-                occurrenceCount++
-            }
-            if (p(node)) {
-                return if (occurrenceCount > 0) {
-                    node
-                } else {
-                    null
-                }
-            }
-            node = node.nextSibling
-        }
-        return null
-    }
 
     private fun removeExtraLineBreaks(node: ASTNode) {
         val next =

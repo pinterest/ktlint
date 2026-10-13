@@ -54,16 +54,14 @@ public class EnumEntryNameCaseRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        if (node !is CompositeElement) {
+        if (node !is CompositeElement || node.elementType != ENUM_ENTRY) {
             return
         }
-        if (node.elementType != ENUM_ENTRY) return
-        val nameNode = node.findChildByType(IDENTIFIER) ?: return
-        val name = KtPsiUtil.unquoteIdentifier(nameNode.text)
-
-        if (!name.matches(enumEntryCasingRegex)) {
-            emit(node.startOffset, enumEntryCasingViolation, false)
-        }
+        node
+            .findChildByType(IDENTIFIER)
+            ?.let { KtPsiUtil.unquoteIdentifier(it.text) }
+            ?.takeIf { !it.matches(enumEntryCasingRegex) }
+            ?.let { emit(node.startOffset, enumEntryCasingViolation, false) }
     }
 
     public companion object {

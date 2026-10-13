@@ -29,12 +29,14 @@ import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.leavesBackwardsIncludingSelf
 import io.github.ktlint.core.rule.engine.core.api.leavesForwardsIncludingSelf
 import io.github.ktlint.core.rule.engine.core.api.nextCodeLeaf
+import io.github.ktlint.core.rule.engine.core.api.parent
 import io.github.ktlint.core.rule.engine.core.api.prevLeaf
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceAfterMe
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
 import io.github.ktlint.core.ruleset.standard.StandardRule
 import io.github.oshai.kotlinlogging.KotlinLogging
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 
 private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
 
@@ -87,9 +89,16 @@ public class ParameterWrappingRule :
     ) {
         require(node.elementType == VALUE_PARAMETER)
 
-        val baseIndentLength = node.indentWithoutNewlinePrefix.length
+        val fromNode = findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node)
 
-        // Find the first node after the indenting whitespace on the same line as the identifier
+        // Only fix the first child that does not fit
+        node.fixChildIfDoesNotFit(COLON, fromNode) { requireNewlineAfterLeaf(it, emit) } ||
+            node.fixChildIfDoesNotFit(TYPE_REFERENCE, fromNode) { requireNewlineBeforeLeaf(it, emit) } ||
+            node.fixChildIfDoesNotFit(EQ, fromNode) { requireNewlineAfterLeaf(it, emit) } ||
+            node.fixChildIfDoesNotFit(CALL_EXPRESSION, fromNode) { requireNewlineBeforeLeaf(it, emit) }
+    }
+
+    private fun findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node: ASTNode): ASTNode {
         val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf
         val fromNode =
             node
@@ -97,50 +106,25 @@ public class ParameterWrappingRule :
                 ?.leavesBackwardsIncludingSelf
                 ?.firstOrNull { it.prevLeaf.isWhiteSpaceWithNewline || it == nodeFirstChildLeafOrSelf }
                 ?: node
-
-        node
-            .findChildByType(COLON)
-            ?.let { colon ->
-                if (colon.hasNoMaxLineLengthSuppression() && baseIndentLength + fromNode.sumOfTextLengthUntil(colon) > maxLineLength) {
-                    fromNode.sumOfTextLengthUntil(colon)
-                    requireNewlineAfterLeaf(colon, emit)
-                    return
-                }
-            }
-
-        node
-            .findChildByType(TYPE_REFERENCE)
-            ?.let { typeReference ->
-                if (typeReference.hasNoMaxLineLengthSuppression() &&
-                    baseIndentLength + fromNode.sumOfTextLengthUntil(typeReference.orTrailingComma()) > maxLineLength
-                ) {
-                    requireNewlineBeforeLeaf(typeReference, emit)
-                    return
-                }
-            }
-
-        node
-            .findChildByType(EQ)
-            ?.let { equal ->
-                if (equal.hasNoMaxLineLengthSuppression() &&
-                    baseIndentLength + fromNode.sumOfTextLengthUntil(equal.orTrailingComma()) > maxLineLength
-                ) {
-                    requireNewlineAfterLeaf(equal, emit)
-                    return
-                }
-            }
-
-        node
-            .findChildByType(CALL_EXPRESSION)
-            ?.let { callExpression ->
-                if (callExpression.hasNoMaxLineLengthSuppression() &&
-                    baseIndentLength + fromNode.sumOfTextLengthUntil(callExpression.orTrailingComma()) > maxLineLength
-                ) {
-                    requireNewlineBeforeLeaf(callExpression, emit)
-                    return
-                }
-            }
+        return fromNode
     }
+
+    private fun ASTNode.fixChildIfDoesNotFit(
+        elementType: IElementType,
+        fromNode: ASTNode,
+        fix: (ASTNode) -> Unit,
+    ): Boolean =
+        findChildByType(elementType)
+            ?.takeIf { it.doesNotFitOnSameLineAs(fromNode) }
+            ?.let {
+                fix(it)
+                true
+            }
+            ?: false
+
+    private fun ASTNode.doesNotFitOnSameLineAs(fromNode: ASTNode): Boolean =
+        hasNoMaxLineLengthSuppression() &&
+            parent!!.indentWithoutNewlinePrefix.length + fromNode.sumOfTextLengthUntil(orTrailingComma()) > maxLineLength
 
     private fun ASTNode.orTrailingComma() =
         lastChildLeafOrSelf

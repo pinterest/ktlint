@@ -53,10 +53,8 @@ public class NoSemicolonsRule :
                 .ifAutocorrectAllowed {
                     val prevLeaf = node.prevLeaf
                     node.remove()
-                    if ((prevLeaf != null && prevLeaf.isWhiteSpace) &&
-                        (nextLeaf == null || nextLeaf.isWhiteSpace)
-                    ) {
-                        prevLeaf.remove()
+                    if (prevLeaf.isNonNullWhitespace() && nextLeaf.isNonNullWhitespace()) {
+                        prevLeaf!!.remove()
                     }
                 }
         } else if (!nextLeaf.isWhiteSpace) {
@@ -70,6 +68,8 @@ public class NoSemicolonsRule :
                 }
         }
     }
+
+    private fun ASTNode?.isNonNullWhitespace(): Boolean = this != null && this.isWhiteSpace
 
     private fun ASTNode?.doesNotRequirePreSemi() =
         when {
@@ -94,35 +94,35 @@ public class NoSemicolonsRule :
             }
         }
 
-    private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean {
-        node
-            .prevCodeLeaf
-            ?.also { prevCodeLeaf ->
-                if (prevCodeLeaf.elementType == OBJECT_KEYWORD) {
-                    // https://github.com/ktlint/ktlint/issues/281
-                    return false
-                }
-            }?.parent
-            ?.run {
-                if (isLoopWithoutBody()) {
-                    // https://github.com/ktlint/ktlint/issues/955
-                    return false
-                }
-                if (isIfExpressionWithoutThen()) {
-                    return false
-                }
+    private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean =
+        when {
+            node.prevCodeLeaf?.elementType == OBJECT_KEYWORD -> {
+                // https://github.com/ktlint/ktlint/issues/281
+                false
             }
 
-        // In case of an enum entry the semicolon (e.g. the node) is a direct child node of enum entry
-        if (node.parent?.elementType == ENUM_ENTRY) {
-            return node.isLastCodeLeafBeforeClosingOfClassBody()
-        }
-        if (node.isEnumClassWithoutValues()) {
-            return false
-        }
+            node.prevCodeLeaf?.parent?.isLoopWithoutBody() ?: false -> {
+                // https://github.com/ktlint/ktlint/issues/955
+                false
+            }
 
-        return true
-    }
+            node.prevCodeLeaf?.parent?.isIfExpressionWithoutThen() ?: false -> {
+                false
+            }
+
+            node.parent?.elementType == ENUM_ENTRY -> {
+                // In case of an enum entry the semicolon (e.g. the node) is a direct child node of enum entry
+                node.isLastCodeLeafBeforeClosingOfClassBody()
+            }
+
+            node.isEnumClassWithoutValues() -> {
+                false
+            }
+
+            else -> {
+                true
+            }
+        }
 
     private fun ASTNode.isLoopWithoutBody() =
         (elementType == WHILE || elementType == FOR) &&

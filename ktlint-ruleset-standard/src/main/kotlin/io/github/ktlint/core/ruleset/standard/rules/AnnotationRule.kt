@@ -158,85 +158,102 @@ public class AnnotationRule :
         require(node.elementType in ANNOTATION_CONTAINER)
 
         if (node.shouldWrapAnnotations()) {
-            val expectedIndent =
-                when {
-                    node.elementType == ANNOTATED_EXPRESSION -> {
-                        indentConfig.siblingIndentOf(node)
-                    }
-
-                    node.hasAnnotationBeforeConstructor() -> {
-                        indentConfig.siblingIndentOf(node.parent!!)
-                    }
-
-                    else -> {
-                        indentConfig.parentIndentOf(node)
-                    }
-                }
-
-            node
-                .children
-                .filter { it.elementType == ANNOTATION_ENTRY }
-                .filter {
-                    it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() ||
-                        !it.isPrecededByOtherAnnotationEntryWithoutParametersOnTheSameLine()
-                }.forEachIndexed { index, annotationEntry ->
-                    annotationEntry
-                        .prevLeaf
-                        .takeUnless {
-                            // Allow in ktlint_official code style:
-                            //     class Foo(
-                            //         bar: Bar,
-                            //     ) : @Suppress("DEPRECATION")
-                            //         FooBar()
-                            index == 0 &&
-                                codeStyle == CodeStyleValue.KTLINT_OFFICIAL &&
-                                it.annotationOnSameLineAsClosingParenthesisOfClassParameterList()
-                        }?.takeUnless { it.isWhiteSpaceWithNewline }
-                        ?.let { prevLeaf ->
-                            emit(prevLeaf.startOffset, "Expected newline before annotation", true)
-                                .ifAutocorrectAllowed {
-                                    // Let the indentation rule determine the exact indentation and only report and fix when the line needs
-                                    // to be wrapped
-                                    prevLeaf.upsertWhitespaceBeforeMe(
-                                        prevLeaf
-                                            .text
-                                            .substringBeforeLast('\n', "")
-                                            .plus(expectedIndent),
-                                    )
-                                }
-                        }
-                }
-
-            node
-                .children
-                .lastOrNull { it.elementType == ANNOTATION_ENTRY }
-                ?.lastChildLeafOrSelf
-                ?.nextCodeLeaf
-                ?.prevLeaf
-                ?.takeUnless { it.isWhiteSpaceWithNewline }
-                ?.let { prevLeaf ->
-                    // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
-                    emit(prevLeaf.startOffset, "Expected newline after last annotation", true)
-                        .ifAutocorrectAllowed {
-                            prevLeaf.upsertWhitespaceAfterMe(expectedIndent)
-                        }
-                }
-
-            node
-                .takeIf { it.elementType == ANNOTATED_EXPRESSION }
-                ?.takeUnless { it.nextCodeSibling?.elementType == OPERATION_REFERENCE }
-                ?.lastChildLeafOrSelf
-                ?.nextCodeLeaf
-                ?.prevLeaf
-                ?.takeUnless { it.isWhiteSpaceWithNewline }
-                ?.let { leaf ->
-                    // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
-                    emit(leaf.startOffset, "Expected newline", true)
-                        .ifAutocorrectAllowed {
-                            leaf.upsertWhitespaceBeforeMe(node.indent)
-                        }
-                }
+            wrapAnnotationEntries(node, emit)
+            if (node.elementType == ANNOTATED_EXPRESSION) {
+                node.visitAnnotatedExpression(emit)
+            }
         }
+    }
+
+    private fun wrapAnnotationEntries(
+        node: ASTNode,
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+    ) {
+        require(node.elementType in ANNOTATION_CONTAINER)
+        val expectedIndent =
+            when {
+                node.elementType == ANNOTATED_EXPRESSION -> indentConfig.siblingIndentOf(node)
+                node.hasAnnotationBeforeConstructor() -> indentConfig.siblingIndentOf(node.parent!!)
+                else -> indentConfig.parentIndentOf(node)
+            }
+        node.wrapBeforeAnnotationEntries(emit, expectedIndent)
+        node.wrapAfterLastAnnotationEntry(emit, expectedIndent)
+    }
+
+    private fun ASTNode.wrapBeforeAnnotationEntries(
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+        expectedIndent: String,
+    ) {
+        require(elementType in ANNOTATION_CONTAINER)
+        children
+            .filter { it.elementType == ANNOTATION_ENTRY }
+            .filter {
+                it.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() ||
+                    !it.isPrecededByOtherAnnotationEntryWithoutParametersOnTheSameLine()
+            }.forEachIndexed { index, annotationEntry ->
+                annotationEntry
+                    .prevLeaf
+                    .takeUnless {
+                        // Allow in ktlint_official code style:
+                        //     class Foo(
+                        //         bar: Bar,
+                        //     ) : @Suppress("DEPRECATION")
+                        //         FooBar()
+                        index == 0 &&
+                            codeStyle == CodeStyleValue.KTLINT_OFFICIAL &&
+                            it.annotationOnSameLineAsClosingParenthesisOfClassParameterList()
+                    }?.takeUnless { it.isWhiteSpaceWithNewline }
+                    ?.let { prevLeaf ->
+                        emit(prevLeaf.startOffset, "Expected newline before annotation", true)
+                            .ifAutocorrectAllowed {
+                                // Let the indentation rule determine the exact indentation and only report and fix when the line needs
+                                // to be wrapped
+                                prevLeaf.upsertWhitespaceBeforeMe(
+                                    prevLeaf
+                                        .text
+                                        .substringBeforeLast('\n', "")
+                                        .plus(expectedIndent),
+                                )
+                            }
+                    }
+            }
+    }
+
+    private fun ASTNode.wrapAfterLastAnnotationEntry(
+        emit: (Int, String, Boolean) -> AutocorrectDecision,
+        expectedIndent: String,
+    ) {
+        require(elementType in ANNOTATION_CONTAINER)
+        children
+            .lastOrNull { it.elementType == ANNOTATION_ENTRY }
+            ?.lastChildLeafOrSelf
+            ?.nextCodeLeaf
+            ?.prevLeaf
+            ?.takeUnless { it.isWhiteSpaceWithNewline }
+            ?.let { prevLeaf ->
+                // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
+                emit(prevLeaf.startOffset, "Expected newline after last annotation", true)
+                    .ifAutocorrectAllowed {
+                        prevLeaf.upsertWhitespaceAfterMe(expectedIndent)
+                    }
+            }
+    }
+
+//    private fun ASTNode.visitAnnotationEntry(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+//    }
+
+    private fun ASTNode.visitAnnotatedExpression(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+        require(elementType == ANNOTATED_EXPRESSION)
+        takeUnless { it.nextCodeSibling?.elementType == OPERATION_REFERENCE }
+            ?.lastChildLeafOrSelf
+            ?.nextCodeLeaf
+            ?.prevLeaf
+            ?.takeUnless { it.isWhiteSpaceWithNewline }
+            ?.let { leaf ->
+                // Let the indentation rule determine the exact indentation and only report and fix when the line needs to be wrapped
+                emit(leaf.startOffset, "Expected newline", true)
+                    .ifAutocorrectAllowed { leaf.upsertWhitespaceBeforeMe(indent) }
+            }
     }
 
     private fun ASTNode.shouldWrapAnnotations() =
@@ -477,8 +494,8 @@ public class AnnotationRule :
     ) {
         require(node.elementType == ANNOTATION)
 
-        if ((node.isFollowedByOtherAnnotationEntry() && node.isOnSameLineAsNextAnnotationEntry()) ||
-            (node.isPrecededByOtherAnnotationEntry() && node.isOnSameLineAsPreviousAnnotationEntry())
+        if (node.isFollowedByAnotherAnnotationOnSameLine() ||
+            node.isPrecededByAnotherAnnotationOnSameLine()
         ) {
             emit(node.startOffset, "@[...] style annotations should be on a separate line from other annotations.", true)
                 .ifAutocorrectAllowed {
@@ -490,6 +507,12 @@ public class AnnotationRule :
                 }
         }
     }
+
+    private fun ASTNode.isFollowedByAnotherAnnotationOnSameLine(): Boolean =
+        isFollowedByOtherAnnotationEntry() && isOnSameLineAsNextAnnotationEntry()
+
+    private fun ASTNode.isPrecededByAnotherAnnotationOnSameLine(): Boolean =
+        isPrecededByOtherAnnotationEntry() && isOnSameLineAsPreviousAnnotationEntry()
 
     private fun getNewlineWithIndent(modifierListRoot: ASTNode): String {
         val nodeBeforeAnnotations =

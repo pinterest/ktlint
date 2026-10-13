@@ -321,7 +321,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
 
         @Test
-        fun `Given a multiline value declaration`() {
+        fun `Given a multiline value declaration with space indentation`() {
             val formattedCode =
                 """
                 class Foo {
@@ -376,7 +376,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
 
         @Test
-        fun `Given an annotated function declaration`() {
+        fun `Given an annotated function declaration with space indentation`() {
             val formattedCode =
                 """
                 class Foo {
@@ -1173,7 +1173,7 @@ internal class IndentationRuleTest {
             """.trimIndent()
 
         @Test
-        fun `Given an enumeration class`() {
+        fun `Given an enumeration class with space indentation`() {
             val formattedCode =
                 """
                 enum class FooBar {

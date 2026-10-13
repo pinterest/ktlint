@@ -20,7 +20,7 @@ class MetaInfServicesTest {
             ClassLoader
                 .getSystemClassLoader()
                 .getResourceAsStream(path)
-                ?: throw RuntimeException("Expected a resource to exist with path '$path'. Was the class renamed?")
+                ?: error("Expected a resource to exist with path '$path'. Was the class renamed?")
         ).bufferedReader()
             .readText()
             .trim()

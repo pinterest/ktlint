@@ -6,7 +6,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LITERAL_STRING_TEMPLATE_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LONG_STRING_TEMPLATE_ENTRY
-import io.github.ktlint.core.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY_END
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LONG_TEMPLATE_ENTRY_START
 import io.github.ktlint.core.rule.engine.core.api.ElementType.PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
@@ -81,7 +80,7 @@ public class StringTemplateRule : StandardRule("string-template") {
         return children
             .filter { it.isCode }
             .toList()
-            .also { require(it.size == 3) }
+            .also { require(it.size == EXPECTED_NUMBER_OF_CODE_ELEMENTS_IN_DOT_QUALIFIED_EXPRESSION) }
             .let { Triple(it[0], it[1], it[2]) }
     }
 
@@ -109,11 +108,7 @@ public class StringTemplateRule : StandardRule("string-template") {
 
     private fun ASTNode.removeCurlyBracesIfRedundant() {
         if (isStringTemplate()) {
-            findChildByType(LONG_TEMPLATE_ENTRY_START)?.remove()
-            findChildByType(LONG_TEMPLATE_ENTRY_END)?.remove()
-            firstChildNode
-                .toShortStringTemplateNode()
-                .let { replaceChild(firstChildNode, it) }
+            parent!!.replaceChild(this, toShortStringTemplateNode(firstChildNode.nextSibling!!.text))
         }
     }
 
@@ -123,7 +118,7 @@ public class StringTemplateRule : StandardRule("string-template") {
 
     private fun String.isPartOfIdentifier() = this == "_" || this.all { it.isLetterOrDigit() }
 
-    private fun ASTNode.toShortStringTemplateNode() =
+    private fun toShortStringTemplateNode(text: String): ASTNode =
         KtlintKotlinCompiler
             .createASTNodeFromText(
                 """
@@ -132,7 +127,9 @@ public class StringTemplateRule : StandardRule("string-template") {
             )?.findChildByType(PROPERTY)
             ?.findChildByType(STRING_TEMPLATE)
             ?.findChildByType(SHORT_STRING_TEMPLATE_ENTRY)
-            ?: throw IllegalStateException("Cannot create short string template for string '$text")
+            ?: error("Cannot create short string template for string '$text")
 }
+
+private const val EXPECTED_NUMBER_OF_CODE_ELEMENTS_IN_DOT_QUALIFIED_EXPRESSION = 3
 
 public val STRING_TEMPLATE_RULE_ID: RuleId = StringTemplateRule().ruleId

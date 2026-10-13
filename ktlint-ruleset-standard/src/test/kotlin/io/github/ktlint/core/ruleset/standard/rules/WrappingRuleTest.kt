@@ -1041,6 +1041,40 @@ internal class WrappingRuleTest {
         wrappingRuleAssertThat(code).hasNoLintViolations()
     }
 
+    @Test
+    fun `Given a single value argument that is a multiline lambda expression with parameters then do not require a newline after the opening parenthesis`() {
+        val code =
+            """
+            fun foo(f: (Int) -> Unit) = f(1)
+
+            fun main() {
+                foo({ i ->
+                    println(i)
+                })
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a single value argument that is a multiline object literal then do not require a newline after the opening parenthesis`() {
+        val code =
+            """
+            interface Foo {
+                fun bar()
+            }
+
+            fun test(f: Foo) {}
+
+            fun main() {
+                test(object : Foo {
+                    override fun bar() {}
+                })
+            }
+            """.trimIndent()
+        wrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
     // https://github.com/ktlint/ktlint/issues/1202
     @Test
     fun `lint lambda argument and call chain`() {

@@ -9,6 +9,7 @@ import java.nio.file.FileVisitResult
 import java.nio.file.Files
 import java.nio.file.InvalidPathException
 import java.nio.file.Path
+import java.nio.file.PathMatcher
 import java.nio.file.Paths
 import java.nio.file.SimpleFileVisitor
 import java.nio.file.attribute.BasicFileAttributes
@@ -33,16 +34,40 @@ private val DEFAULT_KOTLIN_FILE_EXTENSIONS = setOf("kt", "kts")
 internal val DEFAULT_PATTERNS = DEFAULT_KOTLIN_FILE_EXTENSIONS.map { "**/*.$it" }
 
 /**
- * Transform the [patterns] to a sequence of files. Each element in [patterns] can be a glob, a file or directory path
+ * Transform the [pathAndPatterns] to a sequence of files. Each element in [pathAndPatterns] can be a glob, a file or directory path
  * relative to the [rootDir] or an absolute file or directory path.
  */
 internal fun FileSystem.fileSequence(
-    patterns: List<String>,
+    pathAndPatterns: List<String>,
     rootDir: Path = Paths.get(".").toAbsolutePath().normalize(),
 ): Sequence<Path> {
+    val (paths1, patternsExclusiveExistingFiles) = partitionPathsAndPatterns(pathAndPatterns, rootDir)
+    if (paths1.isNotEmpty() && patternsExclusiveExistingFiles.isEmpty()) {
+        // No globs found that needs to resolved by traversing the file system
+        return paths1.asSequence()
+    }
+
+    val (negatedPathMatchers, pathMatchers) = findMatchers(rootDir, pathAndPatterns)
+    val commonRootDir = findCommonRootDir(rootDir, pathAndPatterns)
+
+    LOGGER.debug { "Start walkFileTree from directory: '$commonRootDir'" }
+    var paths: List<Path> = emptyList()
+    val duration =
+        measureTimeMillis {
+            paths = walkFileTree(commonRootDir, negatedPathMatchers, pathMatchers)
+        }
+    LOGGER.debug { "Discovered ${paths.count()} files to be processed in $duration ms" }
+
+    return paths.asSequence()
+}
+
+private fun partitionPathsAndPatterns(
+    patterns: List<String>,
+    rootDir: Path,
+): Pair<List<Path>, List<String>> {
     if (patterns.isEmpty()) {
         LOGGER.trace { "No patterns provided. Will not expand any globs." }
-        return emptySequence()
+        return Pair(emptyList(), emptyList())
     }
 
     val result = mutableListOf<Path>()
@@ -58,19 +83,19 @@ internal fun FileSystem.fileSequence(
         }
     existingFiles.mapTo(result) { rootDir.resolve(it) }
 
-    // Return early and don't traverse the file system if all the input globs are absolute paths
-    if (result.isNotEmpty() && patternsExclusiveExistingFiles.isEmpty()) {
-        return result.asSequence()
-    }
+    return Pair(result.toList(), patternsExclusiveExistingFiles)
+}
 
+private fun FileSystem.findMatchers(
+    rootDir: Path,
+    patternsExclusiveExistingFiles: List<String>,
+): Pair<List<PathMatcher>, List<PathMatcher>> {
     val globs = expand(patternsExclusiveExistingFiles, rootDir)
-
     val negatedPathMatchers =
         globs
             .filter { it.startsWith(NEGATION_PREFIX) }
             .map { getPathMatcher(it.removePrefix(NEGATION_PREFIX)) }
-
-    val includeGlobs =
+    val pathMatchers =
         globs
             .filterNot { it.startsWith(NEGATION_PREFIX) }
             .let { includeMatchers ->
@@ -85,7 +110,14 @@ internal fun FileSystem.fileSequence(
                 } else {
                     includeMatchers
                 }
-            }
+            }.map { getPathMatcher(it) }
+    return Pair(negatedPathMatchers, pathMatchers)
+}
+
+private fun findCommonRootDir(
+    rootDir: Path,
+    patterns: List<String>,
+): Path {
     var commonRootDir = rootDir
     patterns.forEach { pattern ->
         try {
@@ -98,67 +130,67 @@ internal fun FileSystem.fileSequence(
             // Windows throws an exception when you pass a glob to Path#resolve.
         }
     }
+    return commonRootDir
+}
 
-    val pathMatchers = includeGlobs.map { getPathMatcher(it) }
-
-    LOGGER.debug { "Start walkFileTree from directory: '$commonRootDir'" }
-    val duration =
-        measureTimeMillis {
-            Files.walkFileTree(
-                commonRootDir,
-                object : SimpleFileVisitor<Path>() {
-                    override fun visitFile(
-                        filePath: Path,
-                        fileAttrs: BasicFileAttributes,
-                    ): FileVisitResult {
-                        val path =
-                            if (onWindowsOS) {
-                                Paths
-                                    .get(
-                                        filePath
-                                            .absolutePathString()
-                                            .replace(File.separatorChar, '/'),
-                                    ).also {
-                                        if (it != filePath) {
-                                            LOGGER.trace { "On WindowsOS transform '$filePath' to '$it'" }
-                                        }
-                                    }
-                            } else {
+private fun walkFileTree(
+    commonRootDir: Path,
+    negatedPathMatchers: List<PathMatcher>,
+    pathMatchers: List<PathMatcher>,
+): List<Path> {
+    val result = mutableListOf<Path>()
+    Files.walkFileTree(
+        commonRootDir,
+        object : SimpleFileVisitor<Path>() {
+            override fun visitFile(
+                filePath: Path,
+                fileAttrs: BasicFileAttributes,
+            ): FileVisitResult {
+                val path =
+                    if (onWindowsOS) {
+                        Paths
+                            .get(
                                 filePath
+                                    .absolutePathString()
+                                    .replace(File.separatorChar, '/'),
+                            ).also {
+                                if (it != filePath) {
+                                    LOGGER.trace { "On WindowsOS transform '$filePath' to '$it'" }
+                                }
                             }
-                        if (negatedPathMatchers.none { it.matches(path) } &&
-                            pathMatchers.any { it.matches(path) }
-                        ) {
-                            LOGGER.trace { "- File: $path: Include as it matches patterns ${pathMatchers.filter { it.matches(path) }}" }
-                            result.add(path)
-                        } else {
-                            LOGGER.trace { "- File: $path: Ignore" }
-                        }
-                        return FileVisitResult.CONTINUE
+                    } else {
+                        filePath
                     }
+                if (negatedPathMatchers.none { it.matches(path) } &&
+                    pathMatchers.any { it.matches(path) }
+                ) {
+                    LOGGER.trace { "- File: $path: Include as it matches patterns ${pathMatchers.filter { it.matches(path) }}" }
+                    result.add(path)
+                } else {
+                    LOGGER.trace { "- File: $path: Ignore" }
+                }
+                return FileVisitResult.CONTINUE
+            }
 
-                    override fun preVisitDirectory(
-                        dirPath: Path,
-                        dirAttr: BasicFileAttributes,
-                    ): FileVisitResult =
-                        if (Files.isHidden(dirPath)) {
-                            if (dirPath == commonRootDir) {
-                                LOGGER.trace { "- Dir: $dirPath: Traverse started from hidden directory" }
-                                FileVisitResult.CONTINUE
-                            } else {
-                                LOGGER.trace { "- Dir: $dirPath: Ignore traversal of hidden directory" }
-                                FileVisitResult.SKIP_SUBTREE
-                            }
-                        } else {
-                            LOGGER.trace { "- Dir: $dirPath: Traverse" }
-                            FileVisitResult.CONTINUE
-                        }
-                },
-            )
-        }
-    LOGGER.debug { "Discovered ${result.count()} files to be processed in $duration ms" }
-
-    return result.asSequence()
+            override fun preVisitDirectory(
+                dirPath: Path,
+                dirAttr: BasicFileAttributes,
+            ): FileVisitResult =
+                if (Files.isHidden(dirPath)) {
+                    if (dirPath == commonRootDir) {
+                        LOGGER.trace { "- Dir: $dirPath: Traverse started from hidden directory" }
+                        FileVisitResult.CONTINUE
+                    } else {
+                        LOGGER.trace { "- Dir: $dirPath: Ignore traversal of hidden directory" }
+                        FileVisitResult.SKIP_SUBTREE
+                    }
+                } else {
+                    LOGGER.trace { "- Dir: $dirPath: Traverse" }
+                    FileVisitResult.CONTINUE
+                }
+        },
+    )
+    return result
 }
 
 private fun Path.findCommonParentDir(path: Path): Path =
