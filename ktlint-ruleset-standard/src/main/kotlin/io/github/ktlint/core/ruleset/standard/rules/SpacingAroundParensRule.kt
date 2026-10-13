@@ -138,12 +138,12 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
             ?: false
 
     private fun ASTNode.isUnexpectedSpacingAfterParenthesis(): Boolean =
-        when {
-            elementType == LPAR && nextSibling.isWhiteSpaceWithNewline && hasNoOtherNewlineBeforeRpar() -> {
+        when (elementType) {
+            LPAR if nextSibling.isWhiteSpaceWithNewline && hasNoOtherNewlineBeforeRpar() -> {
                 true
             }
 
-            elementType == LPAR -> {
+            LPAR -> {
                 nextLeaf
                     ?.takeUnless { it.isNextLeafAComment() }
                     ?.let { it.isUnexpectedSpaceAfterLpar() || it.isUnexpectedNewlineAfterLpar() }

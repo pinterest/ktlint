@@ -75,12 +75,12 @@ public class ContextParameterListWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        when {
-            node.elementType == CONTEXT_PARAMETER_LIST && node.isContextParameter() -> {
+        when (node.elementType) {
+            CONTEXT_PARAMETER_LIST if node.isContextParameter() -> {
                 visitContextReceiverList(node, emit)
             }
 
-            node.elementType == TYPE_ARGUMENT_LIST && node.isContextParameter() -> {
+            TYPE_ARGUMENT_LIST if node.isContextParameter() -> {
                 visitContextReceiverTypeArgumentList(node, emit)
             }
         }
