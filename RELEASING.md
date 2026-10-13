@@ -4,6 +4,8 @@
 
 Note: These steps should be done directly in the `ktlint/ktlint` repository, not in your personal fork.
 
+2.0.0 release: Update announcement in main.html (see snapshot documentation)
+
 1. Create a new branch (e.g. `0.50.0-prep`)
 2. Manually run GitHub Action workflow https://github.com/ktlint/ktlint/actions/workflows/generate-changelog.yml to generate the new changelog based on the PR's since last release
    * Check whether each PR is listed in the correct category. If not, add the proper label to the PR and repeat. See https://github.com/ktlint/ktlint/blob/master/.github/workflows/generate-changelog.yml#L35 for which labels to use. 
