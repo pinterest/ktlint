@@ -32,7 +32,6 @@ internal class GenerateEditorConfigSubCommand : CliktCommand(name = "generateEdi
             KtLintRuleEngine(
                 ruleProviders = (currentContext.parent?.command as KtlintCommandLine).ruleProviders,
                 editorConfigOverride = EditorConfigOverride.from(CODE_STYLE_PROPERTY to codeStyle),
-                isInvokedFromCli = true,
             )
         val generatedEditorConfig = ktLintRuleEngine.generateKotlinEditorConfigSection(Paths.get("."))
 
