@@ -105,10 +105,9 @@ public class AnnotationRule :
     private var annotationsWithParametersNoToBeWrapped =
         ANNOTATIONS_WITH_PARAMETERS_NOT_TO_BE_WRAPPED_PROPERTY.defaultValue
 
-    private val handleAllAnnotationsWithParametersSameAsAnnotationsWithoutParameters =
-        lazy {
-            annotationsWithParametersNoToBeWrapped.contains("*")
-        }
+    private val handleAllAnnotationsWithParametersSameAsAnnotationsWithoutParameters by lazy {
+        annotationsWithParametersNoToBeWrapped.contains("*")
+    }
 
     override fun beforeFirstNode(editorConfig: EditorConfig) {
         codeStyle = editorConfig[CODE_STYLE_PROPERTY]
@@ -389,7 +388,7 @@ public class AnnotationRule :
 
     private fun ASTNode.isAnnotationEntryWithValueArgumentListThatShouldBeWrapped() =
         when {
-            handleAllAnnotationsWithParametersSameAsAnnotationsWithoutParameters.value -> {
+            handleAllAnnotationsWithParametersSameAsAnnotationsWithoutParameters -> {
                 // Do never distinct between annotation with and without parameters
                 false
             }
