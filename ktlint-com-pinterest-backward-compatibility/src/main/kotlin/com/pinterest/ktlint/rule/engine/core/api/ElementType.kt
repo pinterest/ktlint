@@ -10,7 +10,6 @@ import org.jetbrains.kotlin.lexer.KtTokens
 import org.jetbrains.kotlin.psi.stubs.elements.KtStubElementTypes
 import io.github.ktlint.core.rule.engine.core.api.ElementType as IoGithubKtlintElementType
 
-@Suppress("unused")
 @Deprecated(message = "Provides backwards compatibility of custom ruleset JARs created for Ktlint 1.x. Don't use for RuleV2")
 public object ElementType {
     public val FILE: IElementType = IoGithubKtlintElementType.FILE

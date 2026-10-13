@@ -69,7 +69,7 @@ internal class LintAndFormatProcessor(
         }
         if (fileNumber.get() == 0) {
             // Do not return an error as this would implicate that in a multi-module project, each module has to contain
-            // at least one kotlin file.
+            // at least one Kotlin file.
             logger.warn { "No files matched $patterns" }
         }
         if (containsUnfixedLintErrors.get()) {

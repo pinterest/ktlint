@@ -32,17 +32,17 @@ Build uses Gradle with Kotlin DSL. Convention plugins live in `build-logic/`. De
 
 ## Module Structure
 
-| Module | Role |
-|---|---|
+| Module                    | Role                                                                                |
+|---------------------------|-------------------------------------------------------------------------------------|
 | `ktlint-rule-engine-core` | Public API types: `RuleV2`, `RuleId`, `EditorConfigProperty`, `AutocorrectDecision` |
-| `ktlint-rule-engine` | Core engine: `KtLintRuleEngine`, `CodeFormatter`, `EditorConfigLoader` |
-| `ktlint-ruleset-standard` | ~100 built-in lint rules |
-| `ktlint-cli-ruleset-core` | `RuleSetV2Provider` SPI base class (ServiceLoader entry point for custom rulesets) |
-| `ktlint-cli` | CLI entry point, shadow JAR, uses Clikt for argument parsing |
-| `ktlint-test` | Test utilities: `KtLintAssertThat` DSL, `KtlintTestFileSystem` |
-| `ktlint-cli-reporter-*` | Seven reporter modules (plain, json, html, checkstyle, sarif, baseline, etc.) |
-| `ktlint-bom` | Bill of Materials for consistent dependency versions |
-| `ktlint-api-consumer` | Example of embedding ktlint as a library |
+| `ktlint-rule-engine`      | Core engine: `KtLintRuleEngine`, `CodeFormatter`, `EditorConfigLoader`              |
+| `ktlint-ruleset-standard` | ~100 built-in lint rules                                                            |
+| `ktlint-cli-ruleset-core` | `RuleSetV2Provider` SPI base class (ServiceLoader entry point for custom rulesets)  |
+| `ktlint-cli`              | CLI entry point, shadow JAR, uses Clikt for argument parsing                        |
+| `ktlint-test`             | Test utilities: `KtLintAssertThat` DSL, `KtlintTestFileSystem`                      |
+| `ktlint-cli-reporter-*`   | Seven reporter modules (plain, json, html, checkstyle, sarif, baseline, etc.)       |
+| `ktlint-bom`              | Bill of Materials for consistent dependency versions                                |
+| `ktlint-api-consumer`     | Example of embedding ktlint as a library                                            |
 
 ## Architecture
 

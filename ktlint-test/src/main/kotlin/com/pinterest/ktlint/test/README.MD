@@ -110,7 +110,7 @@ val x = test(
     "Two"
 )
 ```
-Technically this is correct, but it is very distracting when reading the unit test. Using the `addAdditionalFormattingRule`, test test can be written as:
+Technically this is correct, but it is very distracting when reading the unit test. Using the `addAdditionalFormattingRule`, the test can be written as:
 
 ```kotlin
         val code =
@@ -138,7 +138,7 @@ Technically this is correct, but it is very distracting when reading the unit te
               ...
             ).isFormattedAs(formattedCode)
 ```
-Note that the Lint violations is test above only should contain violations caused by the `ArgumentListWrappingRule`.
+Note that the Lint violations in test above only should contain violations caused by the `ArgumentListWrappingRule`.
 
 <h3>Set `.editorconfig` property</h3>
 
@@ -186,7 +186,7 @@ The line ends at the exact position of the `$` in `$EOL_CHAR`. If the property h
 
 <h3>Set file path</h3>
 
-For tests that rely that code is stored in a file with a specific name, use the `asFileWithPath` as showed below:
+For tests that rely on code, stored in a file with a specific name, use the `asFileWithPath` as is shown below:
 
 ```kotlin
 val code =

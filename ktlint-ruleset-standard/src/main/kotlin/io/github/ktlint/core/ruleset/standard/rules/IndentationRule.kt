@@ -526,7 +526,7 @@ public class IndentationRule :
                 // Indent with single indent as defined in Kotlin Coding conventions
                 indentConfig.indent
             } else {
-                // Comply with default IDEA formatting although it is not compliant with Kotlin Coding conventions
+                // Comply with default IDEA formatting, although it is not compliant with Kotlin Coding conventions
                 // val fieldExample =
                 //      LongNameClass {
                 //              paramA,
@@ -645,28 +645,7 @@ public class IndentationRule :
 
         node
             .findChildByType(WHERE_KEYWORD)
-            ?.let { where ->
-                val typeConstraintList =
-                    requireNotNull(
-                        where.nextCodeSibling,
-                    ) { "Can not find code sibling after WHERE in FUN" }
-                require(typeConstraintList.elementType == TYPE_CONSTRAINT_LIST) {
-                    "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST"
-                }
-                nextToAstNode =
-                    startIndentContext(
-                        fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
-                        toAstNode = typeConstraintList.lastChildLeafOrSelf,
-                        childIndent =
-                            if (where.prevLeaf?.isWhiteSpaceWithNewline == true) {
-                                indentConfig.indent
-                            } else {
-                                " ".repeat(
-                                    maxOf(0, where.column - 1 - node.indentWithoutNewlinePrefix.length),
-                                )
-                            },
-                    ).prevCodeLeaf()
-            }
+            ?.let { where -> nextToAstNode = where.visitWhereKeyword() }
 
         node
             .findChildByType(TYPE_REFERENCE)
@@ -686,33 +665,33 @@ public class IndentationRule :
         )
     }
 
+    private fun ASTNode.visitWhereKeyword(): ASTNode {
+        require(elementType == WHERE_KEYWORD) {}
+        val typeConstraintList =
+            requireNotNull(nextCodeSibling) { "Can not find code sibling after WHERE in '${parent?.elementType}'" }
+        require(typeConstraintList.elementType == TYPE_CONSTRAINT_LIST) {
+            "Code sibling after WHERE in '${parent?.elementType}' is not a TYPE_CONSTRAINT_LIST"
+        }
+        return startIndentContext(
+            fromAstNode = getPrecedingLeadingCommentsAndWhitespaces(),
+            toAstNode = typeConstraintList.lastChildLeafOrSelf,
+            childIndent =
+                if (prevLeaf?.isWhiteSpaceWithNewline == true) {
+                    indentConfig.indent
+                } else {
+                    " ".repeat(
+                        maxOf(0, column - 1 - parent!!.indentWithoutNewlinePrefix.length),
+                    )
+                },
+        ).prevCodeLeaf()
+    }
+
     private fun visitClass(node: ASTNode) {
         // Inner indent contexts in reversed order
         var nextToAstNode: ASTNode = node.lastChildLeafOrSelf
         node
             .findChildByType(WHERE_KEYWORD)
-            ?.let { where ->
-                val typeConstraintList =
-                    requireNotNull(
-                        where.nextCodeSibling,
-                    ) { "Can not find code sibling after WHERE in CLASS" }
-                require(typeConstraintList.elementType == TYPE_CONSTRAINT_LIST) {
-                    "Code sibling after WHERE in CLASS is not a TYPE_CONSTRAINT_LIST"
-                }
-                nextToAstNode =
-                    startIndentContext(
-                        fromAstNode = where.getPrecedingLeadingCommentsAndWhitespaces(),
-                        toAstNode = typeConstraintList.lastChildLeafOrSelf,
-                        childIndent =
-                            if (where.prevLeaf?.isWhiteSpaceWithNewline == true) {
-                                indentConfig.indent
-                            } else {
-                                " ".repeat(
-                                    maxOf(0, where.column - 1 - node.indentWithoutNewlinePrefix.length),
-                                )
-                            },
-                    ).prevCodeLeaf()
-            }
+            ?.let { where -> nextToAstNode = where.visitWhereKeyword() }
 
         val primaryConstructor = node.findChildByType(PRIMARY_CONSTRUCTOR)
         val containsConstructorKeyword = primaryConstructor?.findChildByType(CONSTRUCTOR_KEYWORD) != null
@@ -818,7 +797,7 @@ public class IndentationRule :
                     .let { prevSibling ->
                         if (indentWhenArrowOnNewLine && prevSibling != null && prevSibling.isWhiteSpaceWithNewline) {
                             if (arrow.nextCodeSibling?.elementType == BLOCK && codeStyle != KTLINT_OFFICIAL) {
-                                // Uglify the indentation to below to keep compatible with default formatting Intellij IDEA
+                                // Uglify the indentation to below to keep compatible with default formatting IntelliJ IDEA
                                 //     val foo =
                                 //        when (bar()) {
                                 //            is Bar1
@@ -1348,7 +1327,7 @@ public class IndentationRule :
                         PropertyValueParser.BOOLEAN_VALUE_PARSER,
                         setOf("true", "false"),
                     ),
-                // Up until (and including) Intellij IDEA version `2024.1.6` the arrow on a newline was not indented. In version `2024.2`
+                // Up until (and including) IntelliJ IDEA version `2024.1.6` the arrow on a newline was not indented. In version `2024.2`
                 // the default behavior was changed to true. Disable by default to keep backward compatibility with older ktlint and IDEA
                 // versions.
                 defaultValue = false,
@@ -1516,7 +1495,7 @@ private class StringTemplateIndenter(
                             val (actualIndent, actualContent) = it.text.splitIndentAt(it.text.length)
                             if (actualIndent != correctedExpectedIndent) {
                                 // It is a deliberate choice not to fix the indents inside the string literal except the line which only
-                                // contains the closing quotes. See 'string-template-indent` rule for fixing the content of the string
+                                // contains the closing quotes. See `string-template-indent` rule for fixing the content of the string
                                 // template itself
                                 emitAndApprove(it.startOffset, "Unexpected indent of multiline string closing quotes", true)
                                     .ifAutocorrectAllowed {

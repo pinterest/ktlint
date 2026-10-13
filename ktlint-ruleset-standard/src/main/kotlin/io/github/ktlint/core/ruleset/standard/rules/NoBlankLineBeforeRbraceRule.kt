@@ -21,7 +21,7 @@ public class NoBlankLineBeforeRbraceRule : StandardRule("no-blank-line-before-rb
         if (node.isWhiteSpaceWithNewline &&
             node.nextLeaf?.elementType == RBRACE
         ) {
-            val split = node.getText().split("\n")
+            val split = node.text.split("\n")
             if (split.size > 2) {
                 emit(
                     node.startOffset + split[0].length + split[1].length + 1,

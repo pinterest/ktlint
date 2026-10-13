@@ -7,12 +7,13 @@ internal class GitPrePushHookSubCommand :
     ) {
     override fun run() {
         installGitHook(gitHookName = "pre-push") {
-            """
+            @Suppress("RedundantInterpolationPrefix") // "$git(..)" should be kept in result string
+            $$"""
             #!/bin/sh
 
             # <https://github.com/ktlint/ktlint> pre-push hook
 
-            git diff --name-only -z HEAD "origin/${'$'}(git rev-parse --abbrev-ref HEAD)" -- '*.kt' '*.kts' | ktlint --relative --patterns-from-stdin=''
+            git diff --name-only -z HEAD "origin/$(git rev-parse --abbrev-ref HEAD)" -- '*.kt' '*.kts' | ktlint --relative --patterns-from-stdin=''
             """.trimIndent().toByteArray()
         }
     }

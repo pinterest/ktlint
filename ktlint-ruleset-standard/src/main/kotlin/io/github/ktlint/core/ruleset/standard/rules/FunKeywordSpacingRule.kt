@@ -30,8 +30,8 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
             .takeIf { it.elementType == FUN_KEYWORD }
             ?.nextLeaf
             ?.let { leafAfterFunKeyword ->
-                when {
-                    leafAfterFunKeyword.elementType == WHITE_SPACE && leafAfterFunKeyword.text != " " -> {
+                when (leafAfterFunKeyword.elementType) {
+                    WHITE_SPACE if leafAfterFunKeyword.text != " " -> {
                         emit(
                             leafAfterFunKeyword.startOffset,
                             "Single space expected after the fun keyword",
@@ -39,7 +39,7 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
                         ).ifAutocorrectAllowed { leafAfterFunKeyword.replaceTextWith(" ") }
                     }
 
-                    leafAfterFunKeyword.elementType == IDENTIFIER -> {
+                    IDENTIFIER -> {
                         // Identifier can only be adjacent to fun keyword in case the identifier is wrapped between backticks:
                         //     fun`foo`() {}
                         emit(leafAfterFunKeyword.startOffset, "Space expected between the fun keyword and backtick", true)

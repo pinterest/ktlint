@@ -1047,7 +1047,7 @@ class ASTNodeExtensionTest {
                 .text
 
         // The newline (and indentation spaces) before the word "comment" inside the block comment is entirely ignored. As there are no
-        // whitespace nodes containing a newline, this piece of code is considered to be an oneliner starting with the word "val".
+        // whitespace nodes containing a newline, this piece of code is considered to be a oneliner starting with the word "val".
         assertThat(actual).contains("val")
     }
 

@@ -45,11 +45,6 @@ public class KtLintRuleEngine(
      */
     public val editorConfigOverride: EditorConfigOverride = EMPTY_EDITOR_CONFIG_OVERRIDE,
     /**
-     * **For internal use only**: indicates that linting was invoked from KtLint CLI tool. It enables some internals workarounds for Kotlin
-     * Compiler initialization. This property is likely to be removed in any of next versions without further notice.
-     */
-    public val isInvokedFromCli: Boolean = false,
-    /**
      * The [FileSystem] to be used. This property is primarily intended to be used in unit tests. By specifying an alternative [FileSystem]
      * the unit test gains control on whether the [EditorConfigLoader] should or should not read specific ".editorconfig" files. For
      * example, it is considered unwanted that a unit test is influenced by the ".editorconfig" file of the project in which the unit test

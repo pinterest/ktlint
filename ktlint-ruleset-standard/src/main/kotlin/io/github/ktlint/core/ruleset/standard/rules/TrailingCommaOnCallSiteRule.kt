@@ -56,7 +56,7 @@ public class TrailingCommaOnCallSiteRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        // Keep processing of element types in sync with Intellij Kotlin formatting settings.
+        // Keep processing of element types in sync with IntelliJ Kotlin formatting settings.
         // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
         when (node.elementType) {
             COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node, emit)

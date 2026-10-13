@@ -235,7 +235,6 @@ internal class KtlintCommandLine : CliktCommand(name = "ktlint") {
             ruleProviders = ruleProviders,
             editorConfigDefaults = editorConfigDefaults(ruleProviders),
             editorConfigOverride = buildEditorConfigOverride(),
-            isInvokedFromCli = true,
         )
 
     private fun reporter(baseline: Baseline): ReporterV2 =

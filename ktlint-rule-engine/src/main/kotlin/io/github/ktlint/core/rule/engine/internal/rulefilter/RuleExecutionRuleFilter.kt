@@ -93,20 +93,20 @@ private class RuleExecutionFilter(
             ?: isRuleConditionallyEnabled(rule)
 
     private fun isRuleConditionallyEnabled(rule: RuleV2) =
-        when {
-            rule is RuleV2.Experimental && rule is RuleV2.OfficialCodeStyle -> {
+        when (rule) {
+            is RuleV2.Experimental if rule is RuleV2.OfficialCodeStyle -> {
                 isExperimentalEnabled(rule) && isOfficialCodeStyleEnabled(rule)
             }
 
-            rule is RuleV2.Experimental -> {
+            is RuleV2.Experimental -> {
                 isExperimentalEnabled(rule)
             }
 
-            rule is RuleV2.OfficialCodeStyle -> {
+            is RuleV2.OfficialCodeStyle -> {
                 isOfficialCodeStyleEnabled(rule)
             }
 
-            rule is RuleV2.OnlyWhenEnabledInEditorconfig -> {
+            is RuleV2.OnlyWhenEnabledInEditorconfig -> {
                 ruleExecution(rule.ruleId.ktLintRuleExecutionPropertyName()) == RuleExecution.DISABLED
             }
 

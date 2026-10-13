@@ -38,7 +38,7 @@ public open class RuleSetProviderTest(
                 ?.filter { it.endsWith("Rule") }
                 ?: arrayListOf()
         assertThat(packageRules)
-            .withFailMessage("No rules were found in package '$rulesDir'. Is the packagname '$packageName' correct?")
+            .withFailMessage("No rules were found in package '$rulesDir'. Is the package name '$packageName' correct?")
             .isNotEmpty
 
         val providerRules = rules.map { it::class.java.simpleName }

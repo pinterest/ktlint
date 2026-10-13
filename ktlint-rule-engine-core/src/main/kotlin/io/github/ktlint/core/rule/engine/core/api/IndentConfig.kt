@@ -98,14 +98,13 @@ public class IndentConfig(
     public fun parentIndentOf(node: ASTNode): String = node.parent!!.indent
 
     /**
-     * Converts [text] to a normalized indent. If [text] contains a new line, then only text after the last new line
-     * is converted. This text may only contain spaces and tabs.
+     * Converts [text] to a normalized indent. If [text] contains a new line, then only text after the last new line is converted. This text
+     * may only contain spaces and tabs.
      *
      * Tabs in the given text are converted to spaces depending on the tab size of the indent style.
      *
-     * When converting a text (possibly contains both tabs and spaces) to tabs, all tabs are first converted to
-     * spaces. Each consecutive set of spaces is converted to tabs. Sapces which are left, e.g. not enough space to
-     * complete a full tab, are ignored silently.
+     * When converting a text (possibly contains both tabs and spaces) to tabs, all tabs are first converted to spaces. Each consecutive set
+     * of spaces is converted to tabs. Spaces which are left, e.g. not enough space to complete a full tab, are ignored silently.
      */
     public fun toNormalizedIndent(text: String): String {
         val indent = getTextAfterLastNewLine(text)

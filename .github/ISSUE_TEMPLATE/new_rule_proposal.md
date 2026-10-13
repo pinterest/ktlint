@@ -15,4 +15,4 @@ Please search in the [issues](https://github.com/ktlint/ktlint/issues) before cr
 
 ## Additional information
 * Current version of ktlint:
-* Styleguide section: <!-- link should cover expected rule behaviour -->
+* Styleguide section: <!-- link should cover expected rule behavior -->

@@ -109,7 +109,7 @@ public class TypeParameterListSpacingRule :
                         //        constructor(...)
                         //    class Bar<T>
                         //        /**
-                        //         * Some kdoc
+                        //         * Some KDoc
                         //         */
                         //        constructor(...)
                     } else {

@@ -30,7 +30,7 @@ class CommandLineTestRunner(
      * Run ktlint CLI in a separate process. All files in directory [testProjectName] are copied to a temporary
      * directory. Paths in the [arguments] that refer to files in directory [testProjectName] need to be prefixed with
      * the placeholder [BASE_DIR_PLACEHOLDER] to obtain a fully qualified path. During the test execution this
-     * placeholder is replaces with the actual directory name that is created for that unit test.
+     * placeholder is replaced with the actual directory name that is created for that unit test.
      */
     fun run(
         testProjectName: String,
@@ -64,39 +64,32 @@ class CommandLineTestRunner(
         val output = process.inputStream.bufferedReader().use { it.readLines() }
         val error = process.errorStream.bufferedReader().use { it.readLines() }
 
-        if (process.isAlive || true) {
-            // Destroy the process as it is still running
-            process.destroyForcibly()
+        // Destroy the process forcibly. This should be unneeded when "process.isAlive" equals false. For an unknown reason, the process
+        // sometimes (mostly on Windows) results in a timeout, although the ktlint command is  actually terminated.
+        process.destroyForcibly()
 
-            // For an unknown reason, the process sometimes (mostly on Windows) results in a timeout, although the ktlint command is
-            // terminated. On termination, ktlint prints the exit code on the last line of the output in most cases. Whenever that line is
-            // expected, and found, then consider this as normal termination. When such a line is not expected, then use a null value as the
-            // exit code cannot be determined.
-            val exitCode =
-                output
-                    .lastOrNull { it.contains(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE) }
-                    ?.substringAfter(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE)
-                    ?.toInt()
-            if (exitCode != null || !expectExitCodeLoggedWhenKtlintIsFinished) {
-                executionAssertions(ExecutionResult(exitCode, output, error, projectPath))
-            } else {
-                // Ktlint is either not terminated or is terminated with a non-zero exit code.
-                val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
-                fail {
-                    "CLI test has been aborted as it could not be completed in $maxDurationInSeconds seconds"
-                        .followedByIndentedList(
-                            listOf(
-                                "RESULTS OF STDOUT:".followedByIndentedList(output, 2),
-                                "RESULTS OF STDERR:".followedByIndentedList(error, 2),
-                            ),
-                        )
-                }
-            }
+        // On termination, ktlint prints the exit code on the last line of the output in most cases. Whenever that line is
+        // expected, and found, then consider this as normal termination. When such a line is not expected, then use a null value as the
+        // exit code cannot be determined.
+        val exitCode =
+            output
+                .lastOrNull { it.contains(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE) }
+                ?.substringAfter(EXIT_KTLINT_WITH_EXIT_CODE_DEBUG_LINE)
+                ?.toInt()
+        if (exitCode != null || !expectExitCodeLoggedWhenKtlintIsFinished) {
+            executionAssertions(ExecutionResult(exitCode, output, error, projectPath))
         } else {
-            executionAssertions(ExecutionResult(process.exitValue(), output, error, projectPath))
-
-            // Only destroy the process when it is no longer needed (so after asserting)
-            process.destroy()
+            // Ktlint is either not terminated or is terminated with a non-zero exit code.
+            val maxDurationInSeconds = (WAIT_INTERVAL_DURATION * WAIT_INTERVAL_MAX_OCCURRENCES).div(1000.0)
+            fail {
+                "CLI test has been aborted as it could not be completed in $maxDurationInSeconds seconds"
+                    .followedByIndentedList(
+                        listOf(
+                            "RESULTS OF STDOUT:".followedByIndentedList(output, 2),
+                            "RESULTS OF STDERR:".followedByIndentedList(error, 2),
+                        ),
+                    )
+            }
         }
     }
 
@@ -293,7 +286,7 @@ class CommandLineTestRunner(
     companion object {
         private const val WAIT_INTERVAL_DURATION = 100L
         private val WAIT_INTERVAL_MAX_OCCURRENCES =
-            // The local machine is most often faster than the Github CICD when running the CLI tests. A system environment property has
+            // The local machine is most often faster than the GitHub CICD when running the CLI tests. A system environment property has
             // been defined in the gradle-pr-build workflow to increase the timeout.
             System
                 .getenv("CLI_TEST_MAX_DURATION_IN_SECONDS")
@@ -310,7 +303,6 @@ class CommandLineTestRunner(
     }
 }
 
-@Suppress("unused")
 private fun String.followedByIndentedList(
     lines: List<String>,
     indentLevel: Int = 1,
@@ -321,25 +313,21 @@ private fun String.followedByIndentedList(
             "    ".repeat(indentLevel).plus(it)
         }
 
-@Suppress("unused")
 internal fun ListAssert<String>.containsLineMatching(string: String): ListAssert<String> =
     this.anyMatch {
         it.contains(string)
     }
 
-@Suppress("unused")
 internal fun ListAssert<String>.containsLineMatching(regex: Regex): ListAssert<String> =
     this.anyMatch {
         it.matches(regex)
     }
 
-@Suppress("unused")
 internal fun ListAssert<String>.doesNotContainLineMatching(string: String): ListAssert<String> =
     this.noneMatch {
         it.contains(string)
     }
 
-@Suppress("unused")
 internal fun ListAssert<String>.doesNotContainLineMatching(regex: Regex): ListAssert<String> =
     this.noneMatch {
         it.matches(regex)

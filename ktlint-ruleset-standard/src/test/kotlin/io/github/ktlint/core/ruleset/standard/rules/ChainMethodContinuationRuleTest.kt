@@ -6,7 +6,6 @@ import io.github.ktlint.core.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MAR
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import io.github.ktlint.core.test.LintViolation
 import io.github.ktlint.core.test.MULTILINE_STRING_QUOTE
-import io.github.ktlint.core.test.replaceStringTemplatePlaceholder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -499,13 +498,13 @@ class ChainMethodContinuationRuleTest {
     @Test
     fun `Given a raw string literal which exceeds the maximum line length and contains a dot qualified expression`() {
         val code =
-            """
-            // $MAX_LINE_LENGTH_MARKER  $EOL_CHAR
+            $$"""
+            // $$MAX_LINE_LENGTH_MARKER  $$EOL_CHAR
             val foo =
-                $MULTILINE_STRING_QUOTE
-                Some text and a $.{foo.bar}
-                $MULTILINE_STRING_QUOTE
-            """.trimIndent().replaceStringTemplatePlaceholder()
+                $$MULTILINE_STRING_QUOTE
+                Some text and a ${foo.bar}
+                $$MULTILINE_STRING_QUOTE
+            """.trimIndent()
         chainMethodContinuationRuleAssertThat(code)
             .setMaxLineLength()
             .hasNoLintViolations()

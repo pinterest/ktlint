@@ -34,7 +34,7 @@ private val LOGGER = KotlinLogging.logger {}.initKtLintKLogger()
  * Import ordering is configured via EditorConfig's property `ij_kotlin_imports_layout`, so the Kotlin IDE plugin also recognizes it. Supported values:
  * * "*,java.**,javax.**,kotlin.**,^" - default IntelliJ IDEA's order, see [IDEA_PATTERN]
  * * "*" - alphabetical order as recommended in Android's Kotlin style guide, see [ASCII_PATTERN]
- * * custom - defined by the following set of tokens. Tokens can be combined together in a group, groups/tokens must be comma separated:
+ * * custom - defined by the following set of tokens. Tokens can be combined in a group, groups/tokens must be comma separated:
  *  * "*" - wildcard symbol, can be used as follows:
  *      1. Single, meaning matching any import (<all other imports> in IDEA)
  *      2. After an import path, e.g. "java.*" or "kotlin.io.Closeable.*"
@@ -108,7 +108,7 @@ public class ImportOrderingRule :
             imports
                 .asSequence()
                 .mapNotNull {
-                    // sorter expects KtImportDirective, whitespaces are inserted afterwards
+                    // sorter expects KtImportDirective, whitespaces are inserted afterward
                     it.psi as? KtImportDirective
                 }.sortedWith(importSorter)
                 .map { it.node } // transform back to ASTNode in order to operate over its method (addChild)
@@ -186,7 +186,7 @@ public class ImportOrderingRule :
     public companion object {
         /**
          * Alphabetical with capital letters before lower case letters (e.g. Z before a).
-         * No blank lines between major groups (android, com, junit, net, org, java, javax).
+         * No blank lines between major groups (android, com, JUnit, net, org, java, javax).
          * Single group regardless of import type.
          *
          * https://developer.android.com/kotlin/style-guide#import_statements

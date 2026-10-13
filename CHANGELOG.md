@@ -1102,16 +1102,16 @@ Based on the refactoring of the rules as provided by `ktlint-ruleset-standard` i
 
 Be aware that your custom rules might use other functions which also throw exceptions when the extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` is no longer supported.
 
-In order to help you to analyse and fix the problems with your custom rules, ktlint temporarily supports to disable the extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` using a flag. This flag is available in the Ktlint CLI and in the `KtlintRuleEngine`. By default, the extension point is enabled like it was in previous versions of ktlint.
+In order to help you to analyze and fix the problems with your custom rules, ktlint temporarily supports to disable the extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` using a flag. This flag is available in the Ktlint CLI and in the `KtlintRuleEngine`. By default, the extension point is enabled like it was in previous versions of ktlint.
 
-At least you should analyse the problems by running your test suits by running ktlint and disabling the extension point. Next you can start with fixing and releasing the updated rules. All rules in this version of ktlint have already been refactored and are not dependent on the extension point anymore. In Ktlint CLI the flag is to be activated with parameter `--disable-kotlin-extension-point`. API Consumers that use the `KtlintRuleEngine` directly, have to set property `enableKotlinCompilerExtensionPoint` to `false`.
+At least you should analyze the problems by running your test suits by running ktlint and disabling the extension point. Next you can start with fixing and releasing the updated rules. All rules in this version of ktlint have already been refactored and are not dependent on the extension point anymore. In Ktlint CLI the flag is to be activated with parameter `--disable-kotlin-extension-point`. API Consumers that use the `KtlintRuleEngine` directly, have to set property `enableKotlinCompilerExtensionPoint` to `false`.
 
 At this point in time, it is not yet decided what the next steps will be. Ktlint might drop the support of the extension points entirely. Or, if the extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` is fully supported at the time that ktlint will be based on kotlin 1.9 it might be kept. In either case, the flag will be dropped in a next version of ktlint.
 
 ### Added
 
 * Add new experimental rule `binary-expression-wrapping`. This rule wraps a binary expression in case the max line length is exceeded ([#1940](https://github.com/pinterest/ktlint/issues/1940))
-* Add flag to disable extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` to analyse impact on custom rules [#1981](https://github.com/pinterest/ktlint/issues/1981)
+* Add flag to disable extension point `org.jetbrains.kotlin.com.intellij.treeCopyHandler` to analyze impact on custom rules [#1981](https://github.com/pinterest/ktlint/issues/1981)
 * Add new experimental rule `no-empty-file` for all code styles. A kotlin (script) file may not be empty ([#1074](https://github.com/pinterest/ktlint/issues/1074))
 * Add new experimental rule `statement-wrapping` which ensures function, class, or other blocks statement body doesn't start or end at starting or ending braces of the block ([#1938](https://github.com/pinterest/ktlint/issues/1938)). Note, although this rule is added in this release, it is never executed except in unit tests.
 * Add new experimental rule `blank-line-before-declaration`. This rule requires a blank line before class, function or property declarations ([#1939](https://github.com/pinterest/ktlint/issues/1939))
@@ -1158,7 +1158,7 @@ At this point in time, it is not yet decided what the next steps will be. Ktlint
 * Fix indentation of multiline parameter list in function literal `indent` ([#1976](https://github.com/pinterest/ktlint/issues/1976))
 * Restrict indentation of closing quotes to `ktlint_official` code style to keep formatting of other code styles consistent with `0.48.x` and before `indent` ([#1971](https://github.com/pinterest/ktlint/issues/1971))
 * Extract rule `no-single-line-block-comment` from `comment-wrapping` rule. The `no-single-line-block-comment` rule is added as experimental rule to the `ktlint_official` code style, but it can be enabled explicitly for the other code styles as well. ([#1980](https://github.com/pinterest/ktlint/issues/1980))
-* Clean-up unwanted logging dependencies ([#1998](https://github.com/pinterest/ktlint/issues/1998))
+* Cleanup unwanted logging dependencies ([#1998](https://github.com/pinterest/ktlint/issues/1998))
 * Fix directory traversal for patterns referring to paths outside of current working directory or any of it child directories ([#2002](https://github.com/pinterest/ktlint/issues/2002))
 * Prevent multiple expressions on same line separated by semicolon ([#1078](https://github.com/pinterest/ktlint/issues/1078))
 

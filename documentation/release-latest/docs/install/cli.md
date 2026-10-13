@@ -61,14 +61,14 @@ Invoke-WebRequest -Uri https://github.com/ktlint/ktlint/releases/download/2.0.0-
 `ktlint.asc` contains PGP signature which you can verify with:
 
 !!! note
-    Ktlint 2.x has been moved to a separate organization, and no longer affiliated with Pinterest open source projects. Our public signature can be downloaded from the Unbuntu Key Server.
+    Ktlint 2.x has been moved to a separate organization, and no longer affiliated with Pinterest open source projects. Our public signature can be downloaded from the Ubuntu Key Server.
 
 ```sh title="Verify releases 2.0 and up"
 curl -sS "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0x0F631C1DD2A656869B1F47350FDF10E71780F7FD" | gpg --import && gpg --verify ktlint.asc
 ```
 
 !!! note
-    As reported in [this issue](https://github.com/ktlint/ktlint/issues/3130) the https://keybase.io/ktlint/pgp_keys.asc is no longer available. Our public signature can be downloaded from the Unbuntu Key Server.
+    As reported in [this issue](https://github.com/ktlint/ktlint/issues/3130) the https://keybase.io/ktlint/pgp_keys.asc is no longer available. Our public signature can be downloaded from the Ubuntu Key Server.
 
 ```sh title="Verify releases 0.32.0 - 1.8.0"
 curl -sS "https://keyserver.ubuntu.com/pks/lookup?op=get&search=0xadbc987d1a7b91db6b0aaa81995efbf4a3d20beb" | gpg --import && gpg --verify ktlint.asc

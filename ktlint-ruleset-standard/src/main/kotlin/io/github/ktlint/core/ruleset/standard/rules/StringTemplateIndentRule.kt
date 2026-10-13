@@ -231,8 +231,7 @@ public class StringTemplateIndentRule :
                     // Indentation before the closing quotes however is relevant to take into account
                     it.removeSuffix(RAW_STRING_LITERAL_QUOTES)
                 }.filterNot { it.isBlank() }
-                .map { it.indentLength() }
-                .minOrNull() ?: 0
+                .minOfOrNull { it.indentLength() } ?: 0
 
         checkAndFixNewLineAfterOpeningQuotes(node, newIndent, emit)
 

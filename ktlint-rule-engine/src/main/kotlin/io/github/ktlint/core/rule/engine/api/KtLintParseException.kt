@@ -1,7 +1,7 @@
 package io.github.ktlint.core.rule.engine.api
 
 /**
- * [KtLintParseException] is thrown whenever the kotlin code which is to be scanned contains a parsing error. Ensure
+ * [KtLintParseException] is thrown whenever the Kotlin code which is to be scanned contains a parsing error. Ensure
  * that the code which is to be scanned, does not contain compilation errors.
  *
  * @param line line number (one-based)

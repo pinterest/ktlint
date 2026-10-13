@@ -7,7 +7,6 @@ import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRuleBuild
 import io.github.ktlint.core.test.LintViolation
 import io.github.ktlint.core.test.MULTILINE_STRING_QUOTE
 import io.github.ktlint.core.test.TAB
-import io.github.ktlint.core.test.replaceStringTemplatePlaceholder
 import org.ec4j.core.model.PropertyType.IndentStyleValue.tab
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -20,27 +19,24 @@ internal class WrappingRuleTest {
 
     @Test
     fun `Given a multiline string containing a string-template as parameter value but then wrap the value to a start and end on separate lines`() {
-        // Interpret "$." in code samples below as "$". It is used here as otherwise the indentation in the code sample
-        // is disapproved when running ktlint on the unit tests during the build process (not that the indent rule can
-        // not be disabled for a block).
         val code =
-            """
+            $$"""
             fun foo() {
-                println("$.{
+                println("${
                 true
                 }")
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         val formattedCode =
-            """
+            $$"""
             fun foo() {
                 println(
-                    "$.{
+                    "${
                         true
                     }"
                 )
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         wrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
@@ -94,33 +90,33 @@ internal class WrappingRuleTest {
     @Test
     fun `Given some multiline raw string literal contain multiline string templates`() {
         val code =
-            """
+            $$"""
             fun foo1() {
-                foo2($MULTILINE_STRING_QUOTE$.{
+                foo2($$MULTILINE_STRING_QUOTE${
             true
                 }
                 text
-            _$.{
+            _${
             true
-                }$MULTILINE_STRING_QUOTE.trimIndent(), ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE)
+                }$$MULTILINE_STRING_QUOTE.trimIndent(), $${MULTILINE_STRING_QUOTE}text$$MULTILINE_STRING_QUOTE)
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         val formattedCode =
-            """
+            $$"""
             fun foo1() {
                 foo2(
-                    $MULTILINE_STRING_QUOTE$.{
+                    $$MULTILINE_STRING_QUOTE${
                         true
                     }
                 text
-            _$.{
+            _${
                         true
                     }
-                    $MULTILINE_STRING_QUOTE.trimIndent(),
-                    ${MULTILINE_STRING_QUOTE}text$MULTILINE_STRING_QUOTE
+                    $$MULTILINE_STRING_QUOTE.trimIndent(),
+                    $${MULTILINE_STRING_QUOTE}text$$MULTILINE_STRING_QUOTE
                 )
             }
-            """.trimIndent().replaceStringTemplatePlaceholder()
+            """.trimIndent()
         wrappingRuleAssertThat(code)
             .addAdditionalRuleProvider { IndentationRule() }
             .hasLintViolations(
@@ -532,7 +528,7 @@ internal class WrappingRuleTest {
             fun foo() {
             ${TAB}println($MULTILINE_STRING_QUOTE
             ${TAB}${TAB}line1
-            ${TAB}${TAB}    line2
+            ${TAB}$TAB    line2
             ${TAB}${TAB}$MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
@@ -542,9 +538,9 @@ internal class WrappingRuleTest {
             ${TAB}println(
             ${TAB}${TAB}$MULTILINE_STRING_QUOTE
             ${TAB}${TAB}line1
-            ${TAB}${TAB}    line2
+            ${TAB}$TAB    line2
             ${TAB}${TAB}$MULTILINE_STRING_QUOTE.trimIndent()
-            ${TAB})
+            $TAB)
             }
             """.trimIndent()
         wrappingRuleAssertThat(code)
@@ -590,26 +586,25 @@ internal class WrappingRuleTest {
 
     @Test
     fun `format multiline string containing a template string as the first non blank element on the line`() {
-        // Escape '${true}' as '${"$"}{true}' to prevent evaluation before actually processing the multiline string
         val code =
-            """
+            $$"""
             fun foo() {
-                println($MULTILINE_STRING_QUOTE
-                    ${"$"}{true}
+                println($$MULTILINE_STRING_QUOTE
+                    ${true}
 
-                        ${"$"}{true}
-                    $MULTILINE_STRING_QUOTE.trimIndent())
+                        ${true}
+                    $$MULTILINE_STRING_QUOTE.trimIndent())
             }
             """.trimIndent()
         val formattedCode =
-            """
+            $$"""
             fun foo() {
                 println(
-                    $MULTILINE_STRING_QUOTE
-                    ${"$"}{true}
+                    $$MULTILINE_STRING_QUOTE
+                    ${true}
 
-                        ${"$"}{true}
-                    $MULTILINE_STRING_QUOTE.trimIndent()
+                        ${true}
+                    $$MULTILINE_STRING_QUOTE.trimIndent()
                 )
             }
             """.trimIndent()
@@ -1764,18 +1759,18 @@ internal class WrappingRuleTest {
         @Test
         fun `Given that the string template is on a separate line in the raw string literal`() {
             val code =
-                """
-                // $MAX_LINE_LENGTH_MARKER                        $EOL_CHAR
+                $$"""
+                // $$MAX_LINE_LENGTH_MARKER                        $$EOL_CHAR
                 fun getQueryString(query: QueryRequest): String {
-                    val q = $MULTILINE_STRING_QUOTE
+                    val q = $$MULTILINE_STRING_QUOTE
                         SELECT *
                         FROM table
                         WHERE 1 = 1
-                        $.{query.gameId?.let { "AND id = ?" } ?: ""}
-                    $MULTILINE_STRING_QUOTE
+                        ${query.gameId?.let { "AND id = ?" } ?: ""}
+                    $$MULTILINE_STRING_QUOTE
                     return q
                 }
-                """.replaceStringTemplatePlaceholder().trimIndent()
+                """.trimIndent()
             wrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()
@@ -1784,17 +1779,17 @@ internal class WrappingRuleTest {
         @Test
         fun `Given that the string template is preceded by some text on the same line in the raw string literal`() {
             val code =
-                """
-                // $MAX_LINE_LENGTH_MARKER                               $EOL_CHAR
+                $$"""
+                // $$MAX_LINE_LENGTH_MARKER                               $$EOL_CHAR
                 fun getQueryString1(query: QueryRequest): String {
-                    val q = $MULTILINE_STRING_QUOTE
+                    val q = $$MULTILINE_STRING_QUOTE
                         SELECT *
                         FROM table
-                        WHERE $.{query.gameId?.let { "id = ?" } ?: "1 = 1"}
-                    $MULTILINE_STRING_QUOTE
+                        WHERE ${query.gameId?.let { "id = ?" } ?: "1 = 1"}
+                    $$MULTILINE_STRING_QUOTE
                     return q
                 }
-                """.trimIndent().replaceStringTemplatePlaceholder()
+                """.trimIndent()
             wrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()
@@ -1809,11 +1804,11 @@ internal class WrappingRuleTest {
                     val q = $MULTILINE_STRING_QUOTE
                         SELECT *
                         FROM table
-                        WHERE $.{query.gameId?.let { "id = ?" } ?: "1 = 1"} OR level = ?
+                        WHERE ${'$'}{query.gameId?.let { "id = ?" } ?: "1 = 1"} OR level = ?
                     $MULTILINE_STRING_QUOTE
                     return q
                 }
-                """.trimIndent().replaceStringTemplatePlaceholder()
+                """.trimIndent()
             wrappingRuleAssertThat(code)
                 .setMaxLineLength()
                 .hasNoLintViolations()

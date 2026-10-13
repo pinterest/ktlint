@@ -42,7 +42,7 @@ class SarifReporterTest {
         val expected =
             File(javaClass.getResource("/relative-path.sarif").path)
                 .readText()
-                .replace("{WORKINDG_DIR}", workingDirectory)
+                .replace("{WORKING_DIR}", workingDirectory)
                 .replace("\\s".toRegex(), "")
         assertThat(actual).isEqualTo(expected)
     }

@@ -113,7 +113,7 @@ public class StringTemplateRule : StandardRule("string-template") {
     }
 
     private fun ASTNode.isStringTemplate() =
-        text.startsWith("${'$'}{") &&
+        text.startsWith($$"${") &&
             text.substring(2, text.length - 1).isPartOfIdentifier()
 
     private fun String.isPartOfIdentifier() = this == "_" || this.all { it.isLetterOrDigit() }
@@ -121,8 +121,8 @@ public class StringTemplateRule : StandardRule("string-template") {
     private fun toShortStringTemplateNode(text: String): ASTNode =
         KtlintKotlinCompiler
             .createASTNodeFromText(
-                """
-                val foo = "${'$'}$text"
+                $$"""
+                val foo = "$$$text"
                 """.trimIndent(),
             )?.findChildByType(PROPERTY)
             ?.findChildByType(STRING_TEMPLATE)

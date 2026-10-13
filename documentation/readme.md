@@ -2,8 +2,8 @@
 
 Two versions of the documentation are kept in the 'master' branch:
 
-* The `snapshot` version of the documentation applies to the SNAPSHOT versions of ktlint. Upon the publication of the next official release of ktlint, the `release-latest` version of the documentation is replaced with the `snapshot` version. See script `.announce` which is executed by the Github workflow `publish-release-build`.
-* The `release-latest` version of the documentation applies to the last officially published version of ktlint. Upon the publication of the next official release of ktlint, this version of the documentation is replaced with the `snapshot` version. See script `.announce` which is executed by the Github workflow `publish-release-build`.
+* The `snapshot` version of the documentation applies to the SNAPSHOT versions of ktlint. Upon the publication of the next official release of ktlint, the `release-latest` version of the documentation is replaced with the `snapshot` version. See script `.announce` which is executed by the GitHub workflow `publish-release-build`.
+* The `release-latest` version of the documentation applies to the last officially published version of ktlint. Upon the publication of the next official release of ktlint, this version of the documentation is replaced with the `snapshot` version. See script `.announce` which is executed by the GitHub workflow `publish-release-build`.
 
 Whenever a fix is to be made to the documentation, it should be determined in which version(s) of the documentation is to be fixed. Documentation fixes which only apply to the `SNAPSHOT` version of ktlint may only be fixed in the `snapshot` version of the documentation.
 
@@ -15,20 +15,20 @@ Docs can be viewed on the local machine in one of following ways:
 * Run script `serve-docs-locally.sh` which starts a docker container running mkdocs
 * Run command `mike serve` which requires that `python`, `pip`, `mike` and `mkdocs` have been installed (one time only) before
 
-NOTE: Changes to the documentation have to be submitted as PR. When merging to `master` branch, the Github workflows `publish-snapshot-docs` and `publish-release-docs` take care of publishing the docs to Github Pages.
+NOTE: Changes to the documentation have to be submitted as PR. When merging to `master` branch, the GitHub workflows `publish-snapshot-docs` and `publish-release-docs` take care of publishing the docs to GitHub Pages.
 
-## Rebuilding Github Pages manually
+## Rebuilding GitHub Pages manually
 
-Github Pages deploys the documentation from branch `gh-pages`. Each version of the documentation is stored in a separate directory of that branch. Each of those directories contains a html/css version of the generated documentation. Beside the directories for released versions, two special directories exist. The `latest` directory which is based on the `documentation/release-latest` directory on the `master` branch. The `dev-snapshot` directory is based on the `documentation/snapshot` directory on the `master` branch.
+GitHub Pages deploys the documentation from branch `gh-pages`. Each version of the documentation is stored in a separate directory of that branch. Each of those directories contains a html/css version of the generated documentation. Beside the directories for released versions, two special directories exist. The `latest` directory which is based on the `documentation/release-latest` directory on the `master` branch. The `dev-snapshot` directory is based on the `documentation/snapshot` directory on the `master` branch.
 
-In case the `gh-pages` branch is corrupt, it can be recreated again. In order to execute commands below, `python`, `pip`, `mkdocs` and `mike` need to be installed on the local machine. The commands have to be executed from the designated directory. Note that after each command a Github Actions workflow is started (see https://github.com/ktlint/ktlint/actions). Wait with executing the next command until the Github Action workflow is completed. In between steps, the command `mike list` can be executed to see what versions have been published.
+In case the `gh-pages` branch is corrupt, it can be recreated again. In order to execute commands below, `python`, `pip`, `mkdocs` and `mike` need to be installed on the local machine. The commands have to be executed from the designated directory. Note that after each command a GitHub Actions workflow is started (see https://github.com/ktlint/ktlint/actions). Wait with executing the next command until the GitHub Action workflow is completed. In between steps, the command `mike list` can be executed to see what versions have been published.
 
 1) Clear all doc versions from gh-pages
     ```shell
     # Execute from directory `documentation/release-latest`
     mike delete --all --push
     ```
-   After the Github Actions workflow is completed, the Github Pages will be empty, and displays a 404 error page.
+   After the GitHub Actions workflow is completed, the GitHub Pages will be empty, and displays a 404 error page.
 
 2) Recreate the documentation for the last released version:
    Reset the active branch to the commit with description `Updated refs to latest (xx.yy.zz) release`.
@@ -37,7 +37,7 @@ In case the `gh-pages` branch is corrupt, it can be recreated again. In order to
     # Execute from directory `documentation/release-latest`
     mike deploy --push --update-aliases xx.yy.zz latest # Replace "xx.yy.zz" with the version number. Do not remove or alter tag "latest"
     ```
-    After the Github Actions workflow is completed, the documentation is available at https://ktlint.github.io/ktlint/xx.yy.zz/ but is not yet available on https://ktlint.github.io/ktlint/ until the Github Action workflow for next command is completed:
+    After the GitHub Actions workflow is completed, the documentation is available at https://ktlint.github.io/ktlint/xx.yy.zz/ but is not yet available on https://ktlint.github.io/ktlint/ until the GitHub Action workflow for next command is completed:
     ```shell
     # Execute from directory `documentation/release-latest`
     ```
@@ -62,7 +62,7 @@ In case the `gh-pages` branch is corrupt, it can be recreated again. In order to
     # Execute from directory `documentation/release-latest` or from root directory of project for versions prior to `0.49.0`
     mike deploy --push --update-aliases aa.bb.cc # Replace "aa.bb.cc" with the version number. Do not add tag "latest"!
     ```
-   After the Github Actions workflow is completed, the documentation is available at https://ktlint.github.io/ktlint/aa.bb.cc/
+   After the GitHub Actions workflow is completed, the documentation is available at https://ktlint.github.io/ktlint/aa.bb.cc/
 
 4) Recreate the snapshot documentation
    In directory `documentation/snapshot`:
@@ -70,4 +70,4 @@ In case the `gh-pages` branch is corrupt, it can be recreated again. In order to
     # Execute from directory `documentation/snapshot`
     mike deploy --push --update-aliases dev-snapshot
     ```
-   After the Github Actions workflow is completed, the documentation is available at https://ktlint.github.io/ktlint/dev-snapshot/.
+   After the GitHub Actions workflow is completed, the documentation is available at https://ktlint.github.io/ktlint/dev-snapshot/.

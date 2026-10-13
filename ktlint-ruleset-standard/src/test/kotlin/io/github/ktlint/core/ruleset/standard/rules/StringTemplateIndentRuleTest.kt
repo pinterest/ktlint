@@ -6,7 +6,6 @@ import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRuleBuild
 import io.github.ktlint.core.test.LintViolation
 import io.github.ktlint.core.test.MULTILINE_STRING_QUOTE
 import io.github.ktlint.core.test.TAB
-import io.github.ktlint.core.test.replaceStringTemplatePlaceholder
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
@@ -448,41 +447,35 @@ class StringTemplateIndentRuleTest {
 
     @Test
     fun `Issue 2530 - Given a raw string literal containing string templates at position 1 of the line`() {
-        // Interpret "$." in code sample below as "$". It is used whenever the code which has to be inspected should
-        // actually contain a string template. Using "$" instead of "$." would result in a String in which the string
-        // templates would have been evaluated before the code would actually be processed by the rule.
         val code =
-            """
+            $$"""
             fun foo() {
                 val strings = listOf("a")
                 println(
-                    $MULTILINE_STRING_QUOTE
-            $.{strings.joinToString { "a" }}
-            $.strings
-                    $MULTILINE_STRING_QUOTE
+                    $$MULTILINE_STRING_QUOTE
+            ${strings.joinToString { "a" }}
+            $strings
+                    $$MULTILINE_STRING_QUOTE
                 )
             }
             val foo =
-                $MULTILINE_STRING_QUOTE
-            $.{strings.joinToString { "a" }}
-            $.strings
-                $MULTILINE_STRING_QUOTE.trimIndent()
-            """.trimIndent().replaceStringTemplatePlaceholder()
+                $$MULTILINE_STRING_QUOTE
+            ${strings.joinToString { "a" }}
+            $strings
+                $$MULTILINE_STRING_QUOTE.trimIndent()
+            """.trimIndent()
         stringTemplateIndentRuleAssertThat(code).hasNoLintViolations()
     }
 
     @Test
     fun `Given a string template on same line as closing parenthesis of multiline function signature`() {
-        // Interpret "$." in code sample below as "$". It is used whenever the code which has to be inspected should
-        // actually contain a string template. Using "$" instead of "$." would result in a String in which the string
-        // templates would have been evaluated before the code would actually be processed by the rule.
         val code =
-            """
+            $$"""
             fun foo(
                 bar: String
-            ) = $MULTILINE_STRING_QUOTE
-                Bar: $.bar
-                $MULTILINE_STRING_QUOTE.trimIndent()
+            ) = $$MULTILINE_STRING_QUOTE
+                Bar: $bar
+                $$MULTILINE_STRING_QUOTE.trimIndent()
             """.trimIndent()
         stringTemplateIndentRuleAssertThat(code)
             .addAdditionalRuleProvider { MultilineExpressionWrappingRule() }

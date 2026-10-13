@@ -123,7 +123,7 @@ Formatting projects in which ktlint is not used may result in a huge amount of f
    ```shell
    ktlint-prev -F --baseline=baseline.xml --relative # Do not call this command via the "./exec-in-each-project.sh" script.
    ```
-   Note: The output should not report any violations, as the baseline should suppress every error that could not autocorrected.
+   Note: The output should not report any violations, as the baseline should suppress every error that could not be autocorrected.
 8. Check that besides the `baseline.xml` no files are changed (in step 5 and 6 all violations which could be autocorrected have already been committed). Remaining violations which could not be autocorrected are saved in the `baseline.xml` which is stored outside the project directories.
    ```shell
    ./exec-in-each-project.sh "git status"

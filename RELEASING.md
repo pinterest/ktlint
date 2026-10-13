@@ -4,6 +4,8 @@
 
 Note: These steps should be done directly in the `ktlint/ktlint` repository, not in your personal fork.
 
+2.0.0 release: Update announcement in main.html (see snapshot documentation)
+
 1. Create a new branch (e.g. `0.50.0-prep`)
 2. Manually run GitHub Action workflow https://github.com/ktlint/ktlint/actions/workflows/generate-changelog.yml to generate the new changelog based on the PR's since last release
    * Check whether each PR is listed in the correct category. If not, add the proper label to the PR and repeat. See https://github.com/ktlint/ktlint/blob/master/.github/workflows/generate-changelog.yml#L35 for which labels to use. 
@@ -20,7 +22,7 @@ Note: These steps should be done directly in the `ktlint/ktlint` repository, not
 11. Merge of branch `<release>-update-refs` to master starts the `Publish release documentation` and `Publish snapshot documentation` workflows. Check that both workflows succeed (https://github.com/ktlint/ktlint/actions). Also check that the documentation has actually been published on https://ktlint.github.io/ktlint/latest.
 12. Verify that documentation of new release is published correctly. Especially check whether version numbers in [documentation](https://ktlint.github.io/ktlint/latest/install/cli/) have been changed. After publication of `1.0.0` the documentation still referred to `0.50.0` (according to https://github.com/ktlint/ktlint/actions/runs/6085301212/job/16509057702#step:11:14 it tried updating `0.49.1` to `1.0.0` which most likely was caused by the already fixed issue that the changelog heading of the `0.50.0` did not comply to the expected format).
 13. Verify that the published documentation https://ktlint.github.io/ktlint/latest/ does not contain broken links with [Broken Link Checker Tool](https://www.deadlinkchecker.com/website-dead-link-checker.asp).
-14. Announce release on Ktlint Slack channel but wait with doing so until sonatype release is published.
+14. Announce release on Ktlint Slack channel but wait with doing so until Sonatype release is published.
 15. Update `gradle.properties` with the new `SNAPSHOT` version
 
 ## Creating a patch release for an older minor version

@@ -21,7 +21,7 @@ public class NoBlankLinesInChainedMethodCallsRule : StandardRule("no-blank-lines
         if (isBlankLine && node.parent?.elementType == DOT_QUALIFIED_EXPRESSION) {
             emit(node.startOffset + 1, "Needless blank line(s)", true)
                 .ifAutocorrectAllowed {
-                    node.replaceTextWith("\n" + node.getText().split("\n\n")[1])
+                    node.replaceTextWith("\n" + node.text.split("\n\n")[1])
                 }
         }
     }

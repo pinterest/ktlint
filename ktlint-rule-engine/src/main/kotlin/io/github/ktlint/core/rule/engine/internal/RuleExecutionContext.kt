@@ -181,7 +181,7 @@ internal class RuleExecutionContext private constructor(
     ): VisitChildNodesResult {
         if (node.parent == null && node.elementType != FILE) {
             // In commit 729a0fe23c34a8d03fd06854484fe24571b92bd6 the rule execution order has been changed to process all rules on an
-            // ASTNode before proceeding to the next node. Only when testing the Ktlint 2.0 SNAPSHOT with the Ktlint Intellij Plugin it
+            // ASTNode before proceeding to the next node. Only when testing the Ktlint 2.0 SNAPSHOT with the Ktlint IntelliJ Plugin it
             // was found this in a particular case led to a regression error when running the plugin with an older Ktlint ruleset
             // version. Similar problems could also occur with custom rulesets.
             // In case the entire node has been replaced by a previous rule, for example by using function rawReplaceWithText(text) on a

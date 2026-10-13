@@ -188,7 +188,7 @@ public open class RuleV2(
     @Poko
     public class About(
         /**
-         * Name of person, organisation or group maintaining the rule.
+         * Name of person, organization or group maintaining the rule.
          */
         public val maintainer: String = "Not specified (and not maintained by the Ktlint project)",
         /**

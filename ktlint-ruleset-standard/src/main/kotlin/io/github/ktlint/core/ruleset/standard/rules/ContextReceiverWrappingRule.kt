@@ -76,12 +76,12 @@ public class ContextReceiverWrappingRule :
         node: ASTNode,
         emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        when {
-            node.elementType == CONTEXT_PARAMETER_LIST && node.findChildByType(CONTEXT_RECEIVER) != null -> {
+        when (node.elementType) {
+            CONTEXT_PARAMETER_LIST if node.findChildByType(CONTEXT_RECEIVER) != null -> {
                 visitContextReceiverList(node, emit)
             }
 
-            node.elementType == TYPE_ARGUMENT_LIST && node.isPartOf(CONTEXT_RECEIVER) -> {
+            TYPE_ARGUMENT_LIST if node.isPartOf(CONTEXT_RECEIVER) -> {
                 visitContextReceiverTypeArgumentList(node, emit)
             }
         }

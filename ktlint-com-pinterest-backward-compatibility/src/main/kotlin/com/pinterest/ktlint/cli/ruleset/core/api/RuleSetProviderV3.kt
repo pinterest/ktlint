@@ -7,10 +7,10 @@ import com.pinterest.ktlint.rule.engine.core.api.RuleSetId
 import java.io.Serializable
 
 /**
- * KtLint uses [ServiceLoader](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to
- * discover all available [RuleSetProviderV3]`s on the classpath and so each [RuleSetProviderV3] must be registered using
- * `META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3` (see `ktlint-ruleset-standard/src/main/resources`
- * for an example).
+ * KtLint uses [ServiceLoader](https://docs.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html) to discover all available
+ * [RuleSetProviderV3]'s on the classpath and so each [RuleSetProviderV3] must be registered using
+ * `META-INF/services/com.pinterest.ktlint.cli.ruleset.core.api.RuleSetProviderV3` (see `ktlint-ruleset-standard/src/main/resources` for an
+ * example).
  */
 @Deprecated(
     message = "Only use for backward compatibility of custom ruleset JARs with Ktlint 2.x",

@@ -166,7 +166,7 @@ internal class EditorConfigLoader(
 }
 
 /**
- * Wrapper around the native EditorConfigLoader of the ec4j library. Whenever Ktlints loads ".editorconfig" files via the ec4j library, it
+ * Wrapper around the native EditorConfigLoader of the ec4j library. Whenever Ktlint loads ".editorconfig" files via the ec4j library, it
  * needs to be aware of all native (ec4j) but also the custom property types defined in KtLint and the custom rules sets provided to KtLint.
  *
  * The ec4j library uses the convention that a property type has a name that is identical to the name of that property. If no
