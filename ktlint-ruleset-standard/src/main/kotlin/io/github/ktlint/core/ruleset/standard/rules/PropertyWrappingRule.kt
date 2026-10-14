@@ -121,14 +121,14 @@ public class PropertyWrappingRule :
 
     private fun ASTNode.requireNewlineBeforeLeaf() {
         emit(startOffset - 1, """Missing newline before "$text"""") {
-            LOGGER.trace { "${line}: inserted newline before $text" }
+            LOGGER.trace { "$line: inserted newline before $text" }
             upsertWhitespaceBeforeMe(indentConfig.childIndentOf(this))
         }
     }
 
     private fun ASTNode.requireNewlineAfterLeaf() {
         emit(startOffset + 1, """Missing newline after "$text"""") {
-            LOGGER.trace { "${line}: inserted newline after $text" }
+            LOGGER.trace { "$line: inserted newline after $text" }
             upsertWhitespaceAfterMe(indentConfig.childIndentOf(this))
         }
     }

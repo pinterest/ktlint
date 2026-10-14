@@ -448,7 +448,7 @@ public class WrappingRule :
         prevSibling { !it.isPartOfComment }
             .let { prevSibling ->
                 if (prevSibling.isWhiteSpaceWithoutNewline) {
-                    emit(startOffset, "A newline was expected before '${text}'") {
+                    emit(startOffset, "A newline was expected before '$text'") {
                         upsertWhitespaceBeforeMe(
                             indentConfig.siblingIndentOf(
                                 parent { it.elementType == FUN }
@@ -478,7 +478,7 @@ public class WrappingRule :
                 // _
                 // """.trimIndent()
                 emit(startOffset, "Missing newline before \"\"\"") {
-                    LOGGER.trace { "${line}: inserted newline before (closing) \"\"\"" }
+                    LOGGER.trace { "$line: inserted newline before (closing) \"\"\"" }
                     this as LeafPsiElement
                     rawInsertBeforeMe(LeafPsiElement(LITERAL_STRING_TEMPLATE_ENTRY, "\n"))
                 }
@@ -529,20 +529,16 @@ public class WrappingRule :
         }
     }
 
-    private fun ASTNode.requireNewlineBeforeLeaf(
-        indent: String,
-    ) {
+    private fun ASTNode.requireNewlineBeforeLeaf(indent: String) {
         emit(startOffset - 1, """Missing newline before "$text"""") {
-            LOGGER.trace { "${line}: inserted newline before $text" }
+            LOGGER.trace { "$line: inserted newline before $text" }
             upsertWhitespaceBeforeMe(indent)
         }
     }
 
-    private fun ASTNode.requireNewlineAfterLeaf(
-        indent: String? = null,
-    ) {
+    private fun ASTNode.requireNewlineAfterLeaf(indent: String? = null) {
         emit(startOffset + 1, """Missing newline after "$text"""") {
-            LOGGER.trace { "${line}: inserted newline after $text" }
+            LOGGER.trace { "$line: inserted newline after $text" }
             val tempIndent = indent ?: (indentConfig.childIndentOf(this))
             upsertWhitespaceAfterMe(tempIndent)
         }

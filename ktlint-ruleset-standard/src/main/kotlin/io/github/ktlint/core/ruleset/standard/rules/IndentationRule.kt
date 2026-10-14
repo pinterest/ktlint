@@ -185,7 +185,7 @@ public class IndentationRule :
                     childIndent = "",
                     lastChildIndent = "",
                     activated = true,
-                )
+                ),
             )
         }
 
@@ -1109,8 +1109,8 @@ public class IndentationRule :
             }
             if (autoCorrect) {
                 LOGGER.trace {
-                    "Line ${line}: changed indentation to ${expectedIndentation.length} " +
-                        "(from ${normalizedNodeIndent.length}) for ${elementType}: ${textWithEscapedTabAndNewline()}"
+                    "Line $line: changed indentation to ${expectedIndentation.length} " +
+                        "(from ${normalizedNodeIndent.length}) for $elementType: ${textWithEscapedTabAndNewline()}"
                 }
                 replaceTextWith(
                     text.substringBeforeLast("\n") + "\n" + expectedIndentation,
