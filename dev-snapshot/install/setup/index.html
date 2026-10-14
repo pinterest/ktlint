@@ -688,10 +688,10 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
       
         <li class="md-nav__item">
-  <a href="#build-pipeline-as-last-defence" class="md-nav__link">
+  <a href="#build-pipeline-as-last-defense" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build pipeline as last defence
+        Build pipeline as last defense
       
     </span>
   </a>
@@ -1477,10 +1477,10 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 </li>
       
         <li class="md-nav__item">
-  <a href="#build-pipeline-as-last-defence" class="md-nav__link">
+  <a href="#build-pipeline-as-last-defense" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build pipeline as last defence
+        Build pipeline as last defense
       
     </span>
   </a>
@@ -1513,16 +1513,16 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <ol>
 <li><code>ktlint-intellij-plugin</code> for direct feedback while coding</li>
 <li>Git pre-commit hook for feedback when committing</li>
-<li>Build pipeline as last defence</li>
+<li>Build pipeline as last defense</li>
 </ol>
 <h2 id="ktlint-intellij-plugin-for-direct-feedback-while-coding"><code>ktlint-intellij-plugin</code> for direct feedback while coding<a class="headerlink" href="#ktlint-intellij-plugin-for-direct-feedback-while-coding" title="Permanent link">&para;</a></h2>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p>Ensure to install version <code>0.20.0</code> (or later) of the Ktlint plugin via the Intellij Plugin Marketplace to get benefits described below.</p>
+<p>Ensure to install version <code>0.20.0</code> (or later) of the Ktlint plugin via the IntelliJ Plugin Marketplace to get benefits described below.</p>
 </div>
 <p>The <code>ktlint-intellij-plugin</code> gives direct feedback while writing code. The plugin can be used in 'distract free' and 'manual' mode, or be disabled entirely. This is a per-project setting.</p>
 <p><img alt="ktlint-intellij-plugin-preferences.png" src="../../assets/images/ktlint-intellij-plugin-preferences.png" /></p>
-<p>In <code>distract free</code> mode, the plugin only shows the violations which need to be manually corrected. Ktlint formatting will be applied automatically after apply Intellij IDEA format, or on save of the file. This works bests for projects for which the <code>.editorconfig</code> already has been set up properly for the project.</p>
+<p>In <code>distract free</code> mode, the plugin only shows the violations which need to be manually corrected. Ktlint formatting will be applied automatically after apply IntelliJ IDEA format, or on save of the file. This works bests for projects for which the <code>.editorconfig</code> already has been set up properly for the project.</p>
 <p><img alt="ktlint-intellij-plugin-distract-free-mode-1.png" src="../../assets/images/ktlint-intellij-plugin-distract-free-mode-1.png" /></p>
 <p>Note that image above also shows a warning that 'Ktlint found 5 violations which can be autocorrected'. Reformatting the file, or simply save the file, results in:</p>
 <p><img alt="ktlint-intellij-plugin-distract-free-mode-2.png" src="../../assets/images/ktlint-intellij-plugin-distract-free-mode-2.png" /></p>
@@ -1530,13 +1530,13 @@ You're viewing the SNAPSHOT version of the documentation. Be sure to use the
 <p><img alt="ktlint-intellij-plugin-manual-mode.png" src="../../assets/images/ktlint-intellij-plugin-manual-mode.png" /></p>
 <p>Violations reported by ktlint can be suppressed by adding a <code>@Suppress</code> annotation via the quick fix:</p>
 <p><img alt="ktlint-intellij-plugin-suppress-violation.png" src="../../assets/images/ktlint-intellij-plugin-suppress-violation.png" /></p>
-<p>As of Ktlint <code>1.1.0</code> the maintainer of Ktlint has joined the <a href="https://github.com/nbadal/ktlint-intellij-plugin">ktlint-intellij-plugin project</a> to ensure that the plugin stays up to date with releases of ktlint and releases of Intellij IDEA.</p>
-<p>The <code>ktlint-intellij-plugin</code> can be installed as <a href="https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-">plugin in Intellij IDEA</a>.</p>
+<p>As of Ktlint <code>1.1.0</code> the maintainer of Ktlint has joined the <a href="https://github.com/nbadal/ktlint-intellij-plugin">ktlint-intellij-plugin project</a> to ensure that the plugin stays up to date with releases of ktlint and releases of IntelliJ IDEA.</p>
+<p>The <code>ktlint-intellij-plugin</code> can be installed as <a href="https://plugins.jetbrains.com/plugin/15057-ktlint-unofficial-">plugin in IntelliJ IDEA</a>.</p>
 <h2 id="git-pre-commit-hook-for-feedback-when-committing">Git pre-commit hook for feedback when committing<a class="headerlink" href="#git-pre-commit-hook-for-feedback-when-committing" title="Permanent link">&para;</a></h2>
 <p>The <a href="../cli/#git-hooks">git pre-commit hook</a>, protects against committing code containing lint violations. From the perspective of code reviewing it is important that the code is already formatted in the style of the project. This is especially valuable after refactorings (for example search and replace) have been applied on files that are not opened in the editor and as of that might not have been updated by the <code>ktlint-intellij-plugin</code>.</p>
 <p>Ktlint CLI can generate a pre-commit hook, or you can find it <a href="https://github.com/ktlint/ktlint/blob/master/ktlint-cli/src/main/kotlin/io/github/ktlint/core/cli/internal/GitPreCommitHookSubCommand.kt#L23">here</a>.</p>
-<h2 id="build-pipeline-as-last-defence">Build pipeline as last defence<a class="headerlink" href="#build-pipeline-as-last-defence" title="Permanent link">&para;</a></h2>
-<p>As last defence, to ensure that the code base does not contain lint violations, <code>ktlint-cli</code> is run in the (local and remote) build pipeline (see <a href="../integrations/">integrations</a>). </p>
+<h2 id="build-pipeline-as-last-defense">Build pipeline as last defense<a class="headerlink" href="#build-pipeline-as-last-defense" title="Permanent link">&para;</a></h2>
+<p>As last defense, to ensure that the code base does not contain lint violations, <code>ktlint-cli</code> is run in the (local and remote) build pipeline (see <a href="../integrations/">integrations</a>). </p>
 <p>For example, in my maven projects I have bound the <a href="../integrations/#maven-integration">ktlint (linting) task</a> to the maven <code>compile</code> lifecycle. If after compile a lint violation is found the build is failed. This circumvents that developers disable running of the git hooks on their local machine. And in case that the code was not build locally, the remote build pipeline fails as last resort.</p>
 
 
