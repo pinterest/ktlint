@@ -32,7 +32,7 @@ public class FinalNewlineRule :
                 stopTraversalOfAST()
                 return
             }
-            val lastNode = lastChildNodeOf(node)
+            val lastNode = node.lastChildNodeOf()
             when {
                 insertFinalNewline && (!lastNode.isWhiteSpace || lastNode.isWhiteSpaceWithoutNewline) -> {
                     emit(node.textLength - 1, "File must end with a newline (\\n)") {
@@ -48,8 +48,7 @@ public class FinalNewlineRule :
         stopTraversalOfAST()
     }
 
-    private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
-        if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
+    private tailrec fun ASTNode.lastChildNodeOf(): ASTNode? = if (lastChildNode == null) this else lastChildNode.lastChildNodeOf()
 }
 
 public val FINAL_NEWLINE_RULE_ID: RuleId = FinalNewlineRule().ruleId

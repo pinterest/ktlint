@@ -89,51 +89,48 @@ public class FunctionExpressionBodyRule :
     override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.elementType == BLOCK && it.parent?.elementType == FUN }
-            ?.let { visitFunctionBody(node) }
+            ?.let { node.visitFunctionBody() }
     }
 
-    private fun visitFunctionBody(block: ASTNode) {
-        require(block.elementType == BLOCK)
-        block
-            .takeIf { it.containingOnly(RETURN) }
+    private fun ASTNode.visitFunctionBody() {
+        require(elementType == BLOCK)
+        takeIf { it.containingOnly(RETURN) }
             ?.takeUnless { it.countReturnKeywords() > 1 }
             ?.findChildByType(RETURN)
             ?.findChildByType(RETURN_KEYWORD)
             ?.nextSibling { !it.isWhiteSpace }
             ?.let { codeSibling ->
-                emit(block.startOffset, "Function body should be replaced with body expression") {
-                    with(block.parent!!) {
+                emit(startOffset, "Function body should be replaced with body expression") {
+                    parent!!.let { parent ->
                         // Insert the code sibling before the block
-                        addChild(LeafPsiElement(EQ, "="), block)
-                        addChild(PsiWhiteSpaceImpl(" "), block)
-                        addChild(codeSibling, block)
+                        parent.addChild(LeafPsiElement(EQ, "="), this)
+                        parent.addChild(PsiWhiteSpaceImpl(" "), this)
+                        parent.addChild(codeSibling, this)
                     }
-                    block.remove()
+                    remove()
                 }
             }
-        block
-            .takeIf { it.containingOnly(THROW) }
+        takeIf { it.containingOnly(THROW) }
             ?.findChildByType(THROW)
             ?.let { throwNode ->
-                emit(block.startOffset, "Function body should be replaced with body expression") {
-                    with(block.parent!!) {
+                emit(startOffset, "Function body should be replaced with body expression") {
+                    parent!!.let { parent ->
                         // Remove whitespace before block
-                        block
-                            .prevSibling
+                        prevSibling
                             .takeIf { it.isWhiteSpace }
                             ?.remove()
-                        if (findChildByType(TYPE_REFERENCE) == null) {
+                        if (parent.findChildByType(TYPE_REFERENCE) == null) {
                             // Insert Unit as return type as otherwise a compilation error results
-                            addChild(LeafPsiElement(COLON, ":"), block)
-                            addChild(PsiWhiteSpaceImpl(" "), block)
-                            addChild(createUnitTypeReference(), block)
+                            parent.addChild(LeafPsiElement(COLON, ":"), this)
+                            parent.addChild(PsiWhiteSpaceImpl(" "), this)
+                            parent.addChild(createUnitTypeReference(), this)
                         }
-                        addChild(PsiWhiteSpaceImpl(" "), block)
-                        addChild(LeafPsiElement(EQ, "="), block)
-                        addChild(PsiWhiteSpaceImpl(" "), block)
-                        addChild(throwNode, block)
+                        parent.addChild(PsiWhiteSpaceImpl(" "), this)
+                        parent.addChild(LeafPsiElement(EQ, "="), this)
+                        parent.addChild(PsiWhiteSpaceImpl(" "), this)
+                        parent.addChild(throwNode, this)
                     }
-                    block.remove()
+                    remove()
                 }
             }
     }

@@ -28,20 +28,18 @@ public class SpacingBetweenDeclarationsWithCommentsRule : StandardRule("spacing-
             ?.parent
             ?.takeIf { it.isDeclaration }
             ?.takeIf { it.prevCodeSibling.isDeclaration }
-            ?.let { visitCommentedDeclaration(it) }
+            ?.visitCommentedDeclaration()
     }
 
     private fun ASTNode.isTailComment() = startOffset > parent!!.startOffset
 
-    private fun visitCommentedDeclaration(node: ASTNode) {
-        node
-            .prevSibling
+    private fun ASTNode.visitCommentedDeclaration() {
+        prevSibling
             ?.takeUnless { it.isBlankLine() }
             ?.let { prevSibling ->
-                emit(node.startOffset, "Declarations and declarations with comments should have an empty space between.") {
+                emit(startOffset, "Declarations and declarations with comments should have an empty space between.") {
                     val indent =
-                        node
-                            .prevLeaf
+                        prevLeaf
                             ?.text
                             ?.trim('\n')
                             ?: ""

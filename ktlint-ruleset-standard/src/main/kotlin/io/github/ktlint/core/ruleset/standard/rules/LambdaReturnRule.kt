@@ -74,27 +74,27 @@ public class LambdaReturnRule :
             ?.children()
             ?.lastOrNull { it.elementType == RETURN }
             ?.takeIf { it.nextCodeSibling == null }
-            ?.let { lastReturn -> visitReturnStatement(lastReturn) }
+            ?.visitReturnStatement()
     }
 
-    private fun visitReturnStatement(node: ASTNode) {
-        require(node.elementType == RETURN)
+    private fun ASTNode.visitReturnStatement() {
+        require(elementType == RETURN)
 
-        val labelQualifier = node.findChildByType(LABEL_QUALIFIER)
+        val labelQualifier = findChildByType(LABEL_QUALIFIER)
         labelQualifier
             ?.siblings()
             ?.dropWhile { it.isWhiteSpace }
             ?.takeIf { it.count() > 0 }
-            ?.takeIf { node.refersToInnerMostLambdaArgument(labelQualifier.qualifierIdentifier()) }
+            ?.takeIf { refersToInnerMostLambdaArgument(labelQualifier.qualifierIdentifier()) }
             ?.let { siblings ->
-                emit(node.startOffset, "Unnecessary return") {
-                    val parent = node.parent!!
+                emit(startOffset, "Unnecessary return") {
+                    val parent = parent!!
                     siblings
                         // The remaining siblings are moved to before the RETURN sibling. Without collecting the remaining siblings
                         // first into a list, the RETURN sibling itself would also be tried to be moved which results in a failure.
                         .toList()
-                        .forEach { sibling -> parent.addChild(sibling, node) }
-                    node.remove()
+                        .forEach { sibling -> parent.addChild(sibling, this) }
+                    remove()
                 }
             }
     }

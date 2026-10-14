@@ -54,60 +54,52 @@ public class TrailingCommaOnCallSiteRule :
         // Keep processing of element types in sync with IntelliJ Kotlin formatting settings.
         // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
         when (node.elementType) {
-            COLLECTION_LITERAL_EXPRESSION -> visitCollectionLiteralExpression(node)
-            INDICES -> visitIndices(node)
-            TYPE_ARGUMENT_LIST -> visitTypeList(node)
-            VALUE_ARGUMENT_LIST -> visitValueList(node)
+            COLLECTION_LITERAL_EXPRESSION -> node.visitCollectionLiteralExpression()
+            INDICES -> node.visitIndices()
+            TYPE_ARGUMENT_LIST -> node.visitTypeList()
+            VALUE_ARGUMENT_LIST -> node.visitValueList()
             else -> Unit
         }
     }
 
-    private fun visitCollectionLiteralExpression(node: ASTNode) {
-        val inspectNode =
-            node
-                .children
-                .last { it.elementType == RBRACKET }
-        node.reportAndCorrectTrailingCommaNodeBefore(
+    private fun ASTNode.visitCollectionLiteralExpression() {
+        val inspectNode = children.last { it.elementType == RBRACKET }
+        reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
-            isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+            isTrailingCommaAllowed = isTrailingCommaAllowed(),
         )
     }
 
     private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_CALL_SITE && allowTrailingCommaOnCallSite
 
-    private fun visitIndices(node: ASTNode) {
+    private fun ASTNode.visitIndices() {
         val inspectNode =
-            node
-                .children
+            children
                 .last { it.elementType == RBRACKET }
-        node.reportAndCorrectTrailingCommaNodeBefore(
+        reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
-            isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+            isTrailingCommaAllowed = isTrailingCommaAllowed(),
         )
     }
 
-    private fun visitValueList(node: ASTNode) {
-        if (node.parent?.elementType != FUNCTION_LITERAL) {
-            node
-                .children
+    private fun ASTNode.visitValueList() {
+        if (parent?.elementType != FUNCTION_LITERAL) {
+            children
                 .lastOrNull { it.elementType == RPAR }
                 ?.let { inspectNode ->
-                    node.reportAndCorrectTrailingCommaNodeBefore(
+                    reportAndCorrectTrailingCommaNodeBefore(
                         inspectNode = inspectNode,
-                        isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+                        isTrailingCommaAllowed = isTrailingCommaAllowed(),
                     )
                 }
         }
     }
 
-    private fun visitTypeList(node: ASTNode) {
-        val inspectNode =
-            node
-                .children
-                .first { it.elementType == GT }
-        node.reportAndCorrectTrailingCommaNodeBefore(
+    private fun ASTNode.visitTypeList() {
+        val inspectNode = children.first { it.elementType == GT }
+        reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
-            isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+            isTrailingCommaAllowed = isTrailingCommaAllowed(),
         )
     }
 
@@ -119,7 +111,7 @@ public class TrailingCommaOnCallSiteRule :
         val trailingCommaNode = prevLeaf?.findPreviousTrailingCommaNodeOrNull()
         val trailingCommaState =
             when {
-                this.isMultiline() -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
+                isMultiline() -> if (trailingCommaNode != null) TrailingCommaState.EXISTS else TrailingCommaState.MISSING
                 else -> if (trailingCommaNode != null) TrailingCommaState.REDUNDANT else TrailingCommaState.NOT_EXISTS
             }
         when (trailingCommaState) {

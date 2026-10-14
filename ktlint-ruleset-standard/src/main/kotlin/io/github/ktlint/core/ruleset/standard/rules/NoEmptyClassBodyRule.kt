@@ -34,16 +34,15 @@ public class NoEmptyClassBodyRule : StandardRule("no-empty-class-body") {
         elementType == CLASS_BODY &&
             isEmptyBlockBody() &&
             !isPartOf(OBJECT_LITERAL) &&
-            isNotCompanion(this)
+            isNotCompanion()
 
     private fun ASTNode.isEmptyBlockBody(): Boolean =
         firstChildNode != null &&
             firstChildNode.elementType == LBRACE &&
             firstChildNode.nextLeaf { !it.isWhiteSpace }?.elementType == RBRACE
 
-    private fun isNotCompanion(node: ASTNode): Boolean =
-        node
-            .parent
+    private fun ASTNode.isNotCompanion(): Boolean =
+        parent
             ?.firstChildNode
             ?.children
             .orEmpty()

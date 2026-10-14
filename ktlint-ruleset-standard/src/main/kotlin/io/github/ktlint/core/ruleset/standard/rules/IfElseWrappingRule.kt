@@ -64,62 +64,54 @@ public class IfElseWrappingRule :
 
     override fun beforeVisitChildNodes(node: ASTNode) {
         when {
-            node.elementType == IF -> visitIf(node)
-            node.isPartOfComment && node.parent?.elementType == IF -> visitComment(node)
+            node.elementType == IF -> node.visitIf()
+            node.isPartOfComment && node.parent?.elementType == IF -> node.visitComment()
         }
     }
 
-    private fun visitIf(node: ASTNode) {
-        val outerIf = node.outerIf()
+    private fun ASTNode.visitIf() {
+        val outerIf = outerIf()
         val multilineIf = outerIf.textContains('\n')
         val nestedIf = outerIf.isNestedIf()
-        with(node) {
-            findChildByType(THEN)
-                ?.let { visitElement(it, multilineIf, nestedIf) }
-            findChildByType(ELSE_KEYWORD)
-                ?.let { visitElement(it, multilineIf, nestedIf) }
-            findChildByType(ELSE)
-                ?.let { visitElement(it, multilineIf, nestedIf) }
+        with(this) {
+            findChildByType(THEN)?.visitElement(multilineIf, nestedIf)
+            findChildByType(ELSE_KEYWORD)?.visitElement(multilineIf, nestedIf)
+            findChildByType(ELSE)?.visitElement(multilineIf, nestedIf)
         }
     }
 
-    private fun visitElement(
-        node: ASTNode,
+    private fun ASTNode.visitElement(
         multilineIf: Boolean,
         nestedIf: Boolean,
     ) {
         if (!multilineIf) {
-            visitBranchSingleLineIf(node)
+            visitBranchSingleLineIf()
         }
         if (multilineIf || nestedIf) {
-            visitBranch(node, multilineIf)
+            visitBranch(multilineIf)
         }
     }
 
-    private fun visitBranchSingleLineIf(node: ASTNode) {
-        node
-            .findChildByType(BLOCK)
+    private fun ASTNode.visitBranchSingleLineIf() {
+        findChildByType(BLOCK)
             ?.let {
                 // The then or else block is part of single line if-statement. To enforce that such statements are readable and
                 // simple, blocks are forbidden entirely in single line if-statements.
                 emit(
-                    node.startOffset,
-                    "A single line if-statement should be kept simple. The '${node.elementType}' may not be wrapped in a block.",
+                    startOffset,
+                    "A single line if-statement should be kept simple. The '$elementType' may not be wrapped in a block.",
                 )
             }
     }
 
-    private fun visitBranch(
-        node: ASTNode,
-        multilineIf: Boolean,
-    ) {
-        if (node.branchNeedsToBeWrapped(multilineIf)) {
-            with(node.findFirstNodeInBlockToBeWrapped() ?: node) {
+    private fun ASTNode.visitBranch(multilineIf: Boolean) {
+        if (branchNeedsToBeWrapped(multilineIf)) {
+            with(findFirstNodeInBlockToBeWrapped() ?: this) {
                 val expectedIndent =
                     if (nextSibling?.elementType == RBRACE) {
-                        node.indent
+                        this@visitBranch.indent
                     } else {
-                        indentConfig.siblingIndentOf(node)
+                        indentConfig.siblingIndentOf(this@visitBranch)
                     }
 
                 applyIf(elementType == THEN || elementType == ELSE || elementType == ELSE_KEYWORD) { prevLeaf!! }
@@ -141,13 +133,13 @@ public class IfElseWrappingRule :
                 false
             }
 
-            multilineIf && this.elementType == ELSE_KEYWORD && nextCodeLeaf?.elementType == LBRACE -> {
+            multilineIf && elementType == ELSE_KEYWORD && nextCodeLeaf?.elementType == LBRACE -> {
                 // Allow "else {" on single line
                 false
             }
 
             // Outer if statement is a single line statement
-            !multilineIf && this.elementType == ELSE && nextCodeLeaf?.elementType == IF_KEYWORD -> {
+            !multilineIf && elementType == ELSE && nextCodeLeaf?.elementType == IF_KEYWORD -> {
                 // Ignore "else if" as it is reported via another message
                 false
             }
@@ -176,7 +168,7 @@ public class IfElseWrappingRule :
     private fun ASTNode.isWhitespaceBeforeComment() = isWhiteSpaceWithoutNewline && nextLeaf?.isPartOfComment == true
 
     private fun ASTNode.outerIf(): ASTNode {
-        require(this.elementType == IF)
+        require(elementType == IF)
         return parents()
             .takeWhile { it.elementType in IF_THEN_ELSE_ELEMENT_TYPES }
             .lastOrNull()
@@ -189,23 +181,18 @@ public class IfElseWrappingRule :
             findChildByType(ELSE)?.firstChildNode?.elementType == IF
     }
 
-    private fun visitComment(comment: ASTNode) {
-        require(comment.isPartOfComment)
-        if (comment.betweenCodeSiblings(RPAR, THEN) ||
-            comment.betweenCodeSiblings(THEN, ELSE_KEYWORD) ||
-            comment.betweenCodeSiblings(ELSE_KEYWORD, ELSE)
+    private fun ASTNode.visitComment() {
+        require(isPartOfComment)
+        if (betweenCodeSiblings(RPAR, THEN) ||
+            betweenCodeSiblings(THEN, ELSE_KEYWORD) ||
+            betweenCodeSiblings(ELSE_KEYWORD, ELSE)
         ) {
-            emit(comment.startOffset, "No comment expected at this location")
+            emit(startOffset, "No comment expected at this location")
         }
     }
 
     private companion object {
-        val IF_THEN_ELSE_ELEMENT_TYPES =
-            listOf(
-                IF,
-                THEN,
-                ELSE,
-            )
+        val IF_THEN_ELSE_ELEMENT_TYPES = listOf(IF, THEN, ELSE)
     }
 }
 

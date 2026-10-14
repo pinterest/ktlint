@@ -28,21 +28,20 @@ import org.jetbrains.kotlin.psi.psiUtil.leaves
 public class SpacingBetweenDeclarationsWithAnnotationsRule : StandardRule("spacing-between-declarations-with-annotations") {
     override fun beforeVisitChildNodes(node: ASTNode) {
         if ((node.isDeclarationOrPropertyAccessor()) && node.isAnnotated()) {
-            visitDeclaration(node)
+            node.visitDeclaration()
         }
     }
 
     private fun ASTNode.isDeclarationOrPropertyAccessor() = isDeclaration || elementType == PROPERTY_ACCESSOR
 
-    private fun visitDeclaration(node: ASTNode) {
-        node
-            .prevCodeSibling
+    private fun ASTNode.visitDeclaration() {
+        prevCodeSibling
             ?.takeIf { it.isDeclarationOrPropertyAccessor() }
-            ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(node, prevDeclaration) }
+            ?.takeIf { prevDeclaration -> hasNoBlankLineBetweenDeclarations(this, prevDeclaration) }
             ?.let {
-                val prevLeaf = node.prevCodeLeaf?.nextLeaf { it.isWhiteSpace }!!
+                val prevLeaf = prevCodeLeaf?.nextLeaf { it.isWhiteSpace }!!
                 emit(prevLeaf.startOffset + 1, "Declarations and declarations with annotations should have an empty space between.") {
-                    prevLeaf.upsertWhitespaceBeforeMe("\n".plus(node.indent))
+                    prevLeaf.upsertWhitespaceBeforeMe("\n".plus(indent))
                 }
             }
     }

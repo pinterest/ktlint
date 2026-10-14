@@ -69,30 +69,29 @@ public class PropertyWrappingRule :
 
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == PROPERTY) {
-            rearrangeProperty(node)
+            node.rearrangeProperty()
         }
     }
 
-    private fun rearrangeProperty(node: ASTNode) {
-        require(node.elementType == PROPERTY)
+    private fun ASTNode.rearrangeProperty() {
+        require(elementType == PROPERTY)
 
-        val fromNode = findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node)
+        val fromNode = findFirstNodeAfterIndentOnSameLineAsTheIdentifier()
 
         // Only fix the first child that does not fit
-        node.fixChildIfDoesNotFit(COLON, fromNode) { requireNewlineAfterLeaf(it) } ||
-            node.fixChildIfDoesNotFit(TYPE_REFERENCE, fromNode) { requireNewlineBeforeLeaf(it) } ||
-            node.fixChildIfDoesNotFit(EQ, fromNode) { requireNewlineAfterLeaf(it) } ||
-            node.fixChildIfDoesNotFit(CALL_EXPRESSION, fromNode) { requireNewlineBeforeLeaf(it) }
+        fixChildIfDoesNotFit(COLON, fromNode) { it.requireNewlineAfterLeaf() } ||
+            fixChildIfDoesNotFit(TYPE_REFERENCE, fromNode) { it.requireNewlineBeforeLeaf() } ||
+            fixChildIfDoesNotFit(EQ, fromNode) { it.requireNewlineAfterLeaf() } ||
+            fixChildIfDoesNotFit(CALL_EXPRESSION, fromNode) { it.requireNewlineBeforeLeaf() }
     }
 
-    private fun findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node: ASTNode): ASTNode {
-        val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf
+    private fun ASTNode.findFirstNodeAfterIndentOnSameLineAsTheIdentifier(): ASTNode {
+        val nodeFirstChildLeafOrSelf = firstChildLeafOrSelf
         val fromNode =
-            node
-                .findChildByType(IDENTIFIER)
+            findChildByType(IDENTIFIER)
                 ?.leavesBackwardsIncludingSelf
                 ?.firstOrNull { it.prevLeaf.isWhiteSpaceWithNewline || it == nodeFirstChildLeafOrSelf }
-                ?: node
+                ?: this
         return fromNode
     }
 
@@ -120,20 +119,17 @@ public class PropertyWrappingRule :
             .sumOf { it.textLength }
     }
 
-    private fun requireNewlineBeforeLeaf(node: ASTNode) {
-        emit(node.startOffset - 1, """Missing newline before "${node.text}"""") {
-            LOGGER.trace { "$line: inserted newline before ${node.text}" }
-            node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+    private fun ASTNode.requireNewlineBeforeLeaf() {
+        emit(startOffset - 1, """Missing newline before "$text"""") {
+            LOGGER.trace { "${line}: inserted newline before $text" }
+            upsertWhitespaceBeforeMe(indentConfig.childIndentOf(this))
         }
     }
 
-    private fun requireNewlineAfterLeaf(
-        nodeAfterWhichNewlineIsRequired: ASTNode,
-        nodeToFix: ASTNode = nodeAfterWhichNewlineIsRequired,
-    ) {
-        emit(nodeAfterWhichNewlineIsRequired.startOffset + 1, """Missing newline after "${nodeAfterWhichNewlineIsRequired.text}"""") {
-            LOGGER.trace { "$line: inserted newline after ${nodeAfterWhichNewlineIsRequired.text}" }
-            nodeToFix.upsertWhitespaceAfterMe(indentConfig.childIndentOf(nodeToFix))
+    private fun ASTNode.requireNewlineAfterLeaf() {
+        emit(startOffset + 1, """Missing newline after "$text"""") {
+            LOGGER.trace { "${line}: inserted newline after $text" }
+            upsertWhitespaceAfterMe(indentConfig.childIndentOf(this))
         }
     }
 }

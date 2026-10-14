@@ -58,53 +58,50 @@ public class TypeArgumentListSpacingRule :
     override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
             TYPE_ARGUMENT_LIST -> {
-                visitFunctionDeclaration(node)
-                visitInsideTypeArgumentList(node)
+                node.visitFunctionDeclaration()
+                node.visitInsideTypeArgumentList()
             }
 
             SUPER_TYPE_LIST, SUPER_EXPRESSION -> {
-                visitInsideTypeArgumentList(node)
+                node.visitInsideTypeArgumentList()
             }
         }
     }
 
-    private fun visitFunctionDeclaration(node: ASTNode) {
+    private fun ASTNode.visitFunctionDeclaration() {
         // No whitespace expected before type argument list of function call
         //    val list = listOf <String>()
-        node
-            .prevLeaf
+        prevLeaf
             ?.takeIf { it.elementType == WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it) }
+            ?.noWhitespaceExpected()
 
         // No whitespace expected after type argument list of function call
         //    val list = listOf<String> ()
-        node
-            .takeUnless {
-                // unless it is part of a type reference:
-                //    fun foo(): List<Foo> { ... }
-                //    var bar: List<Bar> = emptyList()
-                it.isPartOf(TYPE_REFERENCE)
-            }?.takeUnless {
-                // unless it is part of a call expression followed by lambda:
-                //    bar<Foo> { ... }
-                it.isPartOfCallExpressionFollowedByLambda()
-            }?.lastChildNode
+        takeUnless {
+            // unless it is part of a type reference:
+            //    fun foo(): List<Foo> { ... }
+            //    var bar: List<Bar> = emptyList()
+            it.isPartOf(TYPE_REFERENCE)
+        }?.takeUnless {
+            // unless it is part of a call expression followed by lambda:
+            //    bar<Foo> { ... }
+            it.isPartOfCallExpressionFollowedByLambda()
+        }?.lastChildNode
             ?.nextLeaf
             ?.takeIf { it.elementType == WHITE_SPACE }
-            ?.let { noWhitespaceExpected(it) }
+            ?.noWhitespaceExpected()
     }
 
-    private fun visitInsideTypeArgumentList(node: ASTNode) {
-        val multiline = node.textContains('\n')
+    private fun ASTNode.visitInsideTypeArgumentList() {
+        val multiline = textContains('\n')
         val expectedIndent =
             if (multiline) {
-                indentConfig.childIndentOf(node)
+                indentConfig.childIndentOf(this)
             } else {
-                indentConfig.siblingIndentOf(node)
+                indentConfig.siblingIndentOf(this)
             }
 
-        node
-            .findChildByType(LT)
+        findChildByType(LT)
             ?.nextSibling
             ?.let { nextSibling ->
                 if (multiline) {
@@ -121,13 +118,12 @@ public class TypeArgumentListSpacingRule :
                     if (nextSibling.isWhiteSpace) {
                         // Disallow
                         //    val list = listOf< String>()
-                        noWhitespaceExpected(nextSibling)
+                        nextSibling.noWhitespaceExpected()
                     }
                 }
             }
 
-        node
-            .findChildByType(GT)
+        findChildByType(GT)
             ?.prevSibling
             ?.let { prevSibling ->
                 if (multiline) {
@@ -144,15 +140,15 @@ public class TypeArgumentListSpacingRule :
                     if (prevSibling.isWhiteSpace) {
                         // Disallow
                         //    val list = listOf<String >()
-                        noWhitespaceExpected(prevSibling)
+                        prevSibling.noWhitespaceExpected()
                     }
                 }
             }
     }
 
-    private fun noWhitespaceExpected(node: ASTNode) {
-        if (node.text != "") {
-            emit(node.startOffset, "No whitespace expected at this position") { node.remove() }
+    private fun ASTNode.noWhitespaceExpected() {
+        if (text != "") {
+            emit(startOffset, "No whitespace expected at this position") { remove() }
         }
     }
 }

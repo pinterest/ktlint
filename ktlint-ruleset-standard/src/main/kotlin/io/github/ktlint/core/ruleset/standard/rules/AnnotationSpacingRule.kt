@@ -16,6 +16,7 @@ import io.github.ktlint.core.rule.engine.core.api.parent
 import io.github.ktlint.core.rule.engine.core.api.prevSibling
 import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
+import io.github.ktlint.core.rule.engine.core.util.safeAs
 import io.github.ktlint.core.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -44,14 +45,11 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                 .toList()
                 .ifEmpty { return }
 
-        fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(annotations, node)
-        fixCommentsBetweenAnnotationsAndAnnotatedConstruct(node)
+        node.fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(annotations)
+        node.fixCommentsBetweenAnnotationsAndAnnotatedConstruct()
     }
 
-    private fun fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(
-        annotations: List<ASTNode>,
-        node: ASTNode,
-    ) {
+    private fun ASTNode.fixBlankLinesBetweenAnnotationsAndAnnotatedConstruct(annotations: List<ASTNode>) {
         // Join the nodes that immediately follow the annotations (whitespace), then add the final whitespace
         // if it's not a child of root. This happens when a new line separates the annotations from the annotated
         // construct. In the following example, there are no whitespace children of root, but root's next sibling is the
@@ -61,7 +59,7 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
         //      val s: Any
         //
         val whiteSpaces =
-            (annotations.asSequence().map { it.nextSibling } + node.nextSibling)
+            (annotations.asSequence().map { it.nextSibling } + nextSibling)
                 .filterNotNull()
                 .filter { it.isWhiteSpace }
                 .take(annotations.size)
@@ -70,17 +68,17 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
             .filter { it.containsMultipleNewlines() }
             .forEach {
                 emit(it.startOffset + 1, "No blank line(s) expected between annotation and annotated construct") {
-                    removeIntraLineBreaks(node, annotations.last())
-                    removeExtraLineBreaks(node)
+                    removeIntraLineBreaks(annotations.last())
+                    removeExtraLineBreaks()
                 }
             }
     }
 
-    private fun fixCommentsBetweenAnnotationsAndAnnotatedConstruct(node: ASTNode) {
-        require(node.elementType == MODIFIER_LIST)
+    private fun ASTNode.fixCommentsBetweenAnnotationsAndAnnotatedConstruct() {
+        require(elementType == MODIFIER_LIST)
         // Collect all modifiers from the list itself
-        val modifiers = node.children()
-        val noneCodeElementsBetweenModifierListAndAnnotatedConstruct = node.siblings().takeWhile { !it.isCode }
+        val modifiers = children()
+        val noneCodeElementsBetweenModifierListAndAnnotatedConstruct = siblings().takeWhile { !it.isCode }
         (modifiers + noneCodeElementsBetweenModifierListAndAnnotatedConstruct)
             .filter { it.isPartOfComment && !it.isCommentOnSameLineAsPrevLeaf() }
             .toList()
@@ -91,8 +89,8 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
                     comment.remove()
 
                     // Re-insert the comment and newline prior to the modifier list
-                    val beforeAnchor = node
-                    node.parent!!
+                    val beforeAnchor = this
+                    parent!!
                         .apply {
                             addChild(comment, beforeAnchor)
                             addChild(PsiWhiteSpaceImpl("\n"), beforeAnchor)
@@ -103,41 +101,33 @@ public class AnnotationSpacingRule : StandardRule("annotation-spacing") {
 
     private fun ASTNode.containsMultipleNewlines() = text.count { it == '\n' } > 1
 
-    private fun removeExtraLineBreaks(node: ASTNode) {
-        val next =
-            node.nextSibling {
-                it.isWhiteSpaceWithNewline
-            } as? LeafPsiElement
-        if (next != null) {
-            rawReplaceExtraLineBreaks(next)
-        }
+    private fun ASTNode.removeExtraLineBreaks() {
+        nextSibling { it.isWhiteSpaceWithNewline }
+            .safeAs<LeafPsiElement>()
+            ?.rawReplaceExtraLineBreaks()
     }
 
-    private fun rawReplaceExtraLineBreaks(node: ASTNode) {
+    private fun ASTNode.rawReplaceExtraLineBreaks() {
         // Replace the extra white space with a single break
-        val text = node.text
         val firstIndex = text.indexOf("\n") + 1
         val replacementText =
             text.substring(0, firstIndex) +
                 text.substringAfter("\n").replace("\n", "")
 
-        node.replaceTextWith(replacementText)
+        replaceTextWith(replacementText)
     }
 
-    private fun removeIntraLineBreaks(
-        fromNode: ASTNode,
-        lastAnnotationEntryNode: ASTNode,
-    ) {
+    private fun ASTNode.removeIntraLineBreaks(lastAnnotationEntryNode: ASTNode) {
         // Pull the next before raw replace, or it will blow up
-        val nextLeaf = fromNode.nextLeaf
-        if (fromNode.isWhiteSpace) {
-            if (fromNode.text.toCharArray().count { it == '\n' } > 1) {
-                rawReplaceExtraLineBreaks(fromNode)
+        val nextLeaf = nextLeaf
+        if (isWhiteSpace) {
+            if (text.toCharArray().count { it == '\n' } > 1) {
+                rawReplaceExtraLineBreaks()
             }
         }
 
         if (nextLeaf != null && !lastAnnotationEntryNode.text.endsWith(nextLeaf.text)) {
-            removeIntraLineBreaks(nextLeaf, lastAnnotationEntryNode)
+            nextLeaf.removeIntraLineBreaks(lastAnnotationEntryNode)
         }
     }
 

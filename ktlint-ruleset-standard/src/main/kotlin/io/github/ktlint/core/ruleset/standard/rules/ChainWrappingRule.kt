@@ -68,47 +68,47 @@ public class ChainWrappingRule :
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (!node.isPartOfComment) {
             when (node.elementType) {
-                in NEXT_LINE_TOKENS -> fixChainOperatorWhichMayNotBeUsedAtEndOfLine(node)
-                in SAME_LINE_TOKENS, in PREFIX_TOKENS -> fixChainOperatorWhichMayNotUsedAtStartOfLine(node)
+                in NEXT_LINE_TOKENS -> node.fixChainOperatorWhichMayNotBeUsedAtEndOfLine()
+                in SAME_LINE_TOKENS, in PREFIX_TOKENS -> node.fixChainOperatorWhichMayNotUsedAtStartOfLine()
             }
         }
     }
 
-    private fun fixChainOperatorWhichMayNotBeUsedAtEndOfLine(node: ASTNode) {
-        val nextLeaf = node.nextCodeLeaf?.prevLeaf
-        if (nextLeaf.isWhiteSpaceWithNewline && !node.isElvisOperatorAndComment()) {
-            emit(node.startOffset, "Line must not end with \"${node.text}\"") {
+    private fun ASTNode.fixChainOperatorWhichMayNotBeUsedAtEndOfLine() {
+        val nextLeaf = nextCodeLeaf?.prevLeaf
+        if (nextLeaf.isWhiteSpaceWithNewline && !isElvisOperatorAndComment()) {
+            emit(startOffset, "Line must not end with \"$text\"") {
                 // rewriting
                 // <prevLeaf><node="."><nextLeaf="\n"> to
                 // <prevLeaf><delete space if any><nextLeaf="\n"><node="."><space if needed>
                 // (or)
                 // <prevLeaf><node="."><spaceBeforeComment><comment><nextLeaf="\n"> to
                 // <prevLeaf><delete space if any><spaceBeforeComment><comment><nextLeaf="\n"><node="."><space if needed>
-                if (node.elementType == ELVIS) {
-                    node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
-                    node.upsertWhitespaceAfterMe(" ")
+                if (elementType == ELVIS) {
+                    upsertWhitespaceBeforeMe(indentConfig.childIndentOf(this))
+                    upsertWhitespaceAfterMe(" ")
                 } else {
-                    node.remove()
-                    (nextLeaf as LeafElement).rawInsertAfterMe(node as LeafElement)
+                    remove()
+                    (nextLeaf as LeafElement).rawInsertAfterMe(this as LeafElement)
                 }
             }
         }
     }
 
-    private fun fixChainOperatorWhichMayNotUsedAtStartOfLine(node: ASTNode): Boolean =
-        if (node.isPartOfSpread() || node.isInPrefixPosition()) {
+    private fun ASTNode.fixChainOperatorWhichMayNotUsedAtStartOfLine(): Boolean =
+        if (isPartOfSpread() || isInPrefixPosition()) {
             true
         } else {
-            val prevLeaf = node.prevLeaf
+            val prevLeaf = prevLeaf
             if (prevLeaf != null && prevLeaf.isWhiteSpaceWithNewline) {
-                emit(node.startOffset, "Line must not begin with \"${node.text}\"") {
+                emit(startOffset, "Line must not begin with \"$text\"") {
                     // rewriting
                     // <insertionPoint><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
                     // <insertionPoint><prevLeaf=" "><node="&&"><nextLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
                     // (or)
                     // <insertionPoint><spaceBeforeComment><comment><prevLeaf="\n"><node="&&"><nextLeaf=" "> to
                     // <insertionPoint><space if needed><node="&&"><spaceBeforeComment><comment><prevLeaf="\n"><delete node="&&"><delete nextLeaf=" ">
-                    val nextLeaf = node.nextLeaf
+                    val nextLeaf = nextLeaf
                     val whiteSpaceToBeDeleted =
                         when {
                             nextLeaf.isWhiteSpaceWithNewline -> {
@@ -126,7 +126,7 @@ public class ChainWrappingRule :
                             }
                         }
 
-                    val parent = node.parent
+                    val parent = parent
                     if (parent?.elementType == OPERATION_REFERENCE) {
                         val insertBeforeSibling =
                             parent
@@ -137,8 +137,8 @@ public class ChainWrappingRule :
                         parent.upsertWhitespaceBeforeMe(" ")
                     } else {
                         val insertionPoint = prevLeaf.prevCodeLeaf as LeafPsiElement
-                        (node as LeafPsiElement).remove()
-                        insertionPoint.rawInsertAfterMe(node)
+                        (this as LeafPsiElement).remove()
+                        insertionPoint.rawInsertAfterMe(this)
                         (insertionPoint as ASTNode).upsertWhitespaceAfterMe(" ")
                     }
                     whiteSpaceToBeDeleted?.remove()

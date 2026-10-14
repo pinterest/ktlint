@@ -46,33 +46,31 @@ public class PropertyNamingRule :
     override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { node.elementType == PROPERTY }
-            ?.let { property -> visitProperty(property) }
+            ?.visitProperty()
     }
 
-    private fun visitProperty(property: ASTNode) {
-        property
-            .findChildByType(IDENTIFIER)
+    private fun ASTNode.visitProperty() {
+        findChildByType(IDENTIFIER)
             ?.takeUnless { it.isTokenKeywordBetweenBackticks() }
             ?.let { identifier ->
                 when {
-                    property.hasConstModifier() -> {
-                        visitConstProperty(identifier)
+                    hasConstModifier() -> {
+                        identifier.visitConstProperty()
                     }
 
-                    property.hasCustomGetter() || property.isTopLevelValue() || property.isObjectValue() -> {
+                    hasCustomGetter() || isTopLevelValue() || isObjectValue() -> {
                         // Can not reliably determine whether the value is immutable or not
                     }
 
                     else -> {
-                        visitNonConstProperty(identifier)
+                        identifier.visitNonConstProperty()
                     }
                 }
             }
     }
 
-    private fun visitConstProperty(identifier: ASTNode) {
-        identifier
-            .text
+    private fun ASTNode.visitConstProperty() {
+        text
             .takeUnless {
                 // Allow
                 // object Foo {
@@ -82,18 +80,17 @@ public class PropertyNamingRule :
             }?.takeUnless { it.matches(constantNamingProperty.regEx) }
             ?.let {
                 val expectedNaming = constantNamingProperty.name.lowercase().replace("_", " ")
-                emit(identifier.startOffset, "Property name should use the $expectedNaming notation when the value can not be changed")
+                emit(startOffset, "Property name should use the $expectedNaming notation when the value can not be changed")
             }
     }
 
-    private fun visitNonConstProperty(identifier: ASTNode) {
-        identifier
-            .text
+    private fun ASTNode.visitNonConstProperty() {
+        text
             .takeUnless { it.matches(LOWER_CAMEL_CASE_REGEXP) }
             ?.takeUnless {
                 // Ignore backing properties
                 it.startsWith("_")
-            }?.let { emit(identifier.startOffset, "Property name should start with a lowercase letter and use camel case") }
+            }?.let { emit(startOffset, "Property name should start with a lowercase letter and use camel case") }
     }
 
     private fun ASTNode.hasCustomGetter() = findChildByType(PROPERTY_ACCESSOR)?.findChildByType(GET_KEYWORD) != null

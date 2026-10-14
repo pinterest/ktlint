@@ -96,86 +96,77 @@ public class TrailingCommaOnDeclarationSiteRule :
         // Keep processing of element types in sync with IntelliJ Kotlin formatting settings.
         // https://github.com/JetBrains/intellij-kotlin/blob/master/formatter/src/org/jetbrains/kotlin/idea/formatter/trailingComma/util.kt
         when (node.elementType) {
-            CLASS -> visitClass(node)
-            DESTRUCTURING_DECLARATION -> visitDestructuringDeclaration(node)
-            FUNCTION_LITERAL -> visitFunctionLiteral(node)
-            TYPE_PARAMETER_LIST -> visitTypeList(node)
-            VALUE_PARAMETER_LIST -> visitValueList(node)
-            WHEN_ENTRY -> visitWhenEntry(node)
+            CLASS -> node.visitClass()
+            DESTRUCTURING_DECLARATION -> node.visitDestructuringDeclaration()
+            FUNCTION_LITERAL -> node.visitFunctionLiteral()
+            TYPE_PARAMETER_LIST -> node.visitTypeList()
+            VALUE_PARAMETER_LIST -> node.visitValueList()
+            WHEN_ENTRY -> node.visitWhenEntry()
             else -> Unit
         }
     }
 
-    private fun visitDestructuringDeclaration(node: ASTNode) {
-        node.reportAndCorrectTrailingCommaNodeBefore(
-            inspectNode = node.closingElementDestructuringDeclarationEntries(),
-            isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+    private fun ASTNode.visitDestructuringDeclaration() {
+        reportAndCorrectTrailingCommaNodeBefore(
+            inspectNode = closingElementDestructuringDeclarationEntries(),
+            isTrailingCommaAllowed = isTrailingCommaAllowed(),
         )
     }
 
     private fun ASTNode.isTrailingCommaAllowed() = elementType in TYPES_ON_DECLARATION_SITE && allowTrailingComma
 
-    private fun visitFunctionLiteral(node: ASTNode) {
+    private fun ASTNode.visitFunctionLiteral() {
         val inspectNode =
-            node
-                .children
+            children
                 .lastOrNull { it.elementType == ARROW }
                 ?: // lambda w/o an arrow -> no arguments -> no commas
                 return
-        node.reportAndCorrectTrailingCommaNodeBefore(
+        reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
-            isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+            isTrailingCommaAllowed = isTrailingCommaAllowed(),
         )
     }
 
-    private fun visitValueList(node: ASTNode) {
-        if (node.parent?.elementType != FUNCTION_LITERAL) {
-            node
-                .children
+    private fun ASTNode.visitValueList() {
+        if (parent?.elementType != FUNCTION_LITERAL) {
+            children
                 .lastOrNull { it.elementType == RPAR }
                 ?.let { inspectNode ->
-                    node.reportAndCorrectTrailingCommaNodeBefore(
+                    reportAndCorrectTrailingCommaNodeBefore(
                         inspectNode = inspectNode,
-                        isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+                        isTrailingCommaAllowed = isTrailingCommaAllowed(),
                     )
                 }
         }
     }
 
-    private fun visitTypeList(node: ASTNode) {
-        val inspectNode =
-            node
-                .children
-                .first { it.elementType == GT }
-        node.reportAndCorrectTrailingCommaNodeBefore(
+    private fun ASTNode.visitTypeList() {
+        val inspectNode = children.first { it.elementType == GT }
+        reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
-            isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+            isTrailingCommaAllowed = isTrailingCommaAllowed(),
         )
     }
 
-    private fun visitWhenEntry(node: ASTNode) {
-        val psi = node.psi
+    private fun ASTNode.visitWhenEntry() {
+        val psi = psi
         require(psi is KtWhenEntry)
         if (psi.isElse || psi.parent.cast<KtWhenExpression>().leftParenthesis == null) {
             // no commas for "else" or when there are no opening parenthesis for the when-expression
             return
         }
 
-        val inspectNode =
-            node
-                .children
-                .first { it.elementType == ARROW }
-        node.reportAndCorrectTrailingCommaNodeBefore(
+        val inspectNode = children.first { it.elementType == ARROW }
+        reportAndCorrectTrailingCommaNodeBefore(
             inspectNode = inspectNode,
-            isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+            isTrailingCommaAllowed = isTrailingCommaAllowed(),
         )
     }
 
-    private fun visitClass(node: ASTNode) {
-        require(node.elementType == CLASS)
+    private fun ASTNode.visitClass() {
+        require(elementType == CLASS)
 
-        node
-            .takeIf { node.hasModifier(ENUM_KEYWORD) }
+        takeIf { hasModifier(ENUM_KEYWORD) }
             ?.findChildByType(CLASS_BODY)
             ?.takeUnless { it.noEnumEntries() }
             ?.let { classBody ->
@@ -183,17 +174,17 @@ public class TrailingCommaOnDeclarationSiteRule :
                     .findNodeAfterLastEnumEntry()
                     ?.let { nodeAfterLastEnumEntry ->
                         when {
-                            !node.isTrailingCommaAllowed() && nodeAfterLastEnumEntry.elementType == RBRACE -> {
-                                node.reportAndCorrectTrailingCommaNodeBefore(
+                            !isTrailingCommaAllowed() && nodeAfterLastEnumEntry.elementType == RBRACE -> {
+                                reportAndCorrectTrailingCommaNodeBefore(
                                     inspectNode = nodeAfterLastEnumEntry,
                                     isTrailingCommaAllowed = false,
                                 )
                             }
 
                             !classBody.lastTwoEnumEntriesAreOnSameLine() -> {
-                                node.reportAndCorrectTrailingCommaNodeBefore(
+                                reportAndCorrectTrailingCommaNodeBefore(
                                     inspectNode = nodeAfterLastEnumEntry,
-                                    isTrailingCommaAllowed = node.isTrailingCommaAllowed(),
+                                    isTrailingCommaAllowed = isTrailingCommaAllowed(),
                                 )
                             }
                         }
@@ -304,7 +295,7 @@ public class TrailingCommaOnDeclarationSiteRule :
                 addNewLineChild(inspectNode, leafBeforeArrowOrNull)
             }
 
-            addTrailingCommaChild(inspectNode)
+            inspectNode.addTrailingCommaChild()
         }
     }
 
@@ -333,19 +324,17 @@ public class TrailingCommaOnDeclarationSiteRule :
         }
     }
 
-    private fun addTrailingCommaChild(inspectNode: ASTNode) {
-        if (inspectNode.parent?.elementType == ENUM_ENTRY) {
-            inspectNode
-                .parent
-                ?.apply {
-                    addChild(LeafPsiElement(COMMA, ","), inspectNode)
-                    addChild(PsiWhiteSpaceImpl(indentConfig.siblingIndentOf(this)), null)
-                    addChild(LeafPsiElement(SEMICOLON, ";"), null)
+    private fun ASTNode.addTrailingCommaChild() {
+        if (parent?.elementType == ENUM_ENTRY) {
+            parent
+                ?.let { parent ->
+                    parent.addChild(LeafPsiElement(COMMA, ","), this)
+                    parent.addChild(PsiWhiteSpaceImpl(indentConfig.siblingIndentOf(parent)), null)
+                    parent.addChild(LeafPsiElement(SEMICOLON, ";"), null)
                 }
-            inspectNode.remove()
+            remove()
         } else {
-            inspectNode
-                .prevCodeLeaf
+            prevCodeLeaf
                 ?.nextLeaf
                 ?.let { before ->
                     before.parent?.addChild(LeafPsiElement(COMMA, ","), before)
@@ -354,7 +343,7 @@ public class TrailingCommaOnDeclarationSiteRule :
     }
 
     private fun ASTNode.removeRedundantTrailingComma(inspectNode: ASTNode) {
-        emit(startOffset, "Unnecessary trailing comma before \"${inspectNode.text}\"") { this.remove() }
+        emit(startOffset, "Unnecessary trailing comma before \"${inspectNode.text}\"") { remove() }
     }
 
     private fun ASTNode.isMultiline(): Boolean =

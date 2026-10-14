@@ -20,47 +20,45 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
     override fun beforeVisitChildNodes(node: ASTNode) {
         when {
-            node.isPartOfKDoc() -> visitKDocElement(node)
-            !node.isCode -> visitNonCodeElement(node)
+            node.isPartOfKDoc() -> node.visitKDocElement()
+            !node.isCode -> node.visitNonCodeElement()
         }
     }
 
-    private fun visitKDocElement(node: ASTNode) {
-        if (node.isWhiteSpace && node.hasTrailingSpacesBeforeNewline()) {
-            val offsetOfSpaceBeforeNewlineInText = node.text.indexOf(" \n")
+    private fun ASTNode.visitKDocElement() {
+        if (isWhiteSpace && hasTrailingSpacesBeforeNewline()) {
+            val offsetOfSpaceBeforeNewlineInText = text.indexOf(" \n")
             val offsetOfFirstSpaceBeforeNewlineInText =
-                node
-                    .text
+                text
                     .take(offsetOfSpaceBeforeNewlineInText)
                     .dropLastWhile { it == ' ' }
                     .length
-            emit(node.startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)") { node.removeTrailingSpacesBeforeNewline() }
+            emit(startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)") { removeTrailingSpacesBeforeNewline() }
         }
 
-        if (node.elementType == KDOC_TEXT &&
-            node.text.endsWith(" ") &&
-            node.isFollowedByNewlineBeforeKdocEndOrAsterisk()
+        if (elementType == KDOC_TEXT &&
+            text.endsWith(" ") &&
+            isFollowedByNewlineBeforeKdocEndOrAsterisk()
         ) {
-            node
-                .text
+            text
                 .trimEnd()
                 .let { trimmedText ->
-                    emit(node.startOffset + trimmedText.length, "Trailing space(s)") { node.replaceTextWith(trimmedText) }
+                    emit(startOffset + trimmedText.length, "Trailing space(s)") { replaceTextWith(trimmedText) }
                 }
         }
     }
 
-    private fun visitNonCodeElement(node: ASTNode) {
-        val lines = node.text.split("\n")
+    private fun ASTNode.visitNonCodeElement() {
+        val lines = text.split("\n")
         var autocorrect = false
-        var violationOffset = node.startOffset
+        var violationOffset = startOffset
 
         val modifiedLines =
             lines
                 .mapIndexed { index, line ->
                     val modifiedLine =
                         when {
-                            node.elementType != EOL_COMMENT && index == lines.size - 1 && node.nextLeaf != null -> {
+                            elementType != EOL_COMMENT && index == lines.size - 1 && nextLeaf != null -> {
                                 // Do not change the last line as it contains the indentation of the next element except
                                 // when it is an EOL comment which may also not contain trailing spaces
                                 line
@@ -83,7 +81,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                     modifiedLine
                 }
         if (autocorrect) {
-            node.replaceTextWith(modifiedLines.joinToString(separator = "\n"))
+            replaceTextWith(modifiedLines.joinToString(separator = "\n"))
         }
     }
 

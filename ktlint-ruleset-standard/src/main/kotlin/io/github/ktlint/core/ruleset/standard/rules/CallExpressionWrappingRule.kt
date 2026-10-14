@@ -60,33 +60,29 @@ public class CallExpressionWrappingRule :
 
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == CALL_EXPRESSION) {
-            visitCallExpression(node)
+            node.visitCallExpression()
         }
     }
 
-    private fun visitCallExpression(node: ASTNode) {
-        node
-            .findChildByType(REFERENCE_EXPRESSION)
+    private fun ASTNode.visitCallExpression() {
+        findChildByType(REFERENCE_EXPRESSION)
             ?.nextSibling { it.elementType == VALUE_ARGUMENT_LIST }
-            ?.let { visitReferenceExpressionValueArgumentList(it) }
-        node
-            .findChildByType(LAMBDA_ARGUMENT)
-            ?.let { visitLambdaArgument(it) }
+            ?.visitReferenceExpressionValueArgumentList()
+        findChildByType(LAMBDA_ARGUMENT)
+            ?.visitLambdaArgument()
     }
 
-    private fun visitReferenceExpressionValueArgumentList(node: ASTNode) {
-        require(node.elementType == VALUE_ARGUMENT_LIST)
-        if (node.textContains('\n') || node.exceedsMaxLineLength(node.lastChildLeafOrSelf)) {
-            node
-                .findChildByType(LPAR)
+    private fun ASTNode.visitReferenceExpressionValueArgumentList() {
+        require(elementType == VALUE_ARGUMENT_LIST)
+        if (textContains('\n') || exceedsMaxLineLength(lastChildLeafOrSelf)) {
+            findChildByType(LPAR)
                 ?.takeUnless { it.nextSibling.isWhiteSpaceWithNewline }
                 ?.let { lpar ->
                     emit(lpar.startOffset, "Expected new line after '('") {
                         lpar.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(lpar))
                     }
                 }
-            node
-                .findChildByType(RPAR)
+            findChildByType(RPAR)
                 ?.takeUnless { it.prevSibling.isWhiteSpaceWithNewline }
                 ?.let { rbrace ->
                     emit(rbrace.startOffset, "Expected new line before ')'") {
@@ -96,15 +92,14 @@ public class CallExpressionWrappingRule :
         }
     }
 
-    private fun visitLambdaArgument(node: ASTNode) {
-        require(node.elementType == LAMBDA_ARGUMENT)
-        if (node.textContains('\n') || node.exceedsMaxLineLength(node.lastChildLeafOrSelf)) {
+    private fun ASTNode.visitLambdaArgument() {
+        require(elementType == LAMBDA_ARGUMENT)
+        if (textContains('\n') || exceedsMaxLineLength(lastChildLeafOrSelf)) {
             val functionLiteral =
-                node
-                    .findChildByType(LAMBDA_EXPRESSION)
+                findChildByType(LAMBDA_EXPRESSION)
                     ?.findChildByType(FUNCTION_LITERAL)
             val arrow = functionLiteral?.findChildByType(ARROW)
-            if (arrow == null || node.exceedsMaxLineLength(arrow.lastChildLeafOrSelf)) {
+            if (arrow == null || exceedsMaxLineLength(arrow.lastChildLeafOrSelf)) {
                 // Arrow not found, or does not fit on the line. Wrap after brace
                 functionLiteral
                     ?.findChildByType(LBRACE)

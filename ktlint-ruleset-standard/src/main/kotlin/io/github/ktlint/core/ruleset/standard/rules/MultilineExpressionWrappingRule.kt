@@ -85,8 +85,8 @@ public class MultilineExpressionWrappingRule :
     }
 
     override fun beforeVisitChildNodes(node: ASTNode) {
-        if (node.isChainableExpressionRequiringWrappingCheck() || isRootOfBinaryExpression(node)) {
-            visitExpression(node)
+        if (node.isChainableExpressionRequiringWrappingCheck() || node.isRootOfBinaryExpression()) {
+            node.visitExpression()
         }
     }
 
@@ -99,21 +99,19 @@ public class MultilineExpressionWrappingRule :
         prevCodeLeaf?.elementType == MUL &&
             parent?.elementType == VALUE_ARGUMENT
 
-    private fun isRootOfBinaryExpression(node: ASTNode): Boolean =
-        node.elementType == BINARY_EXPRESSION &&
-            node.parent?.elementType != BINARY_EXPRESSION
+    private fun ASTNode.isRootOfBinaryExpression(): Boolean =
+        elementType == BINARY_EXPRESSION &&
+            parent?.elementType != BINARY_EXPRESSION
 
-    private fun visitExpression(node: ASTNode) {
-        if (node.containsWhitespaceWithNewline() && node.needToWrapMultilineExpression()) {
-            node
-                .prevLeaf { !it.isPartOfComment }
+    private fun ASTNode.visitExpression() {
+        if (containsWhitespaceWithNewline() && needToWrapMultilineExpression()) {
+            prevLeaf { !it.isPartOfComment }
                 .takeUnless { it.isWhiteSpaceWithNewline }
                 ?.let {
-                    emit(node.startOffset, "A multiline expression should start on a new line") {
-                        node.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                    emit(startOffset, "A multiline expression should start on a new line") {
+                        upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(this))
                         val leafOnSameLineAfterMultilineExpression =
-                            node
-                                .lastChildLeafOrSelf
+                            lastChildLeafOrSelf
                                 .nextLeaf { !it.isWhiteSpaceWithoutNewline && !it.isPartOfComment }
                                 ?.takeIf { !it.isWhiteSpaceWithNewline }
                         when {
@@ -139,11 +137,11 @@ public class MultilineExpressionWrappingRule :
                                 //   )
                                 leafOnSameLineAfterMultilineExpression
                                     .nextLeaf
-                                    ?.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                                    ?.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(this))
                             }
 
                             else -> {
-                                leafOnSameLineAfterMultilineExpression.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node))
+                                leafOnSameLineAfterMultilineExpression.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(this))
                             }
                         }
                     }

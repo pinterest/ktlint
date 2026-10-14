@@ -59,48 +59,46 @@ public class TryCatchFinallySpacingRule :
         }
         when (node.elementType) {
             BLOCK -> {
-                visitBlock(node)
+                node.visitBlock()
             }
 
             CATCH, FINALLY -> {
-                visitClause(node)
+                node.visitClause()
             }
         }
     }
 
-    private fun visitBlock(node: ASTNode) {
-        if (node.parent?.elementType !in TRY_CATCH_FINALLY_TOKEN_SET) {
+    private fun ASTNode.visitBlock() {
+        if (parent?.elementType !in TRY_CATCH_FINALLY_TOKEN_SET) {
             return
         }
 
-        node
-            .findChildByType(LBRACE)!!
+        findChildByType(LBRACE)!!
             .let { lbrace ->
                 val nextSibling = lbrace.nextSibling { !it.isPartOfComment }!!
                 if (!nextSibling.text.startsWith("\n")) {
                     emit(lbrace.startOffset + 1, "Expected a newline after '{'") {
-                        lbrace.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
+                        lbrace.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(this))
                     }
                 }
             }
 
-        node
-            .findChildByType(RBRACE)!!
+        findChildByType(RBRACE)!!
             .let { rbrace ->
                 val prevSibling = rbrace.prevSibling { !it.isPartOfComment }!!
                 if (!prevSibling.text.startsWith("\n")) {
                     emit(rbrace.startOffset, "Expected a newline before '}'") {
-                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
+                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(this))
                     }
                 }
             }
     }
 
-    private fun visitClause(node: ASTNode) {
-        val prevLeaf = node.prevLeaf { !it.isPartOfComment }!!
+    private fun ASTNode.visitClause() {
+        val prevLeaf = prevLeaf { !it.isPartOfComment }!!
         if (prevLeaf.text != " ") {
-            emit(node.startOffset, "A single space is required before '${node.elementTypeName()}'") {
-                node.upsertWhitespaceBeforeMe(" ")
+            emit(startOffset, "A single space is required before '${elementTypeName()}'") {
+                upsertWhitespaceBeforeMe(" ")
             }
         }
     }

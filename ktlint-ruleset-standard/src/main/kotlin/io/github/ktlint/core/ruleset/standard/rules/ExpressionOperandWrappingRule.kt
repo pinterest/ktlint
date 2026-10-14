@@ -70,7 +70,7 @@ public class ExpressionOperandWrappingRule :
         node
             .takeIf { it.isBinaryExpressionWithWrappableOperand() }
             ?.takeIf { it.isMultiline() }
-            ?.let { visitMultilineBinaryExpression(it) }
+            ?.visitMultilineBinaryExpression()
     }
 
     private fun ASTNode.isBinaryExpressionWithWrappableOperand() =
@@ -80,9 +80,8 @@ public class ExpressionOperandWrappingRule :
                 ?.firstChildNode
                 ?.takeIf { it.elementType in WRAPPABLE_OPERAND }
 
-    private fun visitMultilineBinaryExpression(node: ASTNode) {
-        node
-            .findChildByType(OPERATION_REFERENCE)
+    private fun ASTNode.visitMultilineBinaryExpression() {
+        findChildByType(OPERATION_REFERENCE)
             ?.takeUnless { it.nextSibling.isWhiteSpaceWithNewline }
             ?.takeUnless {
                 it.nextSibling.isWhiteSpaceWithoutNewline &&
@@ -98,15 +97,13 @@ public class ExpressionOperandWrappingRule :
                                 ?: 0,
                         )
                 emit(startOffset, "Newline expected before operand in multiline expression") {
-                    operationReference.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(node))
+                    operationReference.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(this))
                 }
             }
     }
 
     private fun ASTNode.isMultiline(): Boolean {
-        if (this.leftHandSide().isMultilineOperand() ||
-            this.rightHandSide().isMultilineOperand()
-        ) {
+        if (leftHandSide().isMultilineOperand() || rightHandSide().isMultilineOperand()) {
             return true
         }
 
@@ -126,7 +123,7 @@ public class ExpressionOperandWrappingRule :
             }
 
             else -> {
-                leavesInClosedRange(this.firstChildLeafOrSelf, this.lastChildLeafOrSelf)
+                leavesInClosedRange(firstChildLeafOrSelf, lastChildLeafOrSelf)
                     .any { it.isWhiteSpaceWithNewline }
             }
         }

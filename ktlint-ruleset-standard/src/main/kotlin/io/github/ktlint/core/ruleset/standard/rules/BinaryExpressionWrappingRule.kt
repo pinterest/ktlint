@@ -77,16 +77,15 @@ public class BinaryExpressionWrappingRule :
 
     override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
-            BINARY_EXPRESSION -> visitBinaryExpression(node)
+            BINARY_EXPRESSION -> node.visitBinaryExpression()
         }
     }
 
-    private fun visitBinaryExpression(node: ASTNode) {
-        require(node.elementType == BINARY_EXPRESSION)
+    private fun ASTNode.visitBinaryExpression() {
+        require(elementType == BINARY_EXPRESSION)
 
         // First check whether the entire expression has to be pushed to the next line after and assignment in a property or function
-        node
-            .takeIf { it.parent!!.elementType.anyOf(PROPERTY, FUN) }
+        takeIf { it.parent!!.elementType.anyOf(PROPERTY, FUN) }
             ?.takeIf { binaryExpression ->
                 binaryExpression
                     .prevSibling { it.elementType == EQ }
@@ -107,15 +106,14 @@ public class BinaryExpressionWrappingRule :
         // instead of
         //     fooBar("foooooo" +
         //         "bar")
-        node
-            .takeIf { it.parent?.elementType == VALUE_ARGUMENT }
+        takeIf { it.parent?.elementType == VALUE_ARGUMENT }
             ?.takeUnless {
                 // Allow
                 //     fooBar(
                 //         "tooLongToFitOnSingleLine" +
                 //             "bar",
                 //     )
-                node.prevLeaf.isWhiteSpaceWithNewline
+                prevLeaf.isWhiteSpaceWithNewline
             }?.takeIf { it.causesMaxLineLengthToBeExceeded() }
             ?.let { expression ->
                 emit(expression.startOffset, "Line is exceeding max line length. Break line before expression") {
@@ -124,18 +122,16 @@ public class BinaryExpressionWrappingRule :
             }
 
         // When left hand side is a call expression which causes the max line length to be exceeded then first wrap that expression
-        node
-            .children
+        children
             .firstOrNull { !it.isLeaf || !it.isCode }
             ?.takeIf { it.elementType == CALL_EXPRESSION }
             ?.takeIf { it.causesMaxLineLengthToBeExceeded() }
-            ?.let { callExpression -> visitCallExpression(callExpression) }
+            ?.visitCallExpression()
 
         // The remainder (operation reference plus right hand side) might still cause the max line length to be exceeded
-        node
-            .takeIf { node.lastChildNode.causesMaxLineLengthToBeExceeded() || node.isPartOfConditionExceedingMaxLineLength() }
+        takeIf { lastChildNode.causesMaxLineLengthToBeExceeded() || isPartOfConditionExceedingMaxLineLength() }
             ?.findChildByType(OPERATION_REFERENCE)
-            ?.let { operationReference -> visitOperationReference(operationReference) }
+            ?.visitOperationReference()
     }
 
     private fun ASTNode.isPartOfConditionExceedingMaxLineLength() =
@@ -151,9 +147,8 @@ public class BinaryExpressionWrappingRule :
             ?.causesMaxLineLengthToBeExceeded()
             ?: false
 
-    private fun visitCallExpression(node: ASTNode) {
-        node
-            .takeIf { it.elementType == CALL_EXPRESSION }
+    private fun ASTNode.visitCallExpression() {
+        takeIf { it.elementType == CALL_EXPRESSION }
             ?.takeIf { it.parent?.elementType == BINARY_EXPRESSION }
             ?.let { callExpression ->
                 // Breaking the lambda expression has priority over breaking value arguments
@@ -173,16 +168,15 @@ public class BinaryExpressionWrappingRule :
                             .findChildByType(RBRACE)
                             ?.let { rbrace ->
                                 emit(rbrace.startOffset, "Newline expected before '}'") {
-                                    rbrace.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(node.parent!!))
+                                    rbrace.upsertWhitespaceBeforeMe(indentConfig.siblingIndentOf(parent!!))
                                 }
                             }
                     }
             }
     }
 
-    private fun visitOperationReference(node: ASTNode) {
-        node
-            .takeIf { it.elementType == OPERATION_REFERENCE }
+    private fun ASTNode.visitOperationReference() {
+        takeIf { it.elementType == OPERATION_REFERENCE }
             ?.takeUnless {
                 // Allow:
                 //   val foo = "string too long to fit on the line" +

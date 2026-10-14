@@ -24,7 +24,7 @@ public class MixedConditionOperatorsRule : StandardRule("mixed-condition-operato
         node
             .takeIf { it.isLogicalBinaryExpression() }
             ?.takeIf { it.isPartOfExpressionUsingDifferentLogicalOperators() }
-            ?.let { visitLogicalExpression(it) }
+            ?.visitLogicalExpression()
     }
 
     private fun ASTNode.isLogicalBinaryExpression() =
@@ -33,9 +33,8 @@ public class MixedConditionOperatorsRule : StandardRule("mixed-condition-operato
             ?.let { it.firstChildNode.elementType in logicalOperators }
             ?: false
 
-    private fun visitLogicalExpression(node: ASTNode) {
-        node
-            .parent { it.elementType == BINARY_EXPRESSION && it.parent?.elementType != BINARY_EXPRESSION }
+    private fun ASTNode.visitLogicalExpression() {
+        parent { it.elementType == BINARY_EXPRESSION && it.parent?.elementType != BINARY_EXPRESSION }
             ?.let { rootBinaryExpression ->
                 emit(
                     rootBinaryExpression.startOffset,

@@ -58,13 +58,13 @@ public class WhenEntryBracing :
 
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == WHEN) {
-            visitWhenStatement(node)
+            node.visitWhenStatement()
         }
     }
 
-    private fun visitWhenStatement(node: ASTNode) {
-        if (node.hasAnyWhenEntryWithBlockAfterArrow() || node.hasAnyWhenEntryWithMultilineBody()) {
-            addBracesToWhenEntry(node)
+    private fun ASTNode.visitWhenStatement() {
+        if (hasAnyWhenEntryWithBlockAfterArrow() || hasAnyWhenEntryWithMultilineBody()) {
+            addBracesToWhenEntry()
         }
     }
 
@@ -88,9 +88,8 @@ public class WhenEntryBracing :
             .any { it.isWhiteSpaceWithNewline }
     }
 
-    private fun addBracesToWhenEntry(node: ASTNode) {
-        node
-            .children
+    private fun ASTNode.addBracesToWhenEntry() {
+        children
             .filter { it.elementType == WHEN_ENTRY }
             .filter { !it.hasBlockAfterArrow() }
             .forEach { whenEntry ->

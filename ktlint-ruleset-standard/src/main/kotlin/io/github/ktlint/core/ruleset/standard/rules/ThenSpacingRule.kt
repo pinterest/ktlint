@@ -21,21 +21,18 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 public class ThenSpacingRule : StandardRule(id = "then-spacing") {
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == THEN) {
-            visitThen(node)
+            node.visitThen()
         }
     }
 
-    private fun visitThen(node: ASTNode) {
-        node
-            .takeUnless { it.prevSibling.isWhiteSpace }
+    private fun ASTNode.visitThen() {
+        takeUnless { it.prevSibling.isWhiteSpace }
             ?.let {
-                emit(node.startOffset, "Expected a whitespace before 'then' block") { node.prevLeaf?.upsertWhitespaceAfterMe(" ") }
+                emit(startOffset, "Expected a whitespace before 'then' block") { prevLeaf?.upsertWhitespaceAfterMe(" ") }
             }
-        node
-            .takeUnless { it.nextSibling == null || it.nextSibling.isWhiteSpace }
+        takeUnless { it.nextSibling == null || it.nextSibling.isWhiteSpace }
             ?.let {
-                node
-                    .lastChildLeafOrSelf
+                lastChildLeafOrSelf
                     .let { lastLeafInThen ->
                         emit(lastLeafInThen.endOffset, "Expected a whitespace after 'then' block") {
                             lastLeafInThen.upsertWhitespaceAfterMe(" ")

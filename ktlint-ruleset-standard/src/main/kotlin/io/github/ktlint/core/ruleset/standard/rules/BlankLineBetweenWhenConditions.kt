@@ -48,22 +48,21 @@ public class BlankLineBetweenWhenConditions :
 
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == WHEN) {
-            visitWhenStatement(node)
+            node.visitWhenStatement()
         }
     }
 
-    private fun visitWhenStatement(node: ASTNode) {
-        val hasMultilineWhenCondition = node.hasAnyMultilineWhenCondition()
+    private fun ASTNode.visitWhenStatement() {
+        val hasMultilineWhenCondition = hasAnyMultilineWhenCondition()
         if (hasMultilineWhenCondition && lineBreakAfterWhenCondition) {
-            addBlankLinesBetweenWhenConditions(node)
+            addBlankLinesBetweenWhenConditions()
         } else {
-            removeBlankLinesBetweenWhenConditions(node)
+            removeBlankLinesBetweenWhenConditions()
         }
     }
 
-    private fun addBlankLinesBetweenWhenConditions(node: ASTNode) {
-        node
-            .children
+    private fun ASTNode.addBlankLinesBetweenWhenConditions() {
+        children
             .filter { it.elementType == WHEN_ENTRY }
             // Blank lines should only be added *between* when-conditions, so first when-condition is to be skipped
             .drop(1)
@@ -107,9 +106,8 @@ public class BlankLineBetweenWhenConditions :
             ?.lastChildLeafOrSelf
             ?.nextLeaf { it.isWhiteSpace }
 
-    private fun removeBlankLinesBetweenWhenConditions(node: ASTNode) {
-        node
-            .children
+    private fun ASTNode.removeBlankLinesBetweenWhenConditions() {
+        children
             .filter { it.elementType == WHEN_ENTRY }
             // Blank lines should only be removed *between* when-conditions, so first when-condition is to be skipped
             .drop(1)

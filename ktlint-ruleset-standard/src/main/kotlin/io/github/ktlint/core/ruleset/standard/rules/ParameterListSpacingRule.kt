@@ -56,15 +56,14 @@ public class ParameterListSpacingRule :
 
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == VALUE_PARAMETER_LIST) {
-            visitValueParameterList(node)
+            node.visitValueParameterList()
         }
     }
 
-    private fun visitValueParameterList(node: ASTNode) {
-        require(node.elementType == VALUE_PARAMETER_LIST)
+    private fun ASTNode.visitValueParameterList() {
+        require(elementType == VALUE_PARAMETER_LIST)
         val iterator =
-            node
-                .children
+            children
                 // Store elements in list before changing them as otherwise only one element is being changed
                 .toList()
                 .iterator()
@@ -82,26 +81,25 @@ public class ParameterListSpacingRule :
         if (parent!!.findChildByType(VALUE_PARAMETER) == null && parent!!.containsNoComments()) {
             // Remove whitespace from parameter list not containing a value parameter or comment
             //     fun foo( )
-            this.removeUnexpectedWhiteSpace()
+            removeUnexpectedWhiteSpace()
         } else if ((isBeforeFirstOrAfterLastValueParameter()) && isNotIndent()) {
             if (parent!!.containsNoComments()) {
-                this.removeUnexpectedWhiteSpace()
+                removeUnexpectedWhiteSpace()
             } else {
                 // Avoid conflict with comment spacing rule
             }
         } else if (nextCodeSibling?.elementType == COMMA) {
             // No whitespace between parameter name and comma allowed
-            this.removeUnexpectedWhiteSpace()
+            removeUnexpectedWhiteSpace()
         } else if (isWhiteSpace && isNotIndent() && isNotSingleSpace()) {
             require(prevCodeSibling?.elementType == COMMA)
-            this.replaceWithSingleSpace()
+            replaceWithSingleSpace()
         }
     }
 
     private fun ASTNode.containsNoComments() = children.none { it.isPartOfComment }
 
-    private fun ASTNode.isBeforeFirstOrAfterLastValueParameter(): Boolean =
-        this.isBeforeFirstValueParameter() || this.isAfterLastValueParameter()
+    private fun ASTNode.isBeforeFirstOrAfterLastValueParameter(): Boolean = isBeforeFirstValueParameter() || isAfterLastValueParameter()
 
     private fun ASTNode.isBeforeFirstValueParameter(): Boolean = siblings(forward = false).none { it.elementType == VALUE_PARAMETER }
 
@@ -115,7 +113,7 @@ public class ParameterListSpacingRule :
     }
 
     private fun ASTNode.visitValueParameter() {
-        this.visitModifierList()
+        visitModifierList()
         removeWhiteSpaceBetweenParameterIdentifierAndColon()
         fixWhiteSpaceAfterColonInParameter()
     }
@@ -127,7 +125,7 @@ public class ParameterListSpacingRule :
     }
 
     private fun ASTNode.removeWhiteSpaceBetweenModifiersInList() {
-        require(this.elementType == MODIFIER_LIST)
+        require(elementType == MODIFIER_LIST)
         children
             .filter { it.isWhiteSpace }
             // Store elements in the list before changing them as otherwise only the first whitespace is being changed
@@ -146,7 +144,7 @@ public class ParameterListSpacingRule :
     }
 
     private fun ASTNode.removeWhiteSpaceBetweenModifierListAndParameterIdentifier() {
-        require(this.elementType == MODIFIER_LIST)
+        require(elementType == MODIFIER_LIST)
         nextSibling
             ?.takeIf { it.isWhiteSpace }
             ?.visitWhiteSpaceAfterModifier()
@@ -189,8 +187,8 @@ public class ParameterListSpacingRule :
     }
 
     private fun ASTNode.addMissingWhiteSpaceAfterMe() {
-        require(this.elementType == COLON || this.elementType == COMMA)
-        emit(this.startOffset, "Whitespace after '${this.text}' is missing") { upsertWhitespaceAfterMe(" ") }
+        require(elementType == COLON || elementType == COMMA)
+        emit(startOffset, "Whitespace after '$text' is missing") { upsertWhitespaceAfterMe(" ") }
     }
 
     private fun ASTNode.isNotIndent(): Boolean = !isIndent()
@@ -240,7 +238,7 @@ public class ParameterListSpacingRule :
                         // single space before type reference
                         1 -
                         // length of current indent before typeReference
-                        this.text.substringAfterLast("\n").length +
+                        text.substringAfterLast("\n").length +
                         // length of line containing typeReference
                         typeReference
                             .leavesOnLine

@@ -43,7 +43,7 @@ public class NoSemicolonsRule :
             return
         }
         val nextLeaf = node.nextLeaf
-        if (nextLeaf.doesNotRequirePreSemi() && isNoSemicolonRequiredAfter(node)) {
+        if (nextLeaf.doesNotRequirePreSemi() && node.isNoSemicolonRequiredAfter()) {
             emit(node.startOffset, "Unnecessary semicolon") {
                 val prevLeaf = node.prevLeaf
                 node.remove()
@@ -62,7 +62,7 @@ public class NoSemicolonsRule :
         }
     }
 
-    private fun ASTNode?.isNonNullWhitespace(): Boolean = this != null && this.isWhiteSpace
+    private fun ASTNode?.isNonNullWhitespace(): Boolean = this != null && isWhiteSpace
 
     private fun ASTNode?.doesNotRequirePreSemi() =
         when {
@@ -70,7 +70,7 @@ public class NoSemicolonsRule :
                 true
             }
 
-            this.isWhiteSpace -> {
+            isWhiteSpace -> {
                 nextLeaf {
                     it.isCode &&
                         it.findParentByType(KDOC) == null &&
@@ -87,28 +87,28 @@ public class NoSemicolonsRule :
             }
         }
 
-    private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean =
+    private fun ASTNode.isNoSemicolonRequiredAfter(): Boolean =
         when {
-            node.prevCodeLeaf?.elementType == OBJECT_KEYWORD -> {
+            prevCodeLeaf?.elementType == OBJECT_KEYWORD -> {
                 // https://github.com/ktlint/ktlint/issues/281
                 false
             }
 
-            node.prevCodeLeaf?.parent?.isLoopWithoutBody() ?: false -> {
+            prevCodeLeaf?.parent?.isLoopWithoutBody() ?: false -> {
                 // https://github.com/ktlint/ktlint/issues/955
                 false
             }
 
-            node.prevCodeLeaf?.parent?.isIfExpressionWithoutThen() ?: false -> {
+            prevCodeLeaf?.parent?.isIfExpressionWithoutThen() ?: false -> {
                 false
             }
 
-            node.parent?.elementType == ENUM_ENTRY -> {
+            parent?.elementType == ENUM_ENTRY -> {
                 // In case of an enum entry the semicolon (e.g. the node) is a direct child node of enum entry
-                node.isLastCodeLeafBeforeClosingOfClassBody()
+                isLastCodeLeafBeforeClosingOfClassBody()
             }
 
-            node.isEnumClassWithoutValues() -> {
+            isEnumClassWithoutValues() -> {
                 false
             }
 

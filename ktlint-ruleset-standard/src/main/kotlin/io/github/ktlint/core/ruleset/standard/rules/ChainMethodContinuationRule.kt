@@ -57,6 +57,7 @@ import io.github.ktlint.core.rule.engine.core.api.prevSibling
 import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
 import io.github.ktlint.core.ruleset.standard.StandardRule
+import io.github.ktlint.core.ruleset.standard.rules.ChainMethodContinuationRule.ChainedExpression.Companion.createFrom
 import org.ec4j.core.model.PropertyType
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -112,8 +113,8 @@ public class ChainMethodContinuationRule :
             ?.let { chainOperator ->
                 // Chained methods which have to be aligned vertically live at different levels in the AST hierarchy. To ease the processing
                 // the AST hierarchy for nodes contains a chain operator are restructured in a ChainedExpression.
-                ChainedExpression
-                    .createFrom(chainOperator)
+                chainOperator
+                    .createFrom()
                     .takeIf { chainedExpression ->
                         // When the first chain operator of the expression is found, all other chains operators of that same expression are
                         // processed as well. So when the chain operator is not the first operator of the expression, it should be
@@ -140,11 +141,11 @@ public class ChainMethodContinuationRule :
             .forEach { chainOperator ->
                 when {
                     chainOperator.shouldBeOnSameLineAsClosingElementOfPreviousExpressionInMethodChain() -> {
-                        removeWhiteSpaceBeforeChainOperator(chainOperator)
+                        chainOperator.removeWhiteSpaceBeforeChainOperator()
                     }
 
                     wrapBeforeEachChainOperator || exceedsMaxLineLength || chainOperator.isPrecededByComment() -> {
-                        insertWhiteSpaceBeforeChainOperator(chainOperator)
+                        chainOperator.insertWhiteSpaceBeforeChainOperator()
                     }
                 }
             }
@@ -258,9 +259,8 @@ public class ChainMethodContinuationRule :
 
     private fun ASTNode.isPrecededByComment() = parent?.children?.any { it.isPartOfComment } ?: false
 
-    private fun insertWhiteSpaceBeforeChainOperator(chainOperator: ASTNode) {
-        chainOperator
-            .prevLeaf
+    private fun ASTNode.insertWhiteSpaceBeforeChainOperator() {
+        prevLeaf
             .takeUnless { it?.isCode == true }
             .let { whiteSpaceOrComment ->
                 when {
@@ -269,8 +269,8 @@ public class ChainMethodContinuationRule :
                         // Disallow:
                         //     fooBar
                         //         .bar { ... }.foo()
-                        emit(chainOperator.startOffset, "Expected newline before '${chainOperator.text}'") {
-                            chainOperator.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(chainOperator.parent!!))
+                        emit(startOffset, "Expected newline before '$text'") {
+                            upsertWhitespaceBeforeMe(indentConfig.childIndentOf(parent!!))
                         }
                     }
 
@@ -279,8 +279,8 @@ public class ChainMethodContinuationRule :
                         // Disallow:
                         //     fooBar
                         //         .bar { ... }.foo()
-                        emit(chainOperator.startOffset, "Expected newline before '${chainOperator.text}'") {
-                            chainOperator.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(chainOperator.parent!!))
+                        emit(startOffset, "Expected newline before '$text'") {
+                            upsertWhitespaceBeforeMe(indentConfig.childIndentOf(parent!!))
                         }
                     }
                 }
@@ -308,9 +308,8 @@ public class ChainMethodContinuationRule :
             ?.any { it.text == "\n" }
             ?: false
 
-    private fun removeWhiteSpaceBeforeChainOperator(chainOperator: ASTNode) {
-        chainOperator
-            .prevLeaf
+    private fun ASTNode.removeWhiteSpaceBeforeChainOperator() {
+        prevLeaf
             .takeIf { it.isWhiteSpace }
             .let { whiteSpaceOrComment ->
                 // Disallow:
@@ -324,7 +323,7 @@ public class ChainMethodContinuationRule :
                 //     """
                 //         .trimIndent()
                 if (whiteSpaceOrComment.isWhiteSpaceWithNewline) {
-                    emit(chainOperator.startOffset, "Unexpected newline before '${chainOperator.text}'") { whiteSpaceOrComment?.remove() }
+                    emit(startOffset, "Unexpected newline before '$text'") { whiteSpaceOrComment?.remove() }
                 }
             }
     }
@@ -371,14 +370,14 @@ public class ChainMethodContinuationRule :
                     SAFE_ACCESS_EXPRESSION,
                 )
 
-            fun createFrom(astNode: ASTNode): ChainedExpression {
-                require(astNode.elementType in chainOperatorTokenSet)
-                var chainParent: ASTNode? = requireNotNull(astNode.parent)
+            fun ASTNode.createFrom(): ChainedExpression {
+                require(elementType in chainOperatorTokenSet)
+                var chainParent: ASTNode? = requireNotNull(parent)
                 while (chainParent?.parent?.elementType in chainableElementTypes) {
                     chainParent = chainParent?.parent
                 }
                 return requireNotNull(chainParent?.toChainedExpression()) {
-                    "Failed to create chained expression from ${astNode.parent?.text}"
+                    "Failed to create chained expression from ${parent?.text}"
                 }
             }
 

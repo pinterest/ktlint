@@ -119,7 +119,7 @@ public class SpacingAroundCurlyRule :
             .takeIf { it.isWhiteSpaceWithoutNewline }
             ?.takeIf { it.prevLeaf?.elementType == LPAR || it.prevLeaf?.elementType == AT }
             ?.let { whitespace ->
-                emit(this.startOffset, "Unexpected space before \"$text\"") { whitespace.remove() }
+                emit(startOffset, "Unexpected space before \"$text\"") { whitespace.remove() }
             }
         prevLeaf
             ?.takeIf { prevLeaf.isWhiteSpaceWithNewline }
@@ -151,12 +151,12 @@ public class SpacingAroundCurlyRule :
     private fun ASTNode.rbraceSpacing(): Pair<Boolean, Boolean> {
         require(elementType == RBRACE)
         val spacingBefore = prevLeaf.isWhiteSpace || prevLeaf?.elementType == LBRACE
-        val spacingAfter = nextLeaf == null || nextLeaf.isWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
+        val spacingAfter = nextLeaf == null || nextLeaf.isWhiteSpace || nextLeaf.shouldNotToBeSeparatedBySpace()
         nextLeaf
             .takeIf { it.isWhiteSpaceWithoutNewline }
-            ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf) }
+            ?.takeIf { it.nextLeaf.shouldNotToBeSeparatedBySpace() }
             ?.let { leaf ->
-                emit(this.startOffset, "Unexpected space after \"${this.text}\"") { leaf.remove() }
+                emit(startOffset, "Unexpected space after \"$text\"") { leaf.remove() }
             }
         return Pair(spacingBefore, spacingAfter)
     }
@@ -166,8 +166,8 @@ public class SpacingAroundCurlyRule :
             ?.isPartOfComment
             ?: false
 
-    private fun shouldNotToBeSeparatedBySpace(leaf: ASTNode?): Boolean {
-        val nextElementType = leaf?.elementType
+    private fun ASTNode?.shouldNotToBeSeparatedBySpace(): Boolean {
+        val nextElementType = this?.elementType
         return (
             nextElementType == DOT ||
                 nextElementType == COMMA ||

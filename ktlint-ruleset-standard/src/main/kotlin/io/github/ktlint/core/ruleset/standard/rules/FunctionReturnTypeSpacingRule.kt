@@ -37,25 +37,23 @@ public class FunctionReturnTypeSpacingRule :
             .takeIf { node.elementType == FUN }
             ?.let { node.findChildByType(COLON) }
             ?.let { colonNode ->
-                removeWhiteSpaceBetweenClosingParenthesisAndColon(colonNode)
-                fixWhiteSpaceBetweenColonAndReturnType(colonNode)
+                colonNode.removeWhiteSpaceBetweenClosingParenthesisAndColon()
+                colonNode.fixWhiteSpaceBetweenColonAndReturnType()
             }
     }
 
-    private fun removeWhiteSpaceBetweenClosingParenthesisAndColon(node: ASTNode) {
-        require(node.elementType == COLON)
-        node
-            .prevLeaf
+    private fun ASTNode.removeWhiteSpaceBetweenClosingParenthesisAndColon() {
+        require(elementType == COLON)
+        prevLeaf
             ?.takeIf { it.isWhiteSpace }
             ?.let { whitespaceBeforeColonNode ->
                 emit(whitespaceBeforeColonNode.startOffset, "Unexpected whitespace") { whitespaceBeforeColonNode.remove() }
             }
     }
 
-    private fun fixWhiteSpaceBetweenColonAndReturnType(node: ASTNode) {
-        require(node.elementType == COLON)
-        node
-            .nextLeaf
+    private fun ASTNode.fixWhiteSpaceBetweenColonAndReturnType() {
+        require(elementType == COLON)
+        nextLeaf
             ?.takeIf { it.isWhiteSpace }
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon?.text != " ") {
@@ -69,13 +67,13 @@ public class FunctionReturnTypeSpacingRule :
                     //        "some-looooooooooooooooong-string"
                     // See FunctionSignatureRule for such reformatting.
                     val newLineLength =
-                        node.lengthUntilNewline(false) + // Length of line before but excluding the colon
-                            node.textLength + // Length of the colon itself
+                        lengthUntilNewline(false) + // Length of line before but excluding the colon
+                            textLength + // Length of the colon itself
                             1 + // Length of the fixed whitespace
                             whiteSpaceAfterColon.lengthUntilNewline(true) // Length of the line after but excluding the whitespace
                     if (newLineLength <= maxLineLength) {
-                        emit(node.startOffset, "Single space expected between colon and return type") {
-                            node.upsertWhitespaceAfterMe(" ")
+                        emit(startOffset, "Single space expected between colon and return type") {
+                            upsertWhitespaceAfterMe(" ")
                         }
                     }
                 }

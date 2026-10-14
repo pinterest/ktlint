@@ -26,22 +26,21 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
         if (node.elementType == FUN) {
             node
                 .findChildByType(EQ)
-                ?.let { visitFunctionFollowedByBodyExpression(node) }
+                ?.let { node.visitFunctionFollowedByBodyExpression() }
 
             node
                 .findChildByType(BLOCK)
-                ?.let { visitFunctionFollowedByBodyBlock(node) }
+                ?.let { node.visitFunctionFollowedByBodyBlock() }
         }
     }
 
-    private fun visitFunctionFollowedByBodyExpression(node: ASTNode) {
-        fixWhiteSpaceBeforeAssignmentOfBodyExpression(node)
-        fixWhiteSpaceBetweenAssignmentAndBodyExpression(node)
+    private fun ASTNode.visitFunctionFollowedByBodyExpression() {
+        fixWhiteSpaceBeforeAssignmentOfBodyExpression()
+        fixWhiteSpaceBetweenAssignmentAndBodyExpression()
     }
 
-    private fun fixWhiteSpaceBeforeAssignmentOfBodyExpression(node: ASTNode) {
-        node
-            .findChildByType(EQ)
+    private fun ASTNode.fixWhiteSpaceBeforeAssignmentOfBodyExpression() {
+        findChildByType(EQ)
             ?.let { assignmentExpression ->
                 assignmentExpression
                     .prevLeaf
@@ -60,9 +59,8 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
             }
     }
 
-    private fun fixWhiteSpaceBetweenAssignmentAndBodyExpression(node: ASTNode) {
-        node
-            .findChildByType(EQ)
+    private fun ASTNode.fixWhiteSpaceBetweenAssignmentAndBodyExpression() {
+        findChildByType(EQ)
             ?.let { assignmentExpression ->
                 assignmentExpression
                     .nextLeaf
@@ -80,9 +78,8 @@ public class FunctionStartOfBodySpacingRule : StandardRule("function-start-of-bo
             }
     }
 
-    private fun visitFunctionFollowedByBodyBlock(node: ASTNode) {
-        node
-            .findChildByType(BLOCK)
+    private fun ASTNode.visitFunctionFollowedByBodyBlock() {
+        findChildByType(BLOCK)
             ?.let { block ->
                 block
                     .prevLeaf

@@ -51,24 +51,23 @@ public class ModifierListSpacingRule :
         if (node.elementType == MODIFIER_LIST) {
             node
                 .children
-                .forEach { visitModifierChild(it) }
+                .forEach { it.visitModifierChild() }
             // The whitespace of the last entry of the modifier list is actually placed outside the modifier list
-            visitModifierChild(node)
+            node.visitModifierChild()
         }
     }
 
-    private fun visitModifierChild(node: ASTNode) {
-        if (node.isWhiteSpace) {
+    private fun ASTNode.visitModifierChild() {
+        if (isWhiteSpace) {
             return
         }
-        node
-            .nextSibling { it.isWhiteSpace && it.nextLeaf?.isPartOfComment != true }
+        nextSibling { it.isWhiteSpace && it.nextLeaf?.isPartOfComment != true }
             ?.takeUnless {
                 // A single newline after a comment is always ok and does not need further checking.
                 it.text.trim(' ', '\t').contains('\n') && it.prevLeaf?.isPartOfComment == true
             }?.let { whitespace ->
                 when {
-                    node.isAnnotation() -> {
+                    isAnnotation() -> {
                         if (whitespace.text.contains("\n\n")) {
                             emit(whitespace.startOffset, "Single newline expected after annotation") {
                                 whitespace.replaceTextWith("\n".plus(whitespace.text.substringAfterLast("\n")))
@@ -80,10 +79,10 @@ public class ModifierListSpacingRule :
                         }
                     }
 
-                    node.isContextReceiverList() -> {
+                    isContextReceiverList() -> {
                         if (!whitespace.text.contains("\n")) {
                             emit(whitespace.startOffset, "Single newline expected after context receiver list") {
-                                whitespace.replaceTextWith(indentConfig.parentIndentOf(node))
+                                whitespace.replaceTextWith(indentConfig.parentIndentOf(this))
                             }
                         }
                     }

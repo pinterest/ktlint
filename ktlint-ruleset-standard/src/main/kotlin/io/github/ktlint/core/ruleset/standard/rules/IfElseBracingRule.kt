@@ -60,19 +60,15 @@ public class IfElseBracingRule :
 
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == IF) {
-            visitIfStatement(node)
+            node.visitIfStatement()
         }
     }
 
-    private fun visitIfStatement(node: ASTNode) {
-        val thenNode =
-            requireNotNull(node.findChildByType(THEN)) {
-                "Can not find THEN branch in IF"
-            }
-        val elseNode = node.findChildByType(ELSE) ?: return
+    private fun ASTNode.visitIfStatement() {
+        val thenNode = requireNotNull(findChildByType(THEN)) { "Can not find THEN branch in IF" }
+        val elseNode = findChildByType(ELSE) ?: return
         val parentIfBracing =
-            node
-                .parent
+            parent
                 ?.takeIf { it.elementType == ELSE }
                 ?.parent
                 ?.hasBracing()
@@ -81,11 +77,11 @@ public class IfElseBracingRule :
         val elseBracing = elseNode.hasBracing()
         if (parentIfBracing || thenBracing || elseBracing) {
             if (!thenBracing) {
-                visitBranchWithoutBraces(thenNode)
+                thenNode.visitBranchWithoutBraces()
             }
             if (!elseBracing) {
                 if (elseNode.firstChildNode?.elementType != IF) {
-                    visitBranchWithoutBraces(elseNode)
+                    elseNode.visitBranchWithoutBraces()
                 } else {
                     // Postpone changing the else-if until that node is being processed
                 }
@@ -99,39 +95,37 @@ public class IfElseBracingRule :
                 false
             }
 
-            this.elementType == BLOCK -> {
+            elementType == BLOCK -> {
                 true
             }
 
-            this.elementType == IF -> {
+            elementType == IF -> {
                 findChildByType(THEN).hasBracing() || findChildByType(ELSE).hasBracing()
             }
 
             else -> {
-                this.firstChildNode.hasBracing()
+                firstChildNode.hasBracing()
             }
         }
 
-    private fun visitBranchWithoutBraces(node: ASTNode): Boolean {
+    private fun ASTNode.visitBranchWithoutBraces(): Boolean {
         emit(
-            node.firstChildNode?.startOffset ?: node.startOffset,
+            firstChildNode?.startOffset ?: startOffset,
             "All branches of the if statement should be wrapped between braces if at least one branch is wrapped between braces",
         ) {
-            autocorrect(node)
+            autocorrect()
         }
         return true
     }
 
-    private fun autocorrect(node: ASTNode) {
+    private fun ASTNode.autocorrect() {
         val prevLeaves =
-            node
-                .leaves(forward = false)
+            leaves(forward = false)
                 .takeWhile { it.elementType !in listOf(RPAR, ELSE_KEYWORD) }
                 .toList()
                 .reversed()
         val nextLeaves =
-            node
-                .leaves(forward = true)
+            leaves(forward = true)
                 .takeWhile { it.isWhiteSpaceWithoutNewline || it.isPartOfComment }
                 .toList()
                 .dropLastWhile { it.isWhiteSpaceWithoutNewline }
@@ -140,35 +134,34 @@ public class IfElseBracingRule :
             .firstOrNull()
             .takeIf { it.isWhiteSpace }
             ?.replaceTextWith(" ")
-        KtBlockExpression(null).apply {
-            val previousChild = node.firstChildNode
+        KtBlockExpression(null).let { blockExpression ->
+            val previousChild = firstChildNode
             if (previousChild == null) {
-                node.addChild(this, null)
+                addChild(blockExpression, null)
             } else {
-                node.replaceChild(node.firstChildNode, this)
+                replaceChild(firstChildNode, blockExpression)
             }
-            addChild(LeafPsiElement(LBRACE, "{"))
+            blockExpression.addChild(LeafPsiElement(LBRACE, "{"))
             if (previousChild != null) {
-                addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
+                blockExpression.addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(this)))
             }
             prevLeaves
                 .dropWhile { it.isWhiteSpace }
                 .takeIf { it.isNotEmpty() }
-                ?.forEach(::addChild)
+                ?.forEach { blockExpression.addChild(it) }
             if (previousChild != null) {
-                addChild(previousChild)
+                blockExpression.addChild(previousChild)
             }
-            nextLeaves.forEach(::addChild)
+            nextLeaves.forEach { blockExpression.addChild(it) }
             if (previousChild != null) {
-                addChild(PsiWhiteSpaceImpl(node.indent))
+                blockExpression.addChild(PsiWhiteSpaceImpl(indent))
             }
-            addChild(LeafPsiElement(RBRACE, "}"))
+            blockExpression.addChild(LeafPsiElement(RBRACE, "}"))
         }
 
         // Make sure else starts on same line as newly inserted right brace
-        if (node.elementType == THEN) {
-            node
-                .nextSibling { !it.isPartOfComment }
+        if (elementType == THEN) {
+            nextSibling { !it.isPartOfComment }
                 ?.upsertWhitespaceBeforeMe(" ")
         }
     }

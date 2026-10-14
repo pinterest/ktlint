@@ -48,12 +48,11 @@ public class BackingPropertyNamingRule :
     override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { node.elementType == PROPERTY }
-            ?.let { property -> visitProperty(property) }
+            ?.visitProperty()
     }
 
-    private fun visitProperty(property: ASTNode) {
-        property
-            .findChildByType(IDENTIFIER)
+    private fun ASTNode.visitProperty() {
+        findChildByType(IDENTIFIER)
             ?.takeIf { it.text.startsWith("_") }
             ?.takeUnless {
                 // Exclude local property with name equals to "_". This is used to express the intent that the return value of a function
@@ -62,30 +61,27 @@ public class BackingPropertyNamingRule :
             }?.takeUnless {
                 // Do not report overridden properties as they can only be changed by changing the base property
                 it.parent!!.hasModifier(OVERRIDE_KEYWORD)
-            }?.let { identifier ->
-                visitBackingProperty(identifier)
-            }
+            }?.visitBackingProperty()
     }
 
-    private fun visitBackingProperty(identifier: ASTNode) {
-        identifier
-            .text
+    private fun ASTNode.visitBackingProperty() {
+        text
             .takeUnless { it.matches(BACKING_PROPERTY_LOWER_CAMEL_CASE_REGEXP) }
-            ?.let { emit(identifier.startOffset, "Backing property should start with underscore followed by lower camel case") }
+            ?.let { emit(startOffset, "Backing property should start with underscore followed by lower camel case") }
 
-        if (!identifier.hasPrivateModifierInPropertyDeclaration() && !identifier.isDeclaredInPrivateCompanionObject()) {
-            emit(identifier.startOffset, "Backing property not allowed when 'private' modifier is missing")
+        if (!hasPrivateModifierInPropertyDeclaration() && !isDeclaredInPrivateCompanionObject()) {
+            emit(startOffset, "Backing property not allowed when 'private' modifier is missing")
         }
 
         // A backing property can only exist when a correlated public property or function exists
-        val correlatedPropertyOrFunction = identifier.findCorrelatedPropertyOrFunction()
+        val correlatedPropertyOrFunction = findCorrelatedPropertyOrFunction()
         if (correlatedPropertyOrFunction == null) {
-            emit(identifier.startOffset, "Backing property is only allowed when a matching property or function exists")
+            emit(startOffset, "Backing property is only allowed when a matching property or function exists")
         } else {
             if (codeStyle == ANDROID_STUDIO || correlatedPropertyOrFunction.isPublic()) {
                 return
             } else {
-                emit(identifier.startOffset, "Backing property is only allowed when the matching property or function is public")
+                emit(startOffset, "Backing property is only allowed when the matching property or function is public")
             }
         }
     }

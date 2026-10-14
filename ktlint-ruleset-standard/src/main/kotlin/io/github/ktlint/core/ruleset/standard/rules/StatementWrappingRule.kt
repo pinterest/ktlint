@@ -64,53 +64,52 @@ public class StatementWrappingRule :
             BLOCK -> {
                 if (node.parent?.elementType == FUNCTION_LITERAL) {
                     // LBRACE and RBRACE are outside of BLOCK
-                    visitBlock(node.parent!!)
+                    node.parent!!.visitBlock()
                 } else {
-                    visitBlock(node)
+                    node.visitBlock()
                 }
             }
 
             CLASS_BODY, WHEN -> {
-                visitBlock(node)
+                node.visitBlock()
             }
 
             SEMICOLON -> {
-                visitSemiColon(node)
+                node.visitSemiColon()
             }
         }
     }
 
-    private fun visitBlock(node: ASTNode) {
-        node
-            .takeUnless {
-                // Allow
-                //     val foo = {}
-                it.isBlockWithoutStatements
-            }?.takeUnless {
-                // Allow
-                //     val foo = { /* no-op */ }
-                //     val foo = { a, b -> println(a + b) }
-                it.isFunctionLiteralWithSingleStatementOnSingleLine
-            }?.takeUnless {
-                // Allow
-                //     enum class FooBar { FOO, BAR }
-                // or
-                //     /** Some comment */
-                //     enum class FooBar { FOO, BAR }
-                it.parent!!.isEnumClassOnSingleLine
-            }?.findChildByType(LBRACE)
-            ?.applyIf(node.isFunctionLiteralWithParameterList) {
+    private fun ASTNode.visitBlock() {
+        takeUnless {
+            // Allow
+            //     val foo = {}
+            it.isBlockWithoutStatements
+        }?.takeUnless {
+            // Allow
+            //     val foo = { /* no-op */ }
+            //     val foo = { a, b -> println(a + b) }
+            it.isFunctionLiteralWithSingleStatementOnSingleLine
+        }?.takeUnless {
+            // Allow
+            //     enum class FooBar { FOO, BAR }
+            // or
+            //     /** Some comment */
+            //     enum class FooBar { FOO, BAR }
+            it.parent!!.isEnumClassOnSingleLine
+        }?.findChildByType(LBRACE)
+            ?.applyIf(isFunctionLiteralWithParameterList) {
                 // Allow:
                 // val foobar =
                 //     foo { bar ->
                 //         doSomething()
                 //     }
-                node.findChildByType(ARROW)
+                this@visitBlock.findChildByType(ARROW)
             }?.let { lbraceOrArrow ->
                 val nextCodeLeaf = lbraceOrArrow.nextCodeLeaf
                 if (nextCodeLeaf != null && noNewLineInClosedRange(lbraceOrArrow, nextCodeLeaf)) {
                     emit(nextCodeLeaf.startOffset, "Missing newline after '${lbraceOrArrow.text}'") {
-                        if (node.elementType == WHEN) {
+                        if (elementType == WHEN) {
                             lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsChild)
                         } else {
                             lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsSibling)
@@ -118,8 +117,7 @@ public class StatementWrappingRule :
                     }
                 }
 
-                node
-                    .findChildByType(RBRACE)
+                findChildByType(RBRACE)
                     ?.let { rbrace ->
                         val prevCodeLeaf = rbrace.prevCodeLeaf
                         if (prevCodeLeaf != null && noNewLineInClosedRange(prevCodeLeaf, rbrace)) {
@@ -186,9 +184,9 @@ public class StatementWrappingRule :
     private inline val ASTNode.indentAsParent: String
         get() = parent!!.indent
 
-    private fun visitSemiColon(node: ASTNode) {
-        val previousCodeLeaf = node.prevCodeLeaf
-        val nextCodeLeaf = node.nextCodeLeaf
+    private fun ASTNode.visitSemiColon() {
+        val previousCodeLeaf = prevCodeLeaf
+        val nextCodeLeaf = nextCodeLeaf
         if (previousCodeLeaf != null && nextCodeLeaf != null) {
             when {
                 previousCodeLeaf.parent?.elementType == ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE -> {
@@ -197,8 +195,8 @@ public class StatementWrappingRule :
                 }
 
                 noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf) -> {
-                    emit(node.startOffset + 1, """Missing newline after '${node.text}'""") {
-                        node.upsertWhitespaceAfterMe(previousCodeLeaf.indent)
+                    emit(startOffset + 1, """Missing newline after '$text'""") {
+                        upsertWhitespaceAfterMe(previousCodeLeaf.indent)
                     }
                 }
             }

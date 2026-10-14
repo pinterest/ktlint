@@ -190,7 +190,7 @@ public class SpacingAroundParensRule : StandardRule("paren-spacing") {
     }
 
     private fun ASTNode.fixUnexpectedSpacingBefore() {
-        emit(prevLeaf!!.startOffset, "Unexpected spacing before \"${text}\"") { prevLeaf?.remove() }
+        emit(prevLeaf!!.startOffset, "Unexpected spacing before \"$text\"") { prevLeaf?.remove() }
     }
 
     private fun ASTNode.fixUnexpectSpacingAfter() {

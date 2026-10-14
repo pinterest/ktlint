@@ -48,31 +48,31 @@ public class SpacingAroundOperatorsRule : StandardRule("op-spacing") {
         if (node.elementType in OPERATORS ||
             (node.elementType == IDENTIFIER && node.parent?.elementType == OPERATION_REFERENCE)
         ) {
-            visitOperator(node)
+            node.visitOperator()
         }
     }
 
-    private fun visitOperator(node: ASTNode) {
-        if (node.shouldCheckSpacing()) {
-            val spacingBefore = node.prevLeaf.isWhiteSpace
-            val spacingAfter = node.nextLeaf.isWhiteSpace
+    private fun ASTNode.visitOperator() {
+        if (shouldCheckSpacing()) {
+            val spacingBefore = prevLeaf.isWhiteSpace
+            val spacingAfter = nextLeaf.isWhiteSpace
             when {
                 !spacingBefore && !spacingAfter -> {
-                    emit(node.startOffset, "Missing spacing around \"${node.text}\"") {
-                        node.upsertWhitespaceBeforeMe(" ")
-                        node.upsertWhitespaceAfterMe(" ")
+                    emit(startOffset, "Missing spacing around \"$text\"") {
+                        upsertWhitespaceBeforeMe(" ")
+                        upsertWhitespaceAfterMe(" ")
                     }
                 }
 
                 !spacingBefore -> {
-                    emit(node.startOffset, "Missing spacing before \"${node.text}\"") {
-                        node.upsertWhitespaceBeforeMe(" ")
+                    emit(startOffset, "Missing spacing before \"$text\"") {
+                        upsertWhitespaceBeforeMe(" ")
                     }
                 }
 
                 !spacingAfter -> {
-                    emit(node.startOffset + node.textLength, "Missing spacing after \"${node.text}\"") {
-                        node.upsertWhitespaceAfterMe(" ")
+                    emit(startOffset + textLength, "Missing spacing after \"$text\"") {
+                        upsertWhitespaceAfterMe(" ")
                     }
                 }
             }

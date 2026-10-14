@@ -21,20 +21,18 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
 public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-before-assignment") {
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == EQ) {
-            visitEquals(node)
+            node.visitEquals()
         }
     }
 
-    private fun visitEquals(assignmentNode: ASTNode) {
-        assignmentNode
-            .prevSibling
+    private fun ASTNode.visitEquals() {
+        prevSibling
             .takeIf { it.isWhiteSpaceWithNewline }
             ?.let { unexpectedNewlineBeforeAssignment ->
                 emit(unexpectedNewlineBeforeAssignment.startOffset, "Line break before assignment is not allowed") {
-                    val parent = assignmentNode.parent!!
+                    val parent = parent!!
                     // Insert assignment surrounded by whitespaces at new position
-                    assignmentNode
-                        .siblings(false)
+                    siblings(false)
                         .takeWhile { !it.isCode }
                         .last()
                         .let { before ->
@@ -47,11 +45,10 @@ public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-befor
                             }
                         }
                     // Cleanup old assignment and whitespace after it. The indent before the old assignment is kept unchanged
-                    assignmentNode
-                        .nextSibling
+                    nextSibling
                         .takeIf { it.isWhiteSpace }
                         ?.remove()
-                    assignmentNode.remove()
+                    remove()
                 }
             }
     }

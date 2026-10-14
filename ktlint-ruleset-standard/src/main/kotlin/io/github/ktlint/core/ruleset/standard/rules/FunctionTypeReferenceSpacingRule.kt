@@ -25,12 +25,11 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
                     typeReference
                         .firstChildNode
                         .takeIf { it.elementType == NULLABLE_TYPE }
-                        ?.let { nullableTypeElement ->
-                            visitNodesUntilStartOfValueParameterList(nullableTypeElement.firstChildNode)
-                        }
+                        ?.firstChildNode
+                        ?.visitNodesUntilStartOfValueParameterList()
 
                     if (typeReference.elementType != NULLABLE_TYPE) {
-                        visitNodesUntilStartOfValueParameterList(typeReference)
+                        typeReference.visitNodesUntilStartOfValueParameterList()
                     }
                 }
         }
@@ -48,18 +47,18 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
         return null
     }
 
-    private fun visitNodesUntilStartOfValueParameterList(node: ASTNode) {
-        var currentNode: ASTNode? = node
+    private fun ASTNode.visitNodesUntilStartOfValueParameterList() {
+        var currentNode: ASTNode? = this
         while (currentNode != null && currentNode.elementType != VALUE_PARAMETER_LIST) {
             val nextNode = currentNode.nextSibling
-            removeIfNonEmptyWhiteSpace(currentNode)
+            currentNode.removeIfNonEmptyWhiteSpace()
             currentNode = nextNode
         }
     }
 
-    private fun removeIfNonEmptyWhiteSpace(node: ASTNode) {
-        if (node.isWhiteSpace && node.text.isNotEmpty()) {
-            emit(node.startOffset, "Unexpected whitespace") { node.remove() }
+    private fun ASTNode.removeIfNonEmptyWhiteSpace() {
+        if (isWhiteSpace && text.isNotEmpty()) {
+            emit(startOffset, "Unexpected whitespace") { remove() }
         }
     }
 }

@@ -91,18 +91,18 @@ public class MultilineLoopRule :
             .firstOrNull()
             .takeIf { it.isWhiteSpace }
             ?.replaceTextWith(" ")
-        KtBlockExpression(null).apply {
+        KtBlockExpression(null).let { blockExpression ->
             val previousChild = node.firstChildNode
-            node.replaceChild(node.firstChildNode, this)
-            addChild(LeafPsiElement(LBRACE, "{"))
-            addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
+            node.replaceChild(node.firstChildNode, blockExpression)
+            blockExpression.addChild(LeafPsiElement(LBRACE, "{"))
+            blockExpression.addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
             prevLeaves
                 .dropWhile { it.isWhiteSpace }
-                .forEach(::addChild)
-            addChild(previousChild)
-            nextLeaves.forEach(::addChild)
-            addChild(PsiWhiteSpaceImpl(node.indent))
-            addChild(LeafPsiElement(RBRACE, "}"))
+                .forEach { blockExpression.addChild(it) }
+            blockExpression.addChild(previousChild)
+            nextLeaves.forEach { blockExpression.addChild(it) }
+            blockExpression.addChild(PsiWhiteSpaceImpl(node.indent))
+            blockExpression.addChild(LeafPsiElement(RBRACE, "}"))
         }
 
         node
