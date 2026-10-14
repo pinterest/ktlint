@@ -1,8 +1,6 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.logger.api.initKtLintKLogger
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.NO_AUTOCORRECT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COLON
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EQ
@@ -19,7 +17,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROP
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
@@ -70,38 +67,31 @@ public class PropertyWrappingRule :
         maxLineLength = editorConfig.maxLineLength()
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == PROPERTY) {
-            rearrangeProperty(node, emit)
+            node.rearrangeProperty()
         }
     }
 
-    private fun rearrangeProperty(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(node.elementType == PROPERTY)
+    private fun ASTNode.rearrangeProperty() {
+        require(elementType == PROPERTY)
 
-        val fromNode = findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node)
+        val fromNode = findFirstNodeAfterIndentOnSameLineAsTheIdentifier()
 
         // Only fix the first child that does not fit
-        node.fixChildIfDoesNotFit(COLON, fromNode) { requireNewlineAfterLeaf(it, emit) } ||
-            node.fixChildIfDoesNotFit(TYPE_REFERENCE, fromNode) { requireNewlineBeforeLeaf(it, emit) } ||
-            node.fixChildIfDoesNotFit(EQ, fromNode) { requireNewlineAfterLeaf(it, emit) } ||
-            node.fixChildIfDoesNotFit(CALL_EXPRESSION, fromNode) { requireNewlineBeforeLeaf(it, emit) }
+        fixChildIfDoesNotFit(COLON, fromNode) { it.requireNewlineAfterLeaf() } ||
+            fixChildIfDoesNotFit(TYPE_REFERENCE, fromNode) { it.requireNewlineBeforeLeaf() } ||
+            fixChildIfDoesNotFit(EQ, fromNode) { it.requireNewlineAfterLeaf() } ||
+            fixChildIfDoesNotFit(CALL_EXPRESSION, fromNode) { it.requireNewlineBeforeLeaf() }
     }
 
-    private fun findFirstNodeAfterIndentOnSameLineAsTheIdentifier(node: ASTNode): ASTNode {
-        val nodeFirstChildLeafOrSelf = node.firstChildLeafOrSelf
+    private fun ASTNode.findFirstNodeAfterIndentOnSameLineAsTheIdentifier(): ASTNode {
+        val nodeFirstChildLeafOrSelf = firstChildLeafOrSelf
         val fromNode =
-            node
-                .findChildByType(IDENTIFIER)
+            findChildByType(IDENTIFIER)
                 ?.leavesBackwardsIncludingSelf
                 ?.firstOrNull { it.prevLeaf.isWhiteSpaceWithNewline || it == nodeFirstChildLeafOrSelf }
-                ?: node
+                ?: this
         return fromNode
     }
 
@@ -129,38 +119,17 @@ public class PropertyWrappingRule :
             .sumOf { it.textLength }
     }
 
-    private fun requireNewlineBeforeLeaf(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        emit(
-            node.startOffset - 1,
-            """Missing newline before "${node.text}"""",
-            true,
-        ).also { autocorrectDecision ->
-            LOGGER.trace {
-                "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline before ${node.text}"
-            }
-        }.ifAutocorrectAllowed {
-            node.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+    private fun ASTNode.requireNewlineBeforeLeaf() {
+        emit(startOffset - 1, """Missing newline before "$text"""") {
+            LOGGER.trace { "$line: inserted newline before $text" }
+            upsertWhitespaceBeforeMe(indentConfig.childIndentOf(this))
         }
     }
 
-    private fun requireNewlineAfterLeaf(
-        nodeAfterWhichNewlineIsRequired: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-        nodeToFix: ASTNode = nodeAfterWhichNewlineIsRequired,
-    ) {
-        emit(
-            nodeAfterWhichNewlineIsRequired.startOffset + 1,
-            """Missing newline after "${nodeAfterWhichNewlineIsRequired.text}"""",
-            true,
-        ).also { autocorrectDecision ->
-            LOGGER.trace {
-                "$line: ${if (autocorrectDecision == NO_AUTOCORRECT) "would have" else ""} inserted newline after ${nodeAfterWhichNewlineIsRequired.text}"
-            }
-        }.ifAutocorrectAllowed {
-            nodeToFix.upsertWhitespaceAfterMe(indentConfig.childIndentOf(nodeToFix))
+    private fun ASTNode.requireNewlineAfterLeaf() {
+        emit(startOffset + 1, """Missing newline after "$text"""") {
+            LOGGER.trace { "$line: inserted newline after $text" }
+            upsertWhitespaceAfterMe(indentConfig.childIndentOf(this))
         }
     }
 }

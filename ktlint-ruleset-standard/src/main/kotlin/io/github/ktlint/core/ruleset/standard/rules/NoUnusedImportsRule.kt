@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BY_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
@@ -16,7 +15,6 @@ import io.github.ktlint.core.rule.engine.core.api.RuleV2.OnlyWhenEnabledInEditor
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.children
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
@@ -66,51 +64,44 @@ public class NoUnusedImportsRule :
         psi.safeAs<KtImportDirective>()?.rawDelete()
     }
 
-    override fun afterVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun afterVisitChildNodes(node: ASTNode) {
         if (node.elementType == FILE) {
             // Only after processing the entire file, the unused imports are to be checked. Finding the imports, references and parent
             // expressions in the beforeVisitChildNodes, and actual checking of unused imports in the afterVisitChildNodes is unreliable
             // as rules might refactor code that is containing references. The first step is to traverse the entire file to build the list
             // of imports, references and parent expressions. In the second step the unused imports are identified. Combining both steps
             // inside the same method, triggered by the FILE node only, ensures consistency between the steps.
-            findImportsAndReferencesAndParentExpressions(node, emit)
-            findUnusedImports(emit)
+            node.findImportsAndReferencesAndParentExpressions()
+            findUnusedImports()
         }
     }
 
-    private fun findImportsAndReferencesAndParentExpressions(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
-        when (node.elementType) {
+    private fun ASTNode.findImportsAndReferencesAndParentExpressions() {
+        when (elementType) {
             PACKAGE_DIRECTIVE -> {
-                val packageDirective = node.psi as KtPackageDirective
+                val packageDirective = psi as KtPackageDirective
                 packageName = packageDirective.qualifiedName
             }
 
             IMPORT_DIRECTIVE -> {
-                val importPath = (node.psi as KtImportDirective).importPath!!
+                val importPath = (psi as KtImportDirective).importPath!!
                 if (imports.containsKey(importPath)) {
                     // Emit directly when same import occurs more than once
-                    emit(node.startOffset, "Unused import", true)
-                        .ifAutocorrectAllowed { node.deleteImportDirective() }
+                    emit(startOffset, "Unused import") { deleteImportDirective() }
                 } else {
-                    imports[importPath] = node
+                    imports[importPath] = this
                 }
             }
 
             DOT_QUALIFIED_EXPRESSION -> {
-                if (node.isExpressionForStaticImportWithExistingParentImport()) {
-                    parentExpressions.add(node.text.substringBeforeLast("("))
+                if (isExpressionForStaticImportWithExistingParentImport()) {
+                    parentExpressions.add(text.substringBeforeLast("("))
                 }
             }
 
             MARKDOWN_LINK -> {
                 val linkText =
-                    node
+                    this
                         .text
                         .removeSurrounding("[", "]")
                         .removeBackticksAndTrim()
@@ -119,12 +110,12 @@ public class NoUnusedImportsRule :
             }
 
             REFERENCE_EXPRESSION, OPERATION_REFERENCE -> {
-                if (!node.isPartOf(IMPORT_DIRECTIVE)) {
+                if (!isPartOf(IMPORT_DIRECTIVE)) {
                     val identifier =
-                        if (node is CompositeElement) {
-                            node.findChildByType(IDENTIFIER)
+                        if (this is CompositeElement) {
+                            findChildByType(IDENTIFIER)
                         } else {
-                            node
+                            this
                         }
                     identifier
                         ?.let { identifier.text }
@@ -133,7 +124,7 @@ public class NoUnusedImportsRule :
                             ref.add(
                                 Reference(
                                     it.removeBackticksAndTrim(),
-                                    node.isParentDotQualifiedExpressionOrNull(),
+                                    isParentDotQualifiedExpressionOrNull(),
                                 ),
                             )
                         }
@@ -144,12 +135,12 @@ public class NoUnusedImportsRule :
                 foundByKeyword = true
             }
         }
-        node.children.forEach { child ->
-            findImportsAndReferencesAndParentExpressions(child, emit)
+        children.forEach { child ->
+            child.findImportsAndReferencesAndParentExpressions()
         }
     }
 
-    private fun findUnusedImports(emit: (Int, String, Boolean) -> AutocorrectDecision) {
+    private fun findUnusedImports() {
         val directCalls = ref.filter { !it.inDotQualifiedExpression }.map { it.text }
         parentExpressions.forEach { parent ->
             imports
@@ -157,56 +148,54 @@ public class NoUnusedImportsRule :
                     val importPath = import.pathStr.removeBackticksAndTrim()
                     importPath.endsWith(".$parent") && directCalls.none { importPath.endsWith(".$it") }
                 }.forEach { (importPath, importNode) ->
-                    emit(importNode.startOffset, "Unused import", true)
-                        .ifAutocorrectAllowed {
-                            imports.remove(importPath, importNode)
-                            importNode.removeImportDirective()
-                        }
+                    emit(importNode.startOffset, "Unused import") {
+                        imports.remove(importPath, importNode)
+                        importNode.removeImportDirective()
+                    }
                 }
         }
 
         imports.forEach { (_, node) ->
-            node.visitImport(emit)
+            node.visitImport()
         }
     }
 
-    private fun ASTNode.visitImport(emit: (Int, String, Boolean) -> AutocorrectDecision) {
-        val importDirective = this.psi as KtImportDirective
+    private fun ASTNode.visitImport() {
+        val importDirective = psi as KtImportDirective
         if (importDirective.isUnaliasedImportFromSamePackage()) {
             // Allow imports without alias for which the fully qualified path is equal to the package name. See
             // https://github.com/ktlint/ktlint/issues/2821 for an example in which marking an import from the same package
             // led to compile failure.
         } else if (importDirective.isUnusedImport()) {
-            emit(this.startOffset, "Unused import", true)
-                .ifAutocorrectAllowed {
-                    val nextSibling = nextSibling
-                    if (nextSibling == null) {
-                        // Last import
-                        lastChildLeafOrSelf
-                            .nextLeaf
-                            ?.takeIf { it.isWhiteSpaceWithNewline }
-                            ?.let { whitespace ->
-                                if (prevLeaf == null) {
-                                    // Also it was the first import, and it is not preceded by any other node containing some text. So
-                                    // all whitespace until the next is redundant
-                                    whitespace.remove()
-                                } else {
-                                    val textAfterFirstNewline =
-                                        whitespace
-                                            .text
-                                            .substringAfter("\n")
-                                    if (textAfterFirstNewline.isNotBlank()) {
-                                        whitespace.replaceTextWith(textAfterFirstNewline)
-                                    }
+            emit(startOffset, "Unused import") {
+                val nextSibling = nextSibling
+                if (nextSibling == null) {
+                    // Last import
+                    lastChildLeafOrSelf
+                        .nextLeaf
+                        ?.takeIf { it.isWhiteSpaceWithNewline }
+                        ?.let { whitespace ->
+                            if (prevLeaf == null) {
+                                // Also it was the first import, and it is not preceded by any other node containing some text. So
+                                // all whitespace until the next is redundant
+                                whitespace.remove()
+                            } else {
+                                val textAfterFirstNewline =
+                                    whitespace
+                                        .text
+                                        .substringAfter("\n")
+                                if (textAfterFirstNewline.isNotBlank()) {
+                                    whitespace.replaceTextWith(textAfterFirstNewline)
                                 }
                             }
-                    } else {
-                        nextSibling
-                            .takeIf { it.isWhiteSpaceWithNewline }
-                            ?.remove()
-                    }
-                    deleteImportDirective()
+                        }
+                } else {
+                    nextSibling
+                        .takeIf { it.isWhiteSpaceWithNewline }
+                        ?.remove()
                 }
+                deleteImportDirective()
+            }
         }
     }
 
@@ -236,7 +225,7 @@ public class NoUnusedImportsRule :
         endsWith(".provideDelegate") && foundByKeyword
 
     private fun ASTNode.removeImportDirective() {
-        require(this.elementType == IMPORT_DIRECTIVE)
+        require(elementType == IMPORT_DIRECTIVE)
         when {
             parent?.firstChildNode == this -> {
                 nextSibling
@@ -256,7 +245,7 @@ public class NoUnusedImportsRule :
                     ?.remove()
             }
         }
-        this.remove()
+        remove()
     }
 
     private fun ASTNode.isExpressionForStaticImportWithExistingParentImport(): Boolean =

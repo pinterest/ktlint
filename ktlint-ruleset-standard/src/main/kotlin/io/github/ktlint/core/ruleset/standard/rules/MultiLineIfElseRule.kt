@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
@@ -18,7 +17,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
@@ -58,24 +56,17 @@ public class MultiLineIfElseRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == THEN || node.elementType == ELSE) {
-            visitElseOrThen(node, emit)
+            node.visitElseOrThen()
         }
     }
 
-    private fun visitElseOrThen(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
-        if (node.wrapInBlock()) {
-            emit(node.firstChildNode.startOffset, "Missing { ... }", true)
-                .ifAutocorrectAllowed {
-                    autocorrect(node)
-                }
+    private fun ASTNode.visitElseOrThen() {
+        if (wrapInBlock()) {
+            emit(firstChildNode.startOffset, "Missing { ... }") {
+                autocorrect()
+            }
         }
     }
 
@@ -85,7 +76,7 @@ public class MultiLineIfElseRule :
             !elseIfFollowedByDotQualifiedExpression() &&
             !isSimpleSingleLineIfStatement()
 
-    private fun ASTNode.isWrappedInBlock(): Boolean = this.firstChildNode?.elementType == BLOCK
+    private fun ASTNode.isWrappedInBlock(): Boolean = firstChildNode?.elementType == BLOCK
 
     // Allow
     // val foo2 = if (bar1) {
@@ -96,9 +87,9 @@ public class MultiLineIfElseRule :
     //     null
     // } ?: "something-else"
     private fun ASTNode.elseIfFollowedByBinaryExpression(): Boolean =
-        this.elementType == ELSE &&
-            this.firstChildNode?.elementType == BINARY_EXPRESSION &&
-            this.firstChildNode.firstChildNode?.elementType == IF
+        elementType == ELSE &&
+            firstChildNode?.elementType == BINARY_EXPRESSION &&
+            firstChildNode.firstChildNode?.elementType == IF
 
     // Allow
     // val foo = if (bar1) {
@@ -109,9 +100,9 @@ public class MultiLineIfElseRule :
     //     "bar3"
     // }.plus("foo")
     private fun ASTNode.elseIfFollowedByDotQualifiedExpression(): Boolean =
-        this.elementType == ELSE &&
-            this.firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION &&
-            this.firstChildNode.firstChildNode?.elementType == IF
+        elementType == ELSE &&
+            firstChildNode?.elementType == DOT_QUALIFIED_EXPRESSION &&
+            firstChildNode.firstChildNode?.elementType == IF
 
     private fun ASTNode.isSimpleSingleLineIfStatement(): Boolean =
         when {
@@ -146,16 +137,14 @@ public class MultiLineIfElseRule :
             }
         }
 
-    private fun autocorrect(node: ASTNode) {
+    private fun ASTNode.autocorrect() {
         val prevLeaves =
-            node
-                .leaves(forward = false)
+            leaves(forward = false)
                 .takeWhile { it.elementType !in listOf(RPAR, ELSE_KEYWORD) }
                 .toList()
                 .reversed()
         val nextLeaves =
-            node
-                .leaves(forward = true)
+            leaves(forward = true)
                 .takeWhile { it.isWhiteSpaceWithoutNewline || it.isPartOfComment }
                 .toList()
                 .dropLastWhile { it.isWhiteSpaceWithoutNewline }
@@ -164,24 +153,24 @@ public class MultiLineIfElseRule :
             .firstOrNull()
             .takeIf { it.isWhiteSpace }
             ?.replaceTextWith(" ")
-        KtBlockExpression(null).apply {
-            val previousChild = node.firstChildNode
-            node.replaceChild(node.firstChildNode, this)
-            addChild(LeafPsiElement(LBRACE, "{"))
-            addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(node)))
+        KtBlockExpression(null).let { blockExpression ->
+            val previousChild = firstChildNode
+            replaceChild(firstChildNode, blockExpression)
+            blockExpression.addChild(LeafPsiElement(LBRACE, "{"))
+            blockExpression.addChild(PsiWhiteSpaceImpl(indentConfig.childIndentOf(this)))
             prevLeaves
                 .dropWhile { it.isWhiteSpace }
-                .forEach(::addChild)
-            addChild(previousChild)
-            nextLeaves.forEach(::addChild)
-            addChild(PsiWhiteSpaceImpl(node.indent))
-            addChild(LeafPsiElement(RBRACE, "}"))
+                .forEach { blockExpression.addChild(it) }
+            blockExpression.addChild(previousChild)
+            nextLeaves.forEach { blockExpression.addChild(it) }
+
+            blockExpression.addChild(PsiWhiteSpaceImpl(indent))
+            blockExpression.addChild(LeafPsiElement(RBRACE, "}"))
         }
 
         // Make sure else starts on same line as newly inserted right brace
-        if (node.elementType == THEN) {
-            node
-                .nextSibling { !it.isPartOfComment }
+        if (elementType == THEN) {
+            nextSibling { !it.isPartOfComment }
                 ?.upsertWhitespaceBeforeMe(" ")
         }
     }

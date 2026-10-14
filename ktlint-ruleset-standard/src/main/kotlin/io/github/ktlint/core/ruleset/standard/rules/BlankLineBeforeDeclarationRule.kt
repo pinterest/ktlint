@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
@@ -24,7 +23,6 @@ import io.github.ktlint.core.rule.engine.core.api.children
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isDeclaration
@@ -49,10 +47,7 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
             CLASS,
             CLASS_INITIALIZER,
@@ -61,25 +56,20 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
             PROPERTY,
             PROPERTY_ACCESSOR,
             -> {
-                visitDeclaration(node, emit)
+                node.visitDeclaration()
             }
         }
     }
 
-    private fun visitDeclaration(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        if (node.allowBlankLineBeforeDeclaration()) return
+    private fun ASTNode.visitDeclaration() {
+        if (allowBlankLineBeforeDeclaration()) return
 
-        node
-            .takeIf { it.isDeclaration }
+        takeIf { it.isDeclaration }
             ?.takeUnless { it.prevLeaf.isBlankLine() }
             ?.let { insertBeforeNode ->
-                emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration", true)
-                    .ifAutocorrectAllowed {
-                        insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(node.indent))
-                    }
+                emit(insertBeforeNode.startOffset, "Expected a blank line for this declaration") {
+                    insertBeforeNode.upsertWhitespaceBeforeMe("\n".plus(indent))
+                }
             }
     }
 
@@ -165,7 +155,7 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
     //   when(val foo = foo()) {
     //       ...
     //   }
-    private fun ASTNode.isWhenWithProperty(): Boolean = this.elementType == PROPERTY && parent?.elementType == ElementType.WHEN
+    private fun ASTNode.isWhenWithProperty(): Boolean = elementType == PROPERTY && parent?.elementType == ElementType.WHEN
 
     // Allow:
     //   val foo =
@@ -173,12 +163,12 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
     //           return "foo"
     //       }
     private fun ASTNode.isFunctionDeclaredAsProperty(): Boolean =
-        this.elementType == FUN &&
+        elementType == FUN &&
             (prevCodeSibling?.elementType == EQ || prevCodeSibling?.elementType == RETURN_KEYWORD)
 
     // Allow:
     //   val foo1 = foo2(fun() = 42)
-    private fun ASTNode.isFunctionAsValueArgument(): Boolean = this.elementType == FUN && parent?.elementType == VALUE_ARGUMENT
+    private fun ASTNode.isFunctionAsValueArgument(): Boolean = elementType == FUN && parent?.elementType == VALUE_ARGUMENT
 
     // Allow:
     //   fun foo() =
@@ -186,7 +176,7 @@ public class BlankLineBeforeDeclarationRule : StandardRule("blank-line-before-de
     //          // some declarations
     //      }
     private fun ASTNode.isFunctionReturningObjectDeclaration(): Boolean =
-        this.elementType == OBJECT_DECLARATION && parent?.elementType == OBJECT_LITERAL
+        elementType == OBJECT_DECLARATION && parent?.elementType == OBJECT_LITERAL
 
     private fun ASTNode.propertyRelated() = elementType == PROPERTY || elementType == PROPERTY_ACCESSOR
 }

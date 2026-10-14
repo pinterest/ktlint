@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLOSING_QUOTE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.DOT_QUALIFIED_EXPRESSION
@@ -18,7 +17,6 @@ import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.children
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
@@ -29,10 +27,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("0.9", STABLE)
 public class StringTemplateRule : StandardRule("string-template") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         // code below is commented out because (setting aside potentially dangerous replaceChild part)
         // `val v: String = "$elementType"` would be rewritten to `val v: String = elementType.toString()` and it's not
         // immediately clear which is better
@@ -43,14 +38,12 @@ public class StringTemplateRule : StandardRule("string-template") {
         //        node.treeParent.treeParent.replaceChild(node.treeParent, entryStart.nextSibling.node)
         //    }
         if (node.elementType == LONG_STRING_TEMPLATE_ENTRY) {
-            node.removeRedundantToString(emit)
-            node.checkForRedundantCurlyBraces(emit)
+            node.removeRedundantToString()
+            node.checkForRedundantCurlyBraces()
         }
     }
 
-    private fun ASTNode.removeRedundantToString(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun ASTNode.removeRedundantToString() {
         findChildByType(DOT_QUALIFIED_EXPRESSION)
             ?.let { dotQualifiedExpression ->
                 dotQualifiedExpression
@@ -60,11 +53,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                             selector.elementType == CALL_EXPRESSION &&
                             selector.text == "toString()"
                         ) {
-                            emit(
-                                dot.startOffset,
-                                "Redundant \".toString()\" call in string template",
-                                true,
-                            ).ifAutocorrectAllowed {
+                            emit(dot.startOffset, "Redundant \".toString()\" call in string template") {
                                 dotQualifiedExpression.parent?.addChild(receiver, dotQualifiedExpression)
                                 dotQualifiedExpression.remove()
                                 takeIf { it.isStringTemplate() }
@@ -84,9 +73,7 @@ public class StringTemplateRule : StandardRule("string-template") {
             .let { Triple(it[0], it[1], it[2]) }
     }
 
-    private fun ASTNode.checkForRedundantCurlyBraces(
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun ASTNode.checkForRedundantCurlyBraces() {
         takeIf { it.isStringTemplate() }
             ?.children
             ?.firstOrNull { it.elementType != LONG_TEMPLATE_ENTRY_START }
@@ -100,8 +87,7 @@ public class StringTemplateRule : StandardRule("string-template") {
                                     !nextSibling.text.substring(0, 1).isPartOfIdentifier()
                             )
                     }?.let {
-                        emit(prevSibling!!.startOffset + 2, "Redundant curly braces", true)
-                            .ifAutocorrectAllowed { removeCurlyBracesIfRedundant() }
+                        emit(prevSibling!!.startOffset + 2, "Redundant curly braces") { removeCurlyBracesIfRedundant() }
                     }
             }
     }

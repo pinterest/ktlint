@@ -1,7 +1,6 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.logger.api.initKtLintKLogger
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IMPORT_LIST
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -9,7 +8,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
@@ -61,10 +59,7 @@ public class ImportOrderingRule :
         importSorter = ImportSorter(importsLayout)
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType != IMPORT_LIST) {
             return
         }
@@ -78,17 +73,15 @@ public class ImportOrderingRule :
                 node.startOffset,
                 ERROR_MESSAGES.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE) +
                     " -- no autocorrection due to comments in the import list",
-                false,
             )
         } else {
-            val imports: List<ASTNode> = getUniqueImportsAndBlankLines(children, emit)
+            val imports: List<ASTNode> = getUniqueImportsAndBlankLines(children)
             val sortedImportsWithSpaces = sortImportWithSpaces(imports)
             if (!importsAreEqual(imports, sortedImportsWithSpaces)) {
                 emit(
                     node.startOffset,
                     ERROR_MESSAGES.getOrDefault(importsLayout, CUSTOM_ERROR_MESSAGE),
-                    true,
-                ).ifAutocorrectAllowed {
+                ) {
                     node.removeRange(node.firstChildNode, node.lastChildNode.nextSibling)
                     sortedImportsWithSpaces.reduce { current, next ->
                         node.addChild(current, null)
@@ -138,10 +131,7 @@ public class ImportOrderingRule :
         return sortedImportsWithSpaces
     }
 
-    private fun getUniqueImportsAndBlankLines(
-        children: Array<ASTNode>,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ): List<ASTNode> {
+    private fun getUniqueImportsAndBlankLines(children: Array<ASTNode>): List<ASTNode> {
         val uniqueImports = mutableListOf<ASTNode>()
         val importTextSet = mutableSetOf<String>()
 
@@ -155,11 +145,10 @@ public class ImportOrderingRule :
                     if (importTextSet.add(current.text)) {
                         uniqueImports += current
                     } else {
-                        emit(current.startOffset, "Duplicate '${current.text}' found", true)
-                            .ifAutocorrectAllowed {
-                                current.prevSibling.takeIf { it.isWhiteSpace }?.remove()
-                                current.remove()
-                            }
+                        emit(current.startOffset, "Duplicate '${current.text}' found") {
+                            current.prevSibling.takeIf { it.isWhiteSpace }?.remove()
+                            current.remove()
+                        }
                     }
                 }
             }

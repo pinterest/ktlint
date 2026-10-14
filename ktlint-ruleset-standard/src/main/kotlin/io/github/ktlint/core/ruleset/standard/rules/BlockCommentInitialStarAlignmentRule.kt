@@ -1,11 +1,9 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
 import io.github.ktlint.core.ruleset.standard.StandardRule
@@ -16,10 +14,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  */
 @SinceKtlint("0.45", STABLE)
 public class BlockCommentInitialStarAlignmentRule : StandardRule("block-comment-initial-star-alignment") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == BLOCK_COMMENT) {
             val expectedIndentForLineWithInitialStar = node.indentWithoutNewlinePrefix + " *"
             val lines = node.text.split("\n")
@@ -33,8 +28,7 @@ public class BlockCommentInitialStarAlignmentRule : StandardRule("block-comment-
                         ?.let { matchResult ->
                             val (prefix, content) = matchResult.destructured
                             if (prefix != expectedIndentForLineWithInitialStar) {
-                                emit(offset + prefix.length, "Initial star should align with start of block comment", true)
-                                    .ifAutocorrectAllowed { autocorrect = true }
+                                emit(offset + prefix.length, "Initial star should align with start of block comment") { autocorrect = true }
                                 expectedIndentForLineWithInitialStar + content
                             } else {
                                 line

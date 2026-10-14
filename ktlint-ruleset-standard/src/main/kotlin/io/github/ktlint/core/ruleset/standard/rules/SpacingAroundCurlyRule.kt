@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.AT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS_BODY
@@ -27,7 +26,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPER
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isLeaf
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
@@ -73,44 +71,38 @@ public class SpacingAroundCurlyRule :
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isLeaf && !node.isPartOfString) {
             val (spacingBefore, spacingAfter) =
                 when (node.elementType) {
-                    LBRACE -> node.lbraceSpacing(emit)
-                    RBRACE -> node.rbraceSpacing(emit)
+                    LBRACE -> node.lbraceSpacing()
+                    RBRACE -> node.rbraceSpacing()
                     else -> return
                 }
             when {
                 !spacingBefore && !spacingAfter -> {
-                    emit(node.startOffset, "Missing spacing around \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            node.upsertWhitespaceBeforeMe(" ")
-                            node.upsertWhitespaceAfterMe(" ")
-                        }
+                    emit(node.startOffset, "Missing spacing around \"${node.text}\"") {
+                        node.upsertWhitespaceBeforeMe(" ")
+                        node.upsertWhitespaceAfterMe(" ")
+                    }
                 }
 
                 !spacingBefore -> {
-                    emit(node.startOffset, "Missing spacing before \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            node.upsertWhitespaceBeforeMe(" ")
-                        }
+                    emit(node.startOffset, "Missing spacing before \"${node.text}\"") {
+                        node.upsertWhitespaceBeforeMe(" ")
+                    }
                 }
 
                 !spacingAfter -> {
-                    emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"", true)
-                        .ifAutocorrectAllowed {
-                            node.upsertWhitespaceAfterMe(" ")
-                        }
+                    emit(node.startOffset + 1, "Missing spacing after \"${node.text}\"") {
+                        node.upsertWhitespaceAfterMe(" ")
+                    }
                 }
             }
         }
     }
 
-    private fun ASTNode.lbraceSpacing(emit: (Int, String, Boolean) -> AutocorrectDecision): Pair<Boolean, Boolean> {
+    private fun ASTNode.lbraceSpacing(): Pair<Boolean, Boolean> {
         require(elementType == LBRACE)
         val spacingBefore =
             prevLeaf.isWhiteSpace ||
@@ -127,47 +119,44 @@ public class SpacingAroundCurlyRule :
             .takeIf { it.isWhiteSpaceWithoutNewline }
             ?.takeIf { it.prevLeaf?.elementType == LPAR || it.prevLeaf?.elementType == AT }
             ?.let { whitespace ->
-                emit(this.startOffset, "Unexpected space before \"$text\"", true)
-                    .ifAutocorrectAllowed { whitespace.remove() }
+                emit(startOffset, "Unexpected space before \"$text\"") { whitespace.remove() }
             }
         prevLeaf
             ?.takeIf { prevLeaf.isWhiteSpaceWithNewline }
             ?.takeIf { parent?.elementType == CLASS_BODY || parent?.elementType == BLOCK }
             ?.let { whitespace ->
-                emit(startOffset, "Unexpected newline before \"$text\"", true)
-                    .ifAutocorrectAllowed {
-                        if (whitespace.isPrecededByEolComment()) {
-                            // All consecutive whitespaces and comments preceding the curly have to be moved after the curly brace
-                            whitespace
-                                .leavesBackwardsIncludingSelf
-                                .takeWhile { !it.isCode }
-                                .toList()
-                                .reversed()
-                                .takeIf { it.isNotEmpty() }
-                                ?.let { leavesToMoveAfterCurly ->
-                                    parent?.addChildren(
-                                        leavesToMoveAfterCurly.first(),
-                                        leavesToMoveAfterCurly.last(),
-                                        nextSibling,
-                                    )
-                                }
-                        }
-                        whitespace.replaceTextWith(" ")
+                emit(startOffset, "Unexpected newline before \"$text\"") {
+                    if (whitespace.isPrecededByEolComment()) {
+                        // All consecutive whitespaces and comments preceding the curly have to be moved after the curly brace
+                        whitespace
+                            .leavesBackwardsIncludingSelf
+                            .takeWhile { !it.isCode }
+                            .toList()
+                            .reversed()
+                            .takeIf { it.isNotEmpty() }
+                            ?.let { leavesToMoveAfterCurly ->
+                                parent?.addChildren(
+                                    leavesToMoveAfterCurly.first(),
+                                    leavesToMoveAfterCurly.last(),
+                                    nextSibling,
+                                )
+                            }
                     }
+                    whitespace.replaceTextWith(" ")
+                }
             }
         return Pair(spacingBefore, spacingAfter)
     }
 
-    private fun ASTNode.rbraceSpacing(emit: (Int, String, Boolean) -> AutocorrectDecision): Pair<Boolean, Boolean> {
+    private fun ASTNode.rbraceSpacing(): Pair<Boolean, Boolean> {
         require(elementType == RBRACE)
         val spacingBefore = prevLeaf.isWhiteSpace || prevLeaf?.elementType == LBRACE
-        val spacingAfter = nextLeaf == null || nextLeaf.isWhiteSpace || shouldNotToBeSeparatedBySpace(nextLeaf)
+        val spacingAfter = nextLeaf == null || nextLeaf.isWhiteSpace || nextLeaf.shouldNotToBeSeparatedBySpace()
         nextLeaf
             .takeIf { it.isWhiteSpaceWithoutNewline }
-            ?.takeIf { shouldNotToBeSeparatedBySpace(it.nextLeaf) }
+            ?.takeIf { it.nextLeaf.shouldNotToBeSeparatedBySpace() }
             ?.let { leaf ->
-                emit(this.startOffset, "Unexpected space after \"${this.text}\"", true)
-                    .ifAutocorrectAllowed { leaf.remove() }
+                emit(startOffset, "Unexpected space after \"$text\"") { leaf.remove() }
             }
         return Pair(spacingBefore, spacingAfter)
     }
@@ -177,8 +166,8 @@ public class SpacingAroundCurlyRule :
             ?.isPartOfComment
             ?: false
 
-    private fun shouldNotToBeSeparatedBySpace(leaf: ASTNode?): Boolean {
-        val nextElementType = leaf?.elementType
+    private fun ASTNode?.shouldNotToBeSeparatedBySpace(): Boolean {
+        val nextElementType = this?.elementType
         return (
             nextElementType == DOT ||
                 nextElementType == COMMA ||

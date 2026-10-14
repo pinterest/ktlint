@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
@@ -28,16 +27,13 @@ public class NoWildcardImportsRule :
         allowedWildcardImports = editorConfig[IJ_KOTLIN_PACKAGES_TO_USE_IMPORT_ON_DEMAND]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == IMPORT_DIRECTIVE) {
             val importDirective = node.psi as KtImportDirective
             val path = importDirective.importPath ?: return
             if (!path.isAllUnder) return
             if (allowedWildcardImports.none { it.matches(path) }) {
-                emit(node.startOffset, "Wildcard import", false)
+                emit(node.startOffset, "Wildcard import")
             }
         }
     }

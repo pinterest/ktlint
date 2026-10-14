@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN
@@ -28,7 +27,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROP
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
@@ -78,26 +76,19 @@ public class ParameterListWrappingRule :
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
-            NULLABLE_TYPE -> visitNullableType(node, emit)
-            VALUE_PARAMETER_LIST -> visitParameterList(node, emit)
+            NULLABLE_TYPE -> node.visitNullableType()
+            VALUE_PARAMETER_LIST -> node.visitParameterList()
         }
     }
 
-    private fun visitNullableType(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(node.elementType == NULLABLE_TYPE)
-        node
-            .takeIf { it.hasNoMaxLineLengthSuppression() }
+    private fun ASTNode.visitNullableType() {
+        require(elementType == NULLABLE_TYPE)
+        takeIf { it.hasNoMaxLineLengthSuppression() }
             .takeUnless {
                 // skip when max line length is not exceeded
-                (node.column - 1 + node.textLength) <= maxLineLength
+                (column - 1 + textLength) <= maxLineLength
             }?.takeUnless { it.isWhiteSpaceWithNewline }
             ?.takeIf { it.isFunctionTypeWithNonEmptyValueParameterList() }
             ?.let { nullableType ->
@@ -105,24 +96,16 @@ public class ParameterListWrappingRule :
                     .findChildByType(LPAR)
                     ?.takeUnless { it.nextLeaf?.isWhiteSpaceWithNewline == true }
                     ?.let { lpar ->
-                        emit(
-                            lpar.startOffset + 1,
-                            "Expected new line before function type as it does not fit on a single line",
-                            true,
-                        ).ifAutocorrectAllowed {
-                            lpar.upsertWhitespaceAfterMe(indentConfig.childIndentOf(node))
+                        emit(lpar.startOffset + 1, "Expected new line before function type as it does not fit on a single line") {
+                            lpar.upsertWhitespaceAfterMe(indentConfig.childIndentOf(this))
                         }
                     }
                 nullableType
                     .findChildByType(RPAR)
                     ?.takeUnless { it.prevLeaf?.isWhiteSpaceWithNewline == true }
                     ?.let { rpar ->
-                        emit(
-                            rpar.startOffset,
-                            "Expected new line after function type as it does not fit on a single line",
-                            true,
-                        ).ifAutocorrectAllowed {
-                            rpar.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
+                        emit(rpar.startOffset, "Expected new line after function type as it does not fit on a single line") {
+                            rpar.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(this))
                         }
                     }
             }
@@ -206,27 +189,22 @@ public class ParameterListWrappingRule :
             .orEmpty()
             .any { it.elementType == ANNOTATION_ENTRY }
 
-    private fun visitParameterList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        if (isPrecededByComment(node)) {
-            emit(node.startOffset, "Parameter list should not be preceded by a comment", false)
-        } else if (node.needToWrapParameterList()) {
-            node
-                .children()
-                .forEach { child -> wrapParameterInList(child, emit) }
+    private fun ASTNode.visitParameterList() {
+        if (isPrecededByComment()) {
+            emit(startOffset, "Parameter list should not be preceded by a comment")
+        } else if (needToWrapParameterList()) {
+            children()
+                .forEach { child -> child.wrapParameterInList() }
         }
     }
 
-    private fun isPrecededByComment(node: ASTNode) =
-        node
-            .prevLeaf { !it.isWhiteSpace }
+    private fun ASTNode.isPrecededByComment() =
+        prevLeaf { !it.isWhiteSpace }
             ?.prevLeaf
             ?.isPartOfComment
             ?: false
 
-    private fun intendedIndent(child: ASTNode): String =
+    private fun ASTNode.intendedIndent(): String =
         when {
             // IDEA quirk:
             // fun <
@@ -242,11 +220,11 @@ public class ParameterListWrappingRule :
             //         param1: T
             //         param2: R
             //     )
-            child.parent!!.isFunWithTypeParameterListInFront() -> -1
+            parent!!.isFunWithTypeParameterListInFront() -> -1
 
             else -> 0
         }.let {
-            if (child.elementType == VALUE_PARAMETER) {
+            if (elementType == VALUE_PARAMETER) {
                 it + 1
             } else {
                 it
@@ -254,25 +232,20 @@ public class ParameterListWrappingRule :
         }.let { indentLevelFix ->
             val indentLevel =
                 indentConfig
-                    .indentLevelFrom(child.parent!!.indentWithoutNewlinePrefix)
+                    .indentLevelFrom(parent!!.indentWithoutNewlinePrefix)
                     .plus(indentLevelFix)
             "\n" + indentConfig.indent.repeat(indentLevel)
         }
 
-    private fun wrapParameterInList(
-        child: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        when (child.elementType) {
+    private fun ASTNode.wrapParameterInList() {
+        when (elementType) {
             LPAR -> {
-                child
-                    .parent
+                parent
                     ?.takeUnless { it.isValueParameterListInFunctionType() }
                     ?.prevLeaf
                     ?.takeIf { it.isWhiteSpaceWithNewline }
                     ?.let { whitespace ->
-                        emit(child.startOffset, errorMessage(child), true)
-                            .ifAutocorrectAllowed { whitespace.remove() }
+                        emit(startOffset, errorMessage()) { whitespace.remove() }
                     }
             }
 
@@ -283,8 +256,8 @@ public class ParameterListWrappingRule :
                 // ... LPAR
                 // <line indent + indentSize> VALUE_PARAMETER...
                 // <line indent> RPAR
-                val intendedIndent = intendedIndent(child)
-                val prevLeaf = child.prevLeaf
+                val intendedIndent = intendedIndent()
+                val prevLeaf = prevLeaf
                 when {
                     prevLeaf.isWhiteSpaceWithNewline -> {
                         // The current child is already wrapped to a new line. Checking and fixing the
@@ -294,22 +267,20 @@ public class ParameterListWrappingRule :
 
                     prevLeaf.isWhiteSpace -> {
                         // The current child needs to be wrapped to a newline.
-                        emit(child.startOffset, errorMessage(child), true)
-                            .ifAutocorrectAllowed {
-                                // The indentation is purely based on the previous leaf only. Note that in
-                                // autoCorrect mode the indent rule, if enabled, runs after this rule and
-                                // determines the final indentation. But if the indent rule is disabled then the
-                                // indent of this rule is kept.
-                                prevLeaf?.replaceTextWith(intendedIndent)
-                            }
+                        emit(startOffset, errorMessage()) {
+                            // The indentation is purely based on the previous leaf only. Note that in
+                            // autoCorrect mode the indent rule, if enabled, runs after this rule and
+                            // determines the final indentation. But if the indent rule is disabled then the
+                            // indent of this rule is kept.
+                            prevLeaf?.replaceTextWith(intendedIndent)
+                        }
                     }
 
                     else -> {
                         // Insert a new whitespace element in order to wrap the current child to a new line.
-                        emit(child.startOffset, errorMessage(child), true)
-                            .ifAutocorrectAllowed {
-                                child.parent?.addChild(PsiWhiteSpaceImpl(intendedIndent), child)
-                            }
+                        emit(startOffset, errorMessage()) {
+                            parent?.addChild(PsiWhiteSpaceImpl(intendedIndent), this)
+                        }
                     }
                 }
                 // Indentation of child nodes need to be fixed by the IndentationRule.
@@ -338,8 +309,8 @@ public class ParameterListWrappingRule :
             false
         }
 
-    private fun errorMessage(node: ASTNode) =
-        when (node.elementType) {
+    private fun ASTNode.errorMessage() =
+        when (elementType) {
             LPAR -> """Unnecessary newline before "(""""
             VALUE_PARAMETER -> "Parameter should start on a newline"
             RPAR -> """Missing newline before ")""""

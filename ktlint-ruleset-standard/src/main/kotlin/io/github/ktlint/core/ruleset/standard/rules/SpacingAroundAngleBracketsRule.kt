@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_PARAMETER_LIST
@@ -9,7 +8,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.VAR_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewline
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
@@ -21,10 +19,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("0.30", STABLE)
 public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle-brackets") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType != TYPE_PARAMETER_LIST && node.elementType != TYPE_ARGUMENT_LIST) {
             return
         }
@@ -38,8 +33,7 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
                 ?.let { beforeLeftAngle ->
                     // Ignore when the whitespace is preceded by certain keywords, e.g. fun <T> func(arg: T) {}
                     if (!ELEMENT_TYPES_ALLOWING_PRECEDING_WHITESPACE.contains(beforeLeftAngle.prevLeaf?.elementType)) {
-                        emit(beforeLeftAngle.startOffset, "Unexpected spacing before \"<\"", true)
-                            .ifAutocorrectAllowed { beforeLeftAngle.remove() }
+                        emit(beforeLeftAngle.startOffset, "Unexpected spacing before \"<\"") { beforeLeftAngle.remove() }
                     }
                 }
 
@@ -49,11 +43,10 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
                 .takeIf { it.isWhiteSpace }
                 ?.let { afterLeftAngle ->
                     if (afterLeftAngle.isWhiteSpaceWithoutNewline) {
-                        emit(afterLeftAngle.startOffset, "Unexpected spacing after \"<\"", true)
-                            .ifAutocorrectAllowed {
-                                // when spacing does not include any new lines, e.g. Map< String, Int>
-                                afterLeftAngle.remove()
-                            }
+                        emit(afterLeftAngle.startOffset, "Unexpected spacing after \"<\"") {
+                            // when spacing does not include any new lines, e.g. Map< String, Int>
+                            afterLeftAngle.remove()
+                        }
                     } else {
                         // when spacing contains at least one new line, e.g.
                         // SomeGenericType<[whitespace]
@@ -64,8 +57,9 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
                         //      String, Int, String>
                         val newLineWithIndent = afterLeftAngle.text.trimBeforeLastLine()
                         if (newLineWithIndent != afterLeftAngle.text) {
-                            emit(afterLeftAngle.startOffset, "Single newline expected after \"<\"", true)
-                                .ifAutocorrectAllowed { afterLeftAngle.replaceTextWith(newLineWithIndent) }
+                            emit(afterLeftAngle.startOffset, "Single newline expected after \"<\"") {
+                                afterLeftAngle.replaceTextWith(newLineWithIndent)
+                            }
                         }
                     }
                 }
@@ -78,11 +72,10 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
             ?.let { beforeRightAngle ->
                 // Check for rogue spacing before a closing bracket
                 if (beforeRightAngle.isWhiteSpaceWithoutNewline) {
-                    emit(beforeRightAngle.startOffset, "Unexpected spacing before \">\"", true)
-                        .ifAutocorrectAllowed {
-                            // when spacing does not include any new lines, e.g. Map<String, Int >
-                            beforeRightAngle.remove()
-                        }
+                    emit(beforeRightAngle.startOffset, "Unexpected spacing before \">\"") {
+                        // when spacing does not include any new lines, e.g. Map<String, Int >
+                        beforeRightAngle.remove()
+                    }
                 } else {
                     // when spacing contains at least one new line, e.g.
                     // SomeGenericType<String, Int, String[whitespace]
@@ -93,8 +86,9 @@ public class SpacingAroundAngleBracketsRule : StandardRule("spacing-around-angle
                     //      >
                     val newLineWithIndent = beforeRightAngle.text.trimBeforeLastLine()
                     if (newLineWithIndent != beforeRightAngle.text) {
-                        emit(beforeRightAngle.startOffset, "Single newline expected before \">\"", true)
-                            .ifAutocorrectAllowed { beforeRightAngle.replaceTextWith(newLineWithIndent) }
+                        emit(beforeRightAngle.startOffset, "Single newline expected before \">\"") {
+                            beforeRightAngle.replaceTextWith(newLineWithIndent)
+                        }
                     }
                 }
             }

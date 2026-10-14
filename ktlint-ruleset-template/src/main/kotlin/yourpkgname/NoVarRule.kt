@@ -1,6 +1,5 @@
 package yourpkgname
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VAR_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.RuleV2
@@ -16,12 +15,9 @@ public class NoVarRule :
                 issueTrackerUrl = "https://github.com/your/project/issues",
             ),
     ) {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == VAR_KEYWORD) {
-            emit(node.startOffset, "Unexpected var, use val instead", false)
+            emit(node.startOffset, "Unexpected var, use val instead")
         }
     }
 }

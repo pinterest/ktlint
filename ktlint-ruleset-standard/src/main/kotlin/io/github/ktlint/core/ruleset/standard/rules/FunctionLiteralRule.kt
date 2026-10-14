@@ -1,7 +1,6 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.logger.api.initKtLintKLogger
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ELSE
@@ -29,7 +28,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_P
 import io.github.ktlint.core.rule.engine.core.api.findParentByType
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -110,39 +108,30 @@ public class FunctionLiteralRule :
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == FUNCTION_LITERAL) {
             node
                 .findChildByType(VALUE_PARAMETER_LIST)
-                ?.let { visitValueParameterList(it, emit) }
+                ?.visitValueParameterList()
             node
                 .findChildByType(ARROW)
-                ?.let { visitArrow(it, emit) }
+                ?.visitArrow()
             node
                 .findChildByType(BLOCK)
-                ?.let { visitBlock(it, emit) }
+                ?.visitBlock()
         }
     }
 
-    private fun visitValueParameterList(
-        parameterList: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        val valueParameters =
-            parameterList
-                .children
-                .filter { it.elementType == VALUE_PARAMETER }
-        if (valueParameters.count() > 1 || parameterList.wrapFirstParameterToNewline()) {
-            if (parameterList.textContains('\n') || parameterList.doesNotFitOnSameLineAsStartOfFunctionLiteral()) {
-                rewriteToMultilineParameterList(parameterList, emit)
+    private fun ASTNode.visitValueParameterList() {
+        val valueParameters = children.filter { it.elementType == VALUE_PARAMETER }
+        if (valueParameters.count() > 1 || wrapFirstParameterToNewline()) {
+            if (textContains('\n') || doesNotFitOnSameLineAsStartOfFunctionLiteral()) {
+                rewriteToMultilineParameterList()
             } else {
-                rewriteToSingleLineFunctionLiteral(parameterList, emit)
+                rewriteToSingleLineFunctionLiteral()
             }
         } else {
-            if (parameterList.textContains('\n')) {
+            if (textContains('\n')) {
                 // Allow:
                 //    val foo = {
                 //            bar:
@@ -161,7 +150,7 @@ public class FunctionLiteralRule :
                 //        ->
                 //        bar()
                 //    }
-                rewriteToSingleLineFunctionLiteral(parameterList, emit)
+                rewriteToSingleLineFunctionLiteral()
             }
         }
     }
@@ -243,142 +232,101 @@ public class FunctionLiteralRule :
             ?.takeIf { it.parent?.elementType == LAMBDA_ARGUMENT }
             .let { it != null }
 
-    private fun rewriteToMultilineParameterList(
-        parameterList: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(parameterList.elementType == VALUE_PARAMETER_LIST)
-        parameterList
-            .children
+    private fun ASTNode.rewriteToMultilineParameterList() {
+        require(elementType == VALUE_PARAMETER_LIST)
+        children
             .filter { it.elementType == VALUE_PARAMETER }
-            .forEach { wrapValueParameter(it, emit) }
-        parameterList
-            .parent
+            .forEach { it.wrapValueParameter() }
+        parent
             ?.findChildByType(ARROW)
-            ?.let { arrow -> wrapArrow(arrow, emit) }
-        parameterList
-            .parent
+            ?.wrapArrow()
+        parent
             ?.findChildByType(RBRACE)
-            ?.let { rbrace -> wrapBeforeRbrace(rbrace, emit) }
+            ?.wrapBeforeRbrace()
     }
 
-    private fun wrapValueParameter(
-        valueParameter: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(valueParameter.elementType == VALUE_PARAMETER)
-        if (valueParameter.prevLeaf.isWhiteSpaceWithoutNewline) {
-            emit(valueParameter.startOffset, "Newline expected before parameter", true)
-                .ifAutocorrectAllowed {
-                    valueParameter.upsertWhitespaceBeforeMe(
-                        indentConfig.childIndentOf(valueParameter.findParentByType(FUNCTION_LITERAL)!!),
-                    )
-                }
+    private fun ASTNode.wrapValueParameter() {
+        require(elementType == VALUE_PARAMETER)
+        if (prevLeaf.isWhiteSpaceWithoutNewline) {
+            emit(startOffset, "Newline expected before parameter") {
+                upsertWhitespaceBeforeMe(
+                    indentConfig.childIndentOf(findParentByType(FUNCTION_LITERAL)!!),
+                )
+            }
         }
     }
 
-    private fun wrapArrow(
-        arrow: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        wrapBeforeArrow(arrow, emit)
-        wrapAfterArrow(arrow, emit)
+    private fun ASTNode.wrapArrow() {
+        wrapBeforeArrow()
+        wrapAfterArrow()
     }
 
-    private fun wrapBeforeArrow(
-        arrow: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(arrow.elementType == ARROW)
-        arrow
-            .prevLeaf
+    private fun ASTNode.wrapBeforeArrow() {
+        require(elementType == ARROW)
+        prevLeaf
             .takeIf { it.isWhiteSpaceWithoutNewline }
             ?.let {
-                emit(arrow.startOffset, "Newline expected before arrow", true)
-                    .ifAutocorrectAllowed {
-                        arrow.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(arrow.parent!!))
-                    }
+                emit(startOffset, "Newline expected before arrow") {
+                    upsertWhitespaceBeforeMe(indentConfig.childIndentOf(parent!!))
+                }
             }
     }
 
-    private fun wrapAfterArrow(
-        arrow: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(arrow.elementType == ARROW)
-        arrow
-            .nextLeaf
+    private fun ASTNode.wrapAfterArrow() {
+        require(elementType == ARROW)
+        nextLeaf
             .takeIf { it.isWhiteSpaceWithoutNewlineOrNull }
             ?.let {
-                emit(arrow.startOffset + arrow.textLength - 1, "Newline expected after arrow", true)
-                    .ifAutocorrectAllowed {
-                        arrow.upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(arrow))
-                    }
+                emit(startOffset + textLength - 1, "Newline expected after arrow") {
+                    upsertWhitespaceAfterMe(indentConfig.siblingIndentOf(this))
+                }
             }
     }
 
-    private fun wrapBeforeRbrace(
-        rbrace: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(rbrace.elementType == RBRACE)
-        rbrace
-            .prevLeaf
+    private fun ASTNode.wrapBeforeRbrace() {
+        require(elementType == RBRACE)
+        prevLeaf
             .takeIf { it.isWhiteSpaceWithoutNewlineOrNull }
             ?.let {
-                emit(rbrace.startOffset, "Newline expected before closing brace", true)
-                    .ifAutocorrectAllowed {
-                        rbrace.upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(rbrace))
-                    }
+                emit(startOffset, "Newline expected before closing brace") {
+                    upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(this))
+                }
             }
     }
 
-    private fun rewriteToSingleLineFunctionLiteral(
-        parameterList: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(parameterList.elementType == VALUE_PARAMETER_LIST)
-        parameterList
-            .takeUnless { it.isPrecededByComment() }
+    private fun ASTNode.rewriteToSingleLineFunctionLiteral() {
+        require(elementType == VALUE_PARAMETER_LIST)
+        takeUnless { it.isPrecededByComment() }
             ?.prevSibling { it.isWhiteSpaceWithNewline }
             ?.let { whitespaceBeforeParameterList ->
-                emit(parameterList.startOffset, "No newline expected before parameter", true)
-                    .ifAutocorrectAllowed {
-                        whitespaceBeforeParameterList.upsertWhitespaceBeforeMe(" ")
-                    }
+                emit(startOffset, "No newline expected before parameter") {
+                    whitespaceBeforeParameterList.upsertWhitespaceBeforeMe(" ")
+                }
             }
-        parameterList
-            .nextSibling { it.isWhiteSpace }
+        nextSibling { it.isWhiteSpace }
             ?.takeIf { it.isWhiteSpaceWithNewline }
             ?.let { whitespaceAfterParameterList ->
-                emit(parameterList.startOffset + parameterList.textLength, "No newline expected after parameter", true)
-                    .ifAutocorrectAllowed {
-                        whitespaceAfterParameterList.upsertWhitespaceAfterMe(" ")
-                    }
+                emit(startOffset + textLength, "No newline expected after parameter") {
+                    whitespaceAfterParameterList.upsertWhitespaceAfterMe(" ")
+                }
             }
     }
 
     private fun ASTNode.isPrecededByComment() = siblings(forward = false).any { it.isPartOfComment }
 
-    private fun visitArrow(
-        arrow: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(arrow.elementType == ARROW)
-        arrow
-            .prevSibling { it.elementType == VALUE_PARAMETER_LIST }
+    private fun ASTNode.visitArrow() {
+        require(elementType == ARROW)
+        prevSibling { it.elementType == VALUE_PARAMETER_LIST }
             ?.takeIf { it.hasEmptyParameterList() }
-            ?.takeUnless { arrow.isLambdaExpressionNotWrappedInBlock() }
-            ?.takeIf { arrow.isFollowedByNonEmptyBlock() }
+            ?.takeUnless { isLambdaExpressionNotWrappedInBlock() }
+            ?.takeIf { isFollowedByNonEmptyBlock() }
             ?.let {
-                emit(arrow.startOffset, "Arrow is redundant when parameter list is empty", true)
-                    .ifAutocorrectAllowed {
-                        arrow
-                            .nextSibling
-                            .takeIf { it.isWhiteSpace }
-                            ?.remove()
-                        arrow.remove()
-                    }
+                emit(startOffset, "Arrow is redundant when parameter list is empty") {
+                    nextSibling
+                        .takeIf { it.isWhiteSpace }
+                        ?.remove()
+                    remove()
+                }
             }
     }
 
@@ -410,43 +358,33 @@ public class FunctionLiteralRule :
         return nextSibling { it.elementType == BLOCK }?.firstChildNode != null
     }
 
-    private fun visitBlock(
-        block: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(block.elementType == BLOCK)
-        if (block.textContains('\n') || block.exceedsMaxLineLength()) {
-            block
-                .prevCodeSibling
+    private fun ASTNode.visitBlock() {
+        require(elementType == BLOCK)
+        if (textContains('\n') || exceedsMaxLineLength()) {
+            prevCodeSibling
                 ?.let { prevCodeSibling ->
                     when (prevCodeSibling.elementType) {
-                        ARROW -> wrapAfterArrow(prevCodeSibling, emit)
-                        LBRACE -> wrapAfterLbrace(prevCodeSibling, emit)
+                        ARROW -> prevCodeSibling.wrapAfterArrow()
+                        LBRACE -> prevCodeSibling.wrapAfterLbrace()
                         else -> LOGGER.debug { "Unexpected type of element ${prevCodeSibling.elementType}" }
                     }
                 }
 
-            block
-                .nextCodeSibling
+            nextCodeSibling
                 ?.takeIf { it.elementType == RBRACE }
-                ?.let { rbrace -> wrapBeforeRbrace(rbrace, emit) }
+                ?.wrapBeforeRbrace()
         }
     }
 
-    private fun wrapAfterLbrace(
-        lbrace: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(lbrace.elementType == LBRACE)
-        lbrace
-            .nextLeaf
+    private fun ASTNode.wrapAfterLbrace() {
+        require(elementType == LBRACE)
+        nextLeaf
             .takeIf { it.isWhiteSpace }
             .let { whitespaceAfterLbrace ->
                 if (whitespaceAfterLbrace.isWhiteSpaceWithoutNewlineOrNull) {
-                    emit(lbrace.startOffset, "Newline expected after opening brace", true)
-                        .ifAutocorrectAllowed {
-                            lbrace.upsertWhitespaceAfterMe(indentConfig.childIndentOf(lbrace))
-                        }
+                    emit(startOffset, "Newline expected after opening brace") {
+                        upsertWhitespaceAfterMe(indentConfig.childIndentOf(this))
+                    }
                 }
             }
     }

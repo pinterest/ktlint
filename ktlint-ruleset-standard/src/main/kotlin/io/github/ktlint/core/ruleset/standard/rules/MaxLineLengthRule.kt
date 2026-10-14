@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COMMA
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IMPORT_DIRECTIVE
@@ -53,10 +52,7 @@ public class MaxLineLengthRule :
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isWhiteSpace) {
             return
         }
@@ -79,11 +75,7 @@ public class MaxLineLengthRule :
                         .first()
                         .startOffset
                         .plus(maxLineLength + 1)
-                emit(
-                    offset,
-                    "Exceeded max line length ($maxLineLength)",
-                    false,
-                )
+                emit(offset, "Exceeded max line length ($maxLineLength)")
             }
     }
 

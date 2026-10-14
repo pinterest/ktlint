@@ -71,7 +71,26 @@ public open class RuleV2(
      */
     public open val usesEditorConfigProperties: Set<EditorConfigProperty<*>> = emptySet(),
 ) {
+    private lateinit var emitLintViolation: (Int, RuleId, String, Boolean) -> AutocorrectDecision
     private var traversalState = TraversalState.NOT_STARTED
+
+    /**
+     * Emits a lint violation. If the violation can be autocorrected than the [autoCorrect] parameter should override the default value.
+     * The [autoCorrect] will only be called when running in format mode, and the API consumer indicates that this specific violation is to
+     * be autocorrected.
+     * If the violation cannot be autocorrected than the [autoCorrect] does not need to be overridden.
+     */
+    public fun emit(
+        offset: Int,
+        errorMessage: String,
+        autoCorrect: () -> Unit = AUTOCORRECT_NOT_IMPLEMENTED,
+    ) {
+        val canBeAutoCorrected = autoCorrect != AUTOCORRECT_NOT_IMPLEMENTED
+        val decision = emitLintViolation(offset, ruleId, errorMessage, canBeAutoCorrected)
+        if (canBeAutoCorrected && decision == AutocorrectDecision.ALLOW_AUTOCORRECT) {
+            autoCorrect()
+        }
+    }
 
     /**
      * This method is called once before the first node is visited. It can be used to initialize the state of the rule
@@ -80,39 +99,22 @@ public open class RuleV2(
     public open fun beforeFirstNode(editorConfig: EditorConfig) {}
 
     /**
-     * This method is called on a node in AST before visiting the child nodes. This is repeated recursively for the
-     * child nodes resulting in a depth first traversal of the AST.
+     * This method is called on a [node] in the AST before visiting the child nodes. This is repeated recursively for the child nodes
+     * resulting in a depth first traversal of the AST.
      *
      * When a rule overrides this method, the API Consumer can decide per violation whether the violation needs to be autocorrected. For
-     * this the [emit] function is called, and its result can be used to determine whether the violation is to be corrected. In
-     * lint mode the [emit] should always return false.
-     *
-     * @param node AST node
-     * @param emit a way for rule to notify about a violation (lint error) and get approval to actually autocorrect the violation
-     * if that is supported by the rule
+     * this the [emit] function is called.
      */
-    public open fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    public open fun beforeVisitChildNodes(node: ASTNode) {
     }
 
     /**
-     * This method is called on a node in AST after all its child nodes have been visited.
+     * This method is called on a [node] in tje AST after all its child nodes have been visited.
      *
      * When a rule overrides this method, the API Consumer can decide per violation whether the violation needs to be autocorrected. For
-     * this the [emit] function is called, and its result can be used to determine whether the violation is to be corrected. In
-     * lint mode the [emit] should always return false.
-     *
-     * @param node AST node
-     * @param emit a way for rule to notify about a violation (lint error) and get approval to actually autocorrect the violation
-     * if that is supported by the rule
+     * this the [emit] function is called.
      */
-    @Suppress("unused")
-    public open fun afterVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    public open fun afterVisitChildNodes(node: ASTNode) {
     }
 
     /**
@@ -131,9 +133,10 @@ public open class RuleV2(
      * Marks the [RuleV2] instance as being used for traversal of an AST. From this moment on, this instance of the [RuleV2] can not be used
      * to start a new traversal of the same or another AST as the instance might contain state.
      */
-    public fun startTraversalOfAST() {
+    public fun startTraversalOfAST(emitLintViolation: (Int, RuleId, String, Boolean) -> AutocorrectDecision) {
         require(traversalState == TraversalState.NOT_STARTED)
         traversalState = TraversalState.CONTINUE
+        this.emitLintViolation = emitLintViolation
     }
 
     /**
@@ -221,4 +224,8 @@ public open class RuleV2(
      * This interface should not be used on a rule that is also marked with [Experimental], or [OfficialCodeStyle].
      */
     public interface OnlyWhenEnabledInEditorconfig
+
+    private companion object {
+        val AUTOCORRECT_NOT_IMPLEMENTED: () -> Unit = { error("Autocorrect is not implemented") }
+    }
 }

@@ -58,7 +58,7 @@ internal class RuleExecutionContext private constructor(
     ) {
         try {
             rules.forEach { rule ->
-                rule.startTraversalOfAST()
+                rule.startTraversalOfAST(emitAndApprove)
                 rule.execute { it.beforeFirstNode(it.editorConfig()) }
             }
             this.executeRulesOnNodeRecursively(
@@ -142,9 +142,7 @@ internal class RuleExecutionContext private constructor(
         rules.forEach { rule ->
             val visitChildNodesResult =
                 visitChildNodes(node, rule, autocorrectHandler) {
-                    rule.beforeVisitChildNodes(node) { offset, errorMessage, canBeAutoCorrected ->
-                        emitAndApprove(offset, rule.ruleId, errorMessage, canBeAutoCorrected)
-                    }
+                    rule.beforeVisitChildNodes(node)
                 }
             if (visitChildNodesResult == VisitChildNodesResult.STOP) {
                 return
@@ -163,9 +161,7 @@ internal class RuleExecutionContext private constructor(
         rules.forEach { rule ->
             val visitChildNodesResult =
                 visitChildNodes(node, rule, autocorrectHandler) {
-                    rule.afterVisitChildNodes(node) { offset, errorMessage, canBeAutoCorrected ->
-                        emitAndApprove(offset, rule.ruleId, errorMessage, canBeAutoCorrected)
-                    }
+                    rule.afterVisitChildNodes(node)
                 }
             if (visitChildNodesResult == VisitChildNodesResult.STOP) {
                 return

@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
@@ -25,10 +24,7 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
  */
 @SinceKtlint("1.1", STABLE)
 public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isPartOfComment && node.parent?.elementType in typeArgumentTokenSet) {
             when (node.elementType) {
                 EOL_COMMENT, BLOCK_COMMENT -> {
@@ -41,7 +37,6 @@ public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
                             node.startOffset,
                             "A (block or EOL) comment inside or on same line after a 'type_projection' is not allowed. It may be placed " +
                                 "on a separate line above.",
-                            false,
                         )
                     } else if (node.parent?.elementType == TYPE_ARGUMENT_LIST) {
                         if (node.prevLeaf.isWhiteSpaceWithNewline) {
@@ -62,7 +57,6 @@ public class TypeArgumentCommentRule : StandardRule("type-argument-comment") {
                             emit(
                                 node.startOffset,
                                 "A comment in a 'type_argument_list' is only allowed when placed on a separate line",
-                                false,
                             )
                         }
                     }

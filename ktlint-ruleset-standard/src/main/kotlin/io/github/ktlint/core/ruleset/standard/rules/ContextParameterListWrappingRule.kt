@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_PARAMETER_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN
@@ -24,7 +23,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROP
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
@@ -71,70 +69,52 @@ public class ContextParameterListWrappingRule :
         maxLineLength = editorConfig.maxLineLength()
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
             CONTEXT_PARAMETER_LIST if node.isContextParameter() -> {
-                visitContextReceiverList(node, emit)
+                node.visitContextReceiverList()
             }
 
             TYPE_ARGUMENT_LIST if node.isContextParameter() -> {
-                visitContextReceiverTypeArgumentList(node, emit)
+                node.visitContextReceiverTypeArgumentList()
             }
         }
     }
 
     private fun ASTNode.isContextParameter(): Boolean = isPartOf(CONTEXT_PARAMETER_LIST) && findChildByType(CONTEXT_RECEIVER) == null
 
-    private fun visitContextReceiverList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    private fun ASTNode.visitContextReceiverList() {
         // Context receiver must be followed by new line or comment unless it is a type reference of a parameter
-        node
-            .takeUnless { it.isTypeReferenceParameterInFunction() }
+        takeUnless { it.isTypeReferenceParameterInFunction() }
             ?.lastChildLeafOrSelf
             ?.nextLeaf { !it.isWhiteSpaceWithoutNewline && !it.isPartOfComment }
             ?.takeIf { !it.isWhiteSpaceWithNewline }
             ?.let { nodeAfterContextReceiver ->
-                emit(nodeAfterContextReceiver.startOffset, "Expected a newline after the context parameter", true)
-                    .ifAutocorrectAllowed {
-                        nodeAfterContextReceiver
-                            .firstChildLeafOrSelf
-                            .upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(node))
-                    }
+                emit(nodeAfterContextReceiver.startOffset, "Expected a newline after the context parameter") {
+                    nodeAfterContextReceiver
+                        .firstChildLeafOrSelf
+                        .upsertWhitespaceBeforeMe(indentConfig.parentIndentOf(this))
+                }
             }
 
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run before indenting.
-        if (!node.textContains('\n') &&
-            node.hasNoMaxLineLengthSuppression() &&
-            node.indentWithoutNewlinePrefix.length + node.textLength > maxLineLength
+        if (!textContains('\n') &&
+            hasNoMaxLineLengthSuppression() &&
+            indentWithoutNewlinePrefix.length + textLength > maxLineLength
         ) {
-            node
-                .children
+            children
                 .filter { it.elementType == VALUE_PARAMETER }
                 .forEach {
-                    emit(
-                        it.startOffset,
-                        "Newline expected before context parameter as max line length is violated",
-                        true,
-                    ).ifAutocorrectAllowed {
+                    emit(it.startOffset, "Newline expected before context parameter as max line length is violated") {
                         it
                             .prevLeaf
-                            ?.upsertWhitespaceAfterMe(indentConfig.childIndentOf(node))
+                            ?.upsertWhitespaceAfterMe(indentConfig.childIndentOf(this))
                     }
                 }
-            node
-                .findChildByType(RPAR)
+            findChildByType(RPAR)
                 ?.let { rpar ->
-                    emit(
-                        rpar.startOffset,
-                        "Newline expected before closing parenthesis as max line length is violated",
-                        true,
-                    ).ifAutocorrectAllowed {
-                        rpar.upsertWhitespaceBeforeMe(node.indent)
+                    emit(rpar.startOffset, "Newline expected before closing parenthesis as max line length is violated") {
+                        rpar.upsertWhitespaceBeforeMe(indent)
                     }
                 }
         }
@@ -154,41 +134,28 @@ public class ContextParameterListWrappingRule :
             ?.let { it.elementType == FUN }
             ?: false
 
-    private fun visitContextReceiverTypeArgumentList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        val contextReceiverText = node.parent?.text.orEmpty()
+    private fun ASTNode.visitContextReceiverTypeArgumentList() {
+        val contextReceiverText = parent?.text.orEmpty()
         // Check line length assuming that the context receiver is indented correctly. Wrapping rule must however run
         // before indenting.
         if (!contextReceiverText.contains('\n') &&
-            node.hasNoMaxLineLengthSuppression() &&
-            node.indentWithoutNewlinePrefix.length + contextReceiverText.length > maxLineLength
+            hasNoMaxLineLengthSuppression() &&
+            indentWithoutNewlinePrefix.length + contextReceiverText.length > maxLineLength
         ) {
-            node
-                .children
+            children
                 .filter { it.elementType == TYPE_PROJECTION }
                 .forEach {
-                    emit(
-                        it.startOffset,
-                        "Newline expected before context parameter type projection as max line length is violated",
-                        true,
-                    ).ifAutocorrectAllowed {
-                        it.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                    emit(it.startOffset, "Newline expected before context parameter type projection as max line length is violated") {
+                        it.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(this))
                     }
                 }
-            node
-                .findChildByType(GT)
+            findChildByType(GT)
                 ?.let { gt ->
-                    emit(
-                        gt.startOffset,
-                        "Newline expected before closing angle bracket as max line length is violated",
-                        true,
-                    ).ifAutocorrectAllowed {
+                    emit(gt.startOffset, "Newline expected before closing angle bracket as max line length is violated") {
                         // Ideally, the closing angle bracket should be de-indented to make it consistent with
                         // de-indentation of closing ")", "}" and "]". This however would be inconsistent with how the
                         // type argument lists are formatted by IntelliJ IDEA default formatter.
-                        gt.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(node))
+                        gt.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(this))
                     }
                 }
         }

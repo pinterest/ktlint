@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLOSING_QUOTE
@@ -27,7 +26,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.nextCodeSibling
@@ -83,10 +81,7 @@ public class StringTemplateIndentRule :
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.elementType == STRING_TEMPLATE }
             ?.let { stringTemplate ->
@@ -96,10 +91,9 @@ public class StringTemplateIndentRule :
                         ?.takeUnless { it.isPrecededByReturnKeyword() }
                         ?.takeUnless { it.isFunctionBodyExpressionOnSameLine() }
                         ?.let { whiteSpace ->
-                            emit(stringTemplate.startOffset, "Expected newline before multiline string template", true)
-                                .ifAutocorrectAllowed {
-                                    whiteSpace.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(whiteSpace.parent!!))
-                                }
+                            emit(stringTemplate.startOffset, "Expected newline before multiline string template") {
+                                whiteSpace.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(whiteSpace.parent!!))
+                            }
                         }
                     stringTemplate
                         .getFirstLeafAfterTrimIndent()
@@ -108,26 +102,24 @@ public class StringTemplateIndentRule :
                         ?.takeUnless { it.parent?.elementType == DOT_QUALIFIED_EXPRESSION }
                         ?.takeUnless { it.parent?.elementType == BINARY_EXPRESSION && it.nextSibling?.elementType == OPERATION_REFERENCE }
                         ?.let { nextLeaf ->
-                            emit(nextLeaf.startOffset, "Expected newline after multiline string template", true)
-                                .ifAutocorrectAllowed {
-                                    nextLeaf.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(stringTemplate.parent!!))
-                                }
+                            emit(nextLeaf.startOffset, "Expected newline after multiline string template") {
+                                nextLeaf.upsertWhitespaceBeforeMe(indentConfig.childIndentOf(stringTemplate.parent!!))
+                            }
                         }
 
                     if (stringTemplate.containsMixedIndentationCharacters()) {
                         // It can not be determined with certainty how mixed indentation characters should be interpreted. The trimIndent
-                        // function handles tabs and spaces equally (one tabs equals one space) while the user might expect that the tab size in
-                        // the indentation is more than one space.
+                        // function handles tabs and spaces equally (one tabs equals one space) while the user might expect that the tab
+                        // size in the indentation is more than one space.
                         emit(
                             stringTemplate.startOffset,
                             "Indentation of multiline raw string literal should not contain both tab(s) and space(s)",
-                            false,
                         )
                         return
                     }
 
                     val indent = stringTemplate.getIndent()
-                    indentStringTemplate(node, indent, emit)
+                    indentStringTemplate(node, indent)
                 }
             }
     }
@@ -212,7 +204,6 @@ public class StringTemplateIndentRule :
     private fun indentStringTemplate(
         node: ASTNode,
         newIndent: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         // Get the max prefix length that all lines in the multiline string have in common. All whitespace characters are counted as
         // one single position. Note that the way of counting should be in sync with the way this is done by the trimIndent
@@ -233,7 +224,7 @@ public class StringTemplateIndentRule :
                 }.filterNot { it.isBlank() }
                 .minOfOrNull { it.indentLength() } ?: 0
 
-        checkAndFixNewLineAfterOpeningQuotes(node, newIndent, emit)
+        checkAndFixNewLineAfterOpeningQuotes(node, newIndent)
 
         node
             .children
@@ -261,7 +252,6 @@ public class StringTemplateIndentRule :
                             oldIndent = currentIndent,
                             newIndent = expectedIndent,
                             newContent = currentContent,
-                            emit = emit,
                         )
                     } else if (currentIndent != expectedIndent) {
                         checkAndFixIndent(
@@ -269,19 +259,17 @@ public class StringTemplateIndentRule :
                             oldIndentLength = currentIndent.length,
                             newIndent = expectedIndent,
                             newContent = currentContent,
-                            emit = emit,
                         )
                     }
                 }
             }
 
-        checkAndFixNewLineBeforeClosingQuotes(node, newIndent, emit)
+        checkAndFixNewLineBeforeClosingQuotes(node, newIndent)
     }
 
     private fun checkAndFixNewLineAfterOpeningQuotes(
         node: ASTNode,
         indent: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val firstNodeAfterOpeningQuotes =
             node
@@ -294,8 +282,7 @@ public class StringTemplateIndentRule :
             emit(
                 firstNodeAfterOpeningQuotes.startOffset + firstNodeAfterOpeningQuotes.text.length,
                 "Missing newline after the opening quotes of the raw string literal",
-                true,
-            ).ifAutocorrectAllowed {
+            ) {
                 (firstNodeAfterOpeningQuotes as LeafPsiElement).rawInsertBeforeMe(
                     LeafPsiElement(REGULAR_STRING_PART, "\n" + indent),
                 )
@@ -308,13 +295,11 @@ public class StringTemplateIndentRule :
         oldIndent: String,
         newIndent: String,
         newContent: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         emit(
             node.startOffset + oldIndent.indexOf(wrongIndentChar),
             "Unexpected '$wrongIndentDescription' character(s) in margin of multiline string",
-            true,
-        ).ifAutocorrectAllowed {
+        ) {
             node.firstChildNode.replaceTextWith(newIndent + newContent)
         }
     }
@@ -324,32 +309,28 @@ public class StringTemplateIndentRule :
         oldIndentLength: Int,
         newIndent: String,
         newContent: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
-        emit(node.startOffset + oldIndentLength, "Unexpected indent of raw string literal", true)
-            .ifAutocorrectAllowed {
-                if (node.elementType == CLOSING_QUOTE) {
-                    (node as LeafPsiElement).rawInsertBeforeMe(
-                        LeafPsiElement(REGULAR_STRING_PART, newIndent),
-                    )
-                } else {
-                    node.firstChildLeafOrSelf.replaceTextWith(newIndent + newContent)
-                }
+        emit(node.startOffset + oldIndentLength, "Unexpected indent of raw string literal") {
+            if (node.elementType == CLOSING_QUOTE) {
+                (node as LeafPsiElement).rawInsertBeforeMe(
+                    LeafPsiElement(REGULAR_STRING_PART, newIndent),
+                )
+            } else {
+                node.firstChildLeafOrSelf.replaceTextWith(newIndent + newContent)
             }
+        }
     }
 
     private fun checkAndFixNewLineBeforeClosingQuotes(
         node: ASTNode,
         indent: String,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
     ) {
         val lastNodeBeforeClosingQuotes = node.lastChildNode.prevLeaf ?: return
         if (lastNodeBeforeClosingQuotes.text.isNotBlank()) {
             emit(
                 lastNodeBeforeClosingQuotes.startOffset + lastNodeBeforeClosingQuotes.text.length,
                 "Missing newline before the closing quotes of the raw string literal",
-                true,
-            ).ifAutocorrectAllowed {
+            ) {
                 (lastNodeBeforeClosingQuotes as LeafPsiElement).rawInsertAfterMe(
                     LeafPsiElement(REGULAR_STRING_PART, "\n" + indent),
                 )

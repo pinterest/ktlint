@@ -1,11 +1,9 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EQ
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -21,47 +19,37 @@ import org.jetbrains.kotlin.psi.psiUtil.siblings
 
 @SinceKtlint("0.13", STABLE)
 public class NoLineBreakBeforeAssignmentRule : StandardRule("no-line-break-before-assignment") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == EQ) {
-            visitEquals(node, emit)
+            node.visitEquals()
         }
     }
 
-    private fun visitEquals(
-        assignmentNode: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        assignmentNode
-            .prevSibling
+    private fun ASTNode.visitEquals() {
+        prevSibling
             .takeIf { it.isWhiteSpaceWithNewline }
             ?.let { unexpectedNewlineBeforeAssignment ->
-                emit(unexpectedNewlineBeforeAssignment.startOffset, "Line break before assignment is not allowed", true)
-                    .ifAutocorrectAllowed {
-                        val parent = assignmentNode.parent!!
-                        // Insert assignment surrounded by whitespaces at new position
-                        assignmentNode
-                            .siblings(false)
-                            .takeWhile { !it.isCode }
-                            .last()
-                            .let { before ->
-                                if (!before.prevSibling.isWhiteSpace) {
-                                    parent.addChild(PsiWhiteSpaceImpl(" "), before)
-                                }
-                                parent.addChild(LeafPsiElement(EQ, "="), before)
-                                if (!before.isWhiteSpace) {
-                                    parent.addChild(PsiWhiteSpaceImpl(" "), before)
-                                }
+                emit(unexpectedNewlineBeforeAssignment.startOffset, "Line break before assignment is not allowed") {
+                    val parent = parent!!
+                    // Insert assignment surrounded by whitespaces at new position
+                    siblings(false)
+                        .takeWhile { !it.isCode }
+                        .last()
+                        .let { before ->
+                            if (!before.prevSibling.isWhiteSpace) {
+                                parent.addChild(PsiWhiteSpaceImpl(" "), before)
                             }
-                        // Cleanup old assignment and whitespace after it. The indent before the old assignment is kept unchanged
-                        assignmentNode
-                            .nextSibling
-                            .takeIf { it.isWhiteSpace }
-                            ?.remove()
-                        assignmentNode.remove()
-                    }
+                            parent.addChild(LeafPsiElement(EQ, "="), before)
+                            if (!before.isWhiteSpace) {
+                                parent.addChild(PsiWhiteSpaceImpl(" "), before)
+                            }
+                        }
+                    // Cleanup old assignment and whitespace after it. The indent before the old assignment is kept unchanged
+                    nextSibling
+                        .takeIf { it.isWhiteSpace }
+                        ?.remove()
+                    remove()
+                }
             }
     }
 }

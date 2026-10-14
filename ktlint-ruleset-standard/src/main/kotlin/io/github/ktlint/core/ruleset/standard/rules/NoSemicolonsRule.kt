@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BODY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
@@ -19,7 +18,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.findParentByType
 import io.github.ktlint.core.rule.engine.core.api.hasModifier
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -40,36 +38,31 @@ public class NoSemicolonsRule :
     StandardRule(
         id = "no-semi",
     ) {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType != SEMICOLON) {
             return
         }
         val nextLeaf = node.nextLeaf
-        if (nextLeaf.doesNotRequirePreSemi() && isNoSemicolonRequiredAfter(node)) {
-            emit(node.startOffset, "Unnecessary semicolon", true)
-                .ifAutocorrectAllowed {
-                    val prevLeaf = node.prevLeaf
-                    node.remove()
-                    if (prevLeaf.isNonNullWhitespace() && nextLeaf.isNonNullWhitespace()) {
-                        prevLeaf!!.remove()
-                    }
+        if (nextLeaf.doesNotRequirePreSemi() && node.isNoSemicolonRequiredAfter()) {
+            emit(node.startOffset, "Unnecessary semicolon") {
+                val prevLeaf = node.prevLeaf
+                node.remove()
+                if (prevLeaf.isNonNullWhitespace() && nextLeaf.isNonNullWhitespace()) {
+                    prevLeaf!!.remove()
                 }
+            }
         } else if (!nextLeaf.isWhiteSpace) {
             if (node.prevLeaf.isWhiteSpaceWithNewline) {
                 return
             }
             // todo: move to a separate rule
-            emit(node.startOffset + 1, "Missing spacing after \";\"", true)
-                .ifAutocorrectAllowed {
-                    node.upsertWhitespaceAfterMe(" ")
-                }
+            emit(node.startOffset + 1, "Missing spacing after \";\"") {
+                node.upsertWhitespaceAfterMe(" ")
+            }
         }
     }
 
-    private fun ASTNode?.isNonNullWhitespace(): Boolean = this != null && this.isWhiteSpace
+    private fun ASTNode?.isNonNullWhitespace(): Boolean = this != null && isWhiteSpace
 
     private fun ASTNode?.doesNotRequirePreSemi() =
         when {
@@ -77,7 +70,7 @@ public class NoSemicolonsRule :
                 true
             }
 
-            this.isWhiteSpace -> {
+            isWhiteSpace -> {
                 nextLeaf {
                     it.isCode &&
                         it.findParentByType(KDOC) == null &&
@@ -94,28 +87,28 @@ public class NoSemicolonsRule :
             }
         }
 
-    private fun isNoSemicolonRequiredAfter(node: ASTNode): Boolean =
+    private fun ASTNode.isNoSemicolonRequiredAfter(): Boolean =
         when {
-            node.prevCodeLeaf?.elementType == OBJECT_KEYWORD -> {
+            prevCodeLeaf?.elementType == OBJECT_KEYWORD -> {
                 // https://github.com/ktlint/ktlint/issues/281
                 false
             }
 
-            node.prevCodeLeaf?.parent?.isLoopWithoutBody() ?: false -> {
+            prevCodeLeaf?.parent?.isLoopWithoutBody() ?: false -> {
                 // https://github.com/ktlint/ktlint/issues/955
                 false
             }
 
-            node.prevCodeLeaf?.parent?.isIfExpressionWithoutThen() ?: false -> {
+            prevCodeLeaf?.parent?.isIfExpressionWithoutThen() ?: false -> {
                 false
             }
 
-            node.parent?.elementType == ENUM_ENTRY -> {
+            parent?.elementType == ENUM_ENTRY -> {
                 // In case of an enum entry the semicolon (e.g. the node) is a direct child node of enum entry
-                node.isLastCodeLeafBeforeClosingOfClassBody()
+                isLastCodeLeafBeforeClosingOfClassBody()
             }
 
-            node.isEnumClassWithoutValues() -> {
+            isEnumClassWithoutValues() -> {
                 false
             }
 

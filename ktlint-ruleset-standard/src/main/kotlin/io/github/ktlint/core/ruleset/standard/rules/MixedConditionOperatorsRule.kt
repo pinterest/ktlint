@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANDAND
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BINARY_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.OPERATION_REFERENCE
@@ -21,16 +20,11 @@ import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
 @SinceKtlint("1.1", EXPERIMENTAL)
 @SinceKtlint("1.8", STABLE)
 public class MixedConditionOperatorsRule : StandardRule("mixed-condition-operators") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.isLogicalBinaryExpression() }
             ?.takeIf { it.isPartOfExpressionUsingDifferentLogicalOperators() }
-            ?.let {
-                visitLogicalExpression(it, emit)
-            }
+            ?.visitLogicalExpression()
     }
 
     private fun ASTNode.isLogicalBinaryExpression() =
@@ -39,17 +33,12 @@ public class MixedConditionOperatorsRule : StandardRule("mixed-condition-operato
             ?.let { it.firstChildNode.elementType in logicalOperators }
             ?: false
 
-    private fun visitLogicalExpression(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        node
-            .parent { it.elementType == BINARY_EXPRESSION && it.parent?.elementType != BINARY_EXPRESSION }
+    private fun ASTNode.visitLogicalExpression() {
+        parent { it.elementType == BINARY_EXPRESSION && it.parent?.elementType != BINARY_EXPRESSION }
             ?.let { rootBinaryExpression ->
                 emit(
                     rootBinaryExpression.startOffset,
                     "A condition with mixed usage of '&&' and '||' is hard to read. Use parenthesis to clarify the (sub)condition.",
-                    false,
                 )
             }
     }

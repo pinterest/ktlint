@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IMPORT_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.SCRIPT
@@ -17,14 +16,11 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 @SinceKtlint("0.50", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
 public class NoEmptyFileRule : StandardRule(id = "no-empty-file") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.isRoot }
             ?.takeIf { it.isEmptyFile() }
-            ?.let { emit(0, "File '${node.getFileName()}' should not be empty", false) }
+            ?.let { emit(0, "File '${node.getFileName()}' should not be empty") }
     }
 
     private fun ASTNode.getFileName() =

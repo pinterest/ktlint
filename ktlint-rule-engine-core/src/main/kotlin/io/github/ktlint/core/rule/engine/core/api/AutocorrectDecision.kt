@@ -1,7 +1,5 @@
 package io.github.ktlint.core.rule.engine.core.api
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision.ALLOW_AUTOCORRECT
-
 public enum class AutocorrectDecision {
     /**
      * Autocorrect lint violation if supported by the [RuleV2].
@@ -13,7 +11,3 @@ public enum class AutocorrectDecision {
      */
     NO_AUTOCORRECT,
 }
-
-public inline fun <T> AutocorrectDecision.ifAutocorrectAllowed(function: () -> T): T? =
-    takeIf { this == ALLOW_AUTOCORRECT }
-        ?.let { function() }

@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_LITERAL
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
@@ -13,7 +12,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.children
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
 import io.github.ktlint.core.rule.engine.core.api.nextCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
@@ -27,16 +25,12 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 @SinceKtlint("0.44", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
 public class UnnecessaryParenthesesBeforeTrailingLambdaRule : StandardRule("unnecessary-parentheses-before-trailing-lambda") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isUnnecessaryEmptyArgumentListBeforeLambda()) {
             emit(
                 node.startOffset,
                 "Empty parentheses in function call followed by lambda are unnecessary",
-                true,
-            ).ifAutocorrectAllowed { node.remove() }
+            ) { node.remove() }
         }
     }
 

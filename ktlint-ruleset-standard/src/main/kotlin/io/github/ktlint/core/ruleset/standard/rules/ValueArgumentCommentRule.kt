@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_ARGUMENT
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
@@ -19,10 +18,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
  */
 @SinceKtlint("1.1", STABLE)
 public class ValueArgumentCommentRule : StandardRule("value-argument-comment") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isPartOfComment && node.parent?.elementType == VALUE_ARGUMENT) {
             // Disallow:
             //     val foo = foo(
@@ -38,7 +34,6 @@ public class ValueArgumentCommentRule : StandardRule("value-argument-comment") {
                 node.startOffset,
                 "A (block or EOL) comment inside or on same line after a 'value_argument' is not allowed. It may be placed " +
                     "on a separate line above.",
-                false,
             )
         }
     }

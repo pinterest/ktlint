@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC
 import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_END
@@ -9,7 +8,6 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.KDOC_TEXT
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isPartOf
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
@@ -20,60 +18,47 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 
 @SinceKtlint("0.1", STABLE)
 public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when {
-            node.isPartOfKDoc() -> visitKDocElement(node, emit)
-            !node.isCode -> visitNonCodeElement(node, emit)
+            node.isPartOfKDoc() -> node.visitKDocElement()
+            !node.isCode -> node.visitNonCodeElement()
         }
     }
 
-    private fun visitKDocElement(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
-        if (node.isWhiteSpace && node.hasTrailingSpacesBeforeNewline()) {
-            val offsetOfSpaceBeforeNewlineInText = node.text.indexOf(" \n")
+    private fun ASTNode.visitKDocElement() {
+        if (isWhiteSpace && hasTrailingSpacesBeforeNewline()) {
+            val offsetOfSpaceBeforeNewlineInText = text.indexOf(" \n")
             val offsetOfFirstSpaceBeforeNewlineInText =
-                node
-                    .text
+                text
                     .take(offsetOfSpaceBeforeNewlineInText)
                     .dropLastWhile { it == ' ' }
                     .length
-            emit(node.startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)", true)
-                .ifAutocorrectAllowed { node.removeTrailingSpacesBeforeNewline() }
+            emit(startOffset + offsetOfFirstSpaceBeforeNewlineInText, "Trailing space(s)") { removeTrailingSpacesBeforeNewline() }
         }
 
-        if (node.elementType == KDOC_TEXT &&
-            node.text.endsWith(" ") &&
-            node.isFollowedByNewlineBeforeKdocEndOrAsterisk()
+        if (elementType == KDOC_TEXT &&
+            text.endsWith(" ") &&
+            isFollowedByNewlineBeforeKdocEndOrAsterisk()
         ) {
-            node
-                .text
+            text
                 .trimEnd()
                 .let { trimmedText ->
-                    emit(node.startOffset + trimmedText.length, "Trailing space(s)", true)
-                        .ifAutocorrectAllowed { node.replaceTextWith(trimmedText) }
+                    emit(startOffset + trimmedText.length, "Trailing space(s)") { replaceTextWith(trimmedText) }
                 }
         }
     }
 
-    private fun visitNonCodeElement(
-        node: ASTNode,
-        emit: (Int, String, Boolean) -> AutocorrectDecision,
-    ) {
-        val lines = node.text.split("\n")
+    private fun ASTNode.visitNonCodeElement() {
+        val lines = text.split("\n")
         var autocorrect = false
-        var violationOffset = node.startOffset
+        var violationOffset = startOffset
 
         val modifiedLines =
             lines
                 .mapIndexed { index, line ->
                     val modifiedLine =
                         when {
-                            node.elementType != EOL_COMMENT && index == lines.size - 1 && node.nextLeaf != null -> {
+                            elementType != EOL_COMMENT && index == lines.size - 1 && nextLeaf != null -> {
                                 // Do not change the last line as it contains the indentation of the next element except
                                 // when it is an EOL comment which may also not contain trailing spaces
                                 line
@@ -82,10 +67,9 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                             line.hasTrailingSpace() -> {
                                 val modifiedLine = line.trimEnd()
                                 val firstTrailingSpaceOffset = violationOffset + modifiedLine.length
-                                emit(firstTrailingSpaceOffset, "Trailing space(s)", true)
-                                    .ifAutocorrectAllowed {
-                                        autocorrect = true
-                                    }
+                                emit(firstTrailingSpaceOffset, "Trailing space(s)") {
+                                    autocorrect = true
+                                }
                                 modifiedLine
                             }
 
@@ -97,7 +81,7 @@ public class NoTrailingSpacesRule : StandardRule("no-trailing-spaces") {
                     modifiedLine
                 }
         if (autocorrect) {
-            node.replaceTextWith(modifiedLines.joinToString(separator = "\n"))
+            replaceTextWith(modifiedLines.joinToString(separator = "\n"))
         }
     }
 

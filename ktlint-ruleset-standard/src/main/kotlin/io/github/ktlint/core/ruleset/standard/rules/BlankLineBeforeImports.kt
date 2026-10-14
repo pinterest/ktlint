@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IMPORT_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.PACKAGE_DIRECTIVE
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -10,7 +9,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTA
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.CodeStyleValue
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
 import io.github.ktlint.core.ruleset.standard.StandardRule
@@ -31,10 +29,7 @@ public class BlankLineBeforeImports :
         }
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.elementType == PACKAGE_DIRECTIVE }
             ?.siblings()
@@ -49,8 +44,7 @@ public class BlankLineBeforeImports :
                 emit(
                     whitespace.startOffset + 1,
                     "Expected a blank line before the import(s)",
-                    true,
-                ).ifAutocorrectAllowed { whitespace.replaceTextWith("\n\n") }
+                ) { whitespace.replaceTextWith("\n\n") }
             }
     }
 }

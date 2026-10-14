@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CLASS
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ENUM_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FILE
@@ -36,33 +35,19 @@ public class KdocRule :
                 INDENT_STYLE_PROPERTY,
             ),
     ) {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.elementType == KDOC }
             ?.parent
             ?.let { parent ->
                 if (parent.elementType in allowedParentElementTypes) {
                     if (parent.firstChildNode != node) {
-                        emit(
-                            node.startOffset,
-                            "A KDoc is allowed only at start of '${parent.elementType.debugName.lowercase()}'",
-                            false,
-                        )
+                        emit(node.startOffset, "A KDoc is allowed only at start of '${parent.elementType.debugName.lowercase()}'")
                     }
-                    Unit
+                } else if (parent.elementType == FILE) {
+                    emit(node.startOffset, "A dangling toplevel KDoc is not allowed")
                 } else {
-                    if (parent.elementType == FILE) {
-                        emit(node.startOffset, "A dangling toplevel KDoc is not allowed", false)
-                    } else {
-                        emit(
-                            node.startOffset,
-                            "A KDoc is not allowed inside '${parent.elementType.debugName.lowercase()}'",
-                            false,
-                        )
-                    }
+                    emit(node.startOffset, "A KDoc is not allowed inside '${parent.elementType.debugName.lowercase()}'")
                 }
             }
     }

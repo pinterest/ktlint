@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN_KEYWORD
 import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.WHITE_SPACE
@@ -8,7 +7,6 @@ import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
 import io.github.ktlint.core.rule.engine.core.api.parent
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
@@ -22,10 +20,7 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 @SinceKtlint("0.45", EXPERIMENTAL)
 @SinceKtlint("0.49", STABLE)
 public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node
             .takeIf { it.elementType == FUN_KEYWORD }
             ?.nextLeaf
@@ -35,17 +30,15 @@ public class FunKeywordSpacingRule : StandardRule("fun-keyword-spacing") {
                         emit(
                             leafAfterFunKeyword.startOffset,
                             "Single space expected after the fun keyword",
-                            true,
-                        ).ifAutocorrectAllowed { leafAfterFunKeyword.replaceTextWith(" ") }
+                        ) { leafAfterFunKeyword.replaceTextWith(" ") }
                     }
 
                     IDENTIFIER -> {
                         // Identifier can only be adjacent to fun keyword in case the identifier is wrapped between backticks:
                         //     fun`foo`() {}
-                        emit(leafAfterFunKeyword.startOffset, "Space expected between the fun keyword and backtick", true)
-                            .ifAutocorrectAllowed {
-                                leafAfterFunKeyword.parent?.addChild(PsiWhiteSpaceImpl(" "), leafAfterFunKeyword)
-                            }
+                        emit(leafAfterFunKeyword.startOffset, "Space expected between the fun keyword and backtick") {
+                            leafAfterFunKeyword.parent?.addChild(PsiWhiteSpaceImpl(" "), leafAfterFunKeyword)
+                        }
                     }
 
                     else -> {

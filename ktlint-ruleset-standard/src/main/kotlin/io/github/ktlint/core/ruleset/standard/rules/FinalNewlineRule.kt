@@ -1,12 +1,10 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INSERT_FINAL_NEWLINE_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isRoot
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -28,35 +26,29 @@ public class FinalNewlineRule :
         insertFinalNewline = editorConfig[INSERT_FINAL_NEWLINE_PROPERTY]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.isRoot) {
             if (node.textLength == 0) {
                 stopTraversalOfAST()
                 return
             }
-            val lastNode = lastChildNodeOf(node)
+            val lastNode = node.lastChildNodeOf()
             when {
                 insertFinalNewline && (!lastNode.isWhiteSpace || lastNode.isWhiteSpaceWithoutNewline) -> {
-                    emit(node.textLength - 1, "File must end with a newline (\\n)", true)
-                        .ifAutocorrectAllowed {
-                            node.addChild(PsiWhiteSpaceImpl("\n"), null)
-                        }
+                    emit(node.textLength - 1, "File must end with a newline (\\n)") {
+                        node.addChild(PsiWhiteSpaceImpl("\n"), null)
+                    }
                 }
 
                 !insertFinalNewline && lastNode != null && lastNode.isWhiteSpaceWithNewline -> {
-                    emit(lastNode.startOffset, "Redundant newline (\\n) at the end of file", true)
-                        .ifAutocorrectAllowed { lastNode.remove() }
+                    emit(lastNode.startOffset, "Redundant newline (\\n) at the end of file") { lastNode.remove() }
                 }
             }
         }
         stopTraversalOfAST()
     }
 
-    private tailrec fun lastChildNodeOf(node: ASTNode): ASTNode? =
-        if (node.lastChildNode == null) node else lastChildNodeOf(node.lastChildNode)
+    private tailrec fun ASTNode.lastChildNodeOf(): ASTNode? = if (lastChildNode == null) this else lastChildNode.lastChildNodeOf()
 }
 
 public val FINAL_NEWLINE_RULE_ID: RuleId = FinalNewlineRule().ruleId

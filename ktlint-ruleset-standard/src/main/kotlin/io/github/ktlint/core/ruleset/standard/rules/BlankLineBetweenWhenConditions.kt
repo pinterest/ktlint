@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.WHEN
 import io.github.ktlint.core.rule.engine.core.api.ElementType.WHEN_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -10,7 +9,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.children
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfigProperty
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.indentWithoutNewlinePrefix
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
@@ -48,33 +46,23 @@ public class BlankLineBetweenWhenConditions :
         lineBreakAfterWhenCondition = editorConfig[LINE_BREAK_AFTER_WHEN_CONDITION_PROPERTY]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == WHEN) {
-            visitWhenStatement(node, emit)
+            node.visitWhenStatement()
         }
     }
 
-    private fun visitWhenStatement(
-        node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        val hasMultilineWhenCondition = node.hasAnyMultilineWhenCondition()
+    private fun ASTNode.visitWhenStatement() {
+        val hasMultilineWhenCondition = hasAnyMultilineWhenCondition()
         if (hasMultilineWhenCondition && lineBreakAfterWhenCondition) {
-            addBlankLinesBetweenWhenConditions(node, emitAndApprove)
+            addBlankLinesBetweenWhenConditions()
         } else {
-            removeBlankLinesBetweenWhenConditions(node, emitAndApprove)
+            removeBlankLinesBetweenWhenConditions()
         }
     }
 
-    private fun addBlankLinesBetweenWhenConditions(
-        node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        node
-            .children
+    private fun ASTNode.addBlankLinesBetweenWhenConditions() {
+        children
             .filter { it.elementType == WHEN_ENTRY }
             // Blank lines should only be added *between* when-conditions, so first when-condition is to be skipped
             .drop(1)
@@ -87,11 +75,10 @@ public class BlankLineBetweenWhenConditions :
                     ?.nextLeaf
                     ?.takeUnless { it.containsBlankLine() }
                     ?.let { whitespaceBeforeWhenEntry ->
-                        emitAndApprove(
+                        emit(
                             whitespaceBeforeWhenEntry.startOffset + 1,
                             "Add a blank line between all when-conditions in case at least one multiline when-condition is found in the statement",
-                            true,
-                        ).ifAutocorrectAllowed {
+                        ) {
                             whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indent}")
                         }
                     }
@@ -119,12 +106,8 @@ public class BlankLineBetweenWhenConditions :
             ?.lastChildLeafOrSelf
             ?.nextLeaf { it.isWhiteSpace }
 
-    private fun removeBlankLinesBetweenWhenConditions(
-        node: ASTNode,
-        emitAndApprove: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        node
-            .children
+    private fun ASTNode.removeBlankLinesBetweenWhenConditions() {
+        children
             .filter { it.elementType == WHEN_ENTRY }
             // Blank lines should only be removed *between* when-conditions, so first when-condition is to be skipped
             .drop(1)
@@ -133,11 +116,10 @@ public class BlankLineBetweenWhenConditions :
                     .findWhitespaceAfterPreviousCodeSibling()
                     ?.takeIf { it.containsBlankLine() }
                     ?.let { whitespaceBeforeWhenEntry ->
-                        emitAndApprove(
+                        emit(
                             whitespaceBeforeWhenEntry.startOffset + 1,
                             "Unexpected blank lines between when-condition if all when-conditions are single lines",
-                            true,
-                        ).ifAutocorrectAllowed {
+                        ) {
                             whitespaceBeforeWhenEntry.upsertWhitespaceBeforeMe("\n${whenEntry.indentWithoutNewlinePrefix}")
                         }
                     }

@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.POSTFIX_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.PREFIX_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -8,7 +7,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.children
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.remove
@@ -23,10 +21,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 @SinceKtlint("0.38", EXPERIMENTAL)
 @SinceKtlint("0.46", STABLE)
 public class SpacingAroundUnaryOperatorRule : StandardRule("unary-op-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == PREFIX_EXPRESSION || node.elementType == POSTFIX_EXPRESSION) {
             val children = node.children.toList()
 
@@ -38,8 +33,7 @@ public class SpacingAroundUnaryOperatorRule : StandardRule("unary-op-spacing") {
             children
                 .firstOrNull { it.isWhiteSpace }
                 ?.let { whiteSpace ->
-                    emit(whiteSpace.startOffset, "Unexpected spacing in ${node.text.replace("\n", "\\n")}", true)
-                        .ifAutocorrectAllowed { whiteSpace.remove() }
+                    emit(whiteSpace.startOffset, "Unexpected spacing in ${node.text.replace("\n", "\\n")}") { whiteSpace.remove() }
                 }
         }
     }

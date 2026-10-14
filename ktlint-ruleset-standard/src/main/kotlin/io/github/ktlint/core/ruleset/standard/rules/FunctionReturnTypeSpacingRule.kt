@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.COLON
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN
 import io.github.ktlint.core.rule.engine.core.api.RuleId
@@ -9,7 +8,6 @@ import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTA
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_PROPERTY
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.nextLeaf
@@ -33,41 +31,29 @@ public class FunctionReturnTypeSpacingRule :
         maxLineLength = editorConfig.maxLineLength()
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         node.firstChildNode
         node
             .takeIf { node.elementType == FUN }
             ?.let { node.findChildByType(COLON) }
             ?.let { colonNode ->
-                removeWhiteSpaceBetweenClosingParenthesisAndColon(colonNode, emit)
-                fixWhiteSpaceBetweenColonAndReturnType(colonNode, emit)
+                colonNode.removeWhiteSpaceBetweenClosingParenthesisAndColon()
+                colonNode.fixWhiteSpaceBetweenColonAndReturnType()
             }
     }
 
-    private fun removeWhiteSpaceBetweenClosingParenthesisAndColon(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(node.elementType == COLON)
-        node
-            .prevLeaf
+    private fun ASTNode.removeWhiteSpaceBetweenClosingParenthesisAndColon() {
+        require(elementType == COLON)
+        prevLeaf
             ?.takeIf { it.isWhiteSpace }
             ?.let { whitespaceBeforeColonNode ->
-                emit(whitespaceBeforeColonNode.startOffset, "Unexpected whitespace", true)
-                    .ifAutocorrectAllowed { whitespaceBeforeColonNode.remove() }
+                emit(whitespaceBeforeColonNode.startOffset, "Unexpected whitespace") { whitespaceBeforeColonNode.remove() }
             }
     }
 
-    private fun fixWhiteSpaceBetweenColonAndReturnType(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        require(node.elementType == COLON)
-        node
-            .nextLeaf
+    private fun ASTNode.fixWhiteSpaceBetweenColonAndReturnType() {
+        require(elementType == COLON)
+        nextLeaf
             ?.takeIf { it.isWhiteSpace }
             .let { whiteSpaceAfterColon ->
                 if (whiteSpaceAfterColon?.text != " ") {
@@ -81,15 +67,14 @@ public class FunctionReturnTypeSpacingRule :
                     //        "some-looooooooooooooooong-string"
                     // See FunctionSignatureRule for such reformatting.
                     val newLineLength =
-                        node.lengthUntilNewline(false) + // Length of line before but excluding the colon
-                            node.textLength + // Length of the colon itself
+                        lengthUntilNewline(false) + // Length of line before but excluding the colon
+                            textLength + // Length of the colon itself
                             1 + // Length of the fixed whitespace
                             whiteSpaceAfterColon.lengthUntilNewline(true) // Length of the line after but excluding the whitespace
                     if (newLineLength <= maxLineLength) {
-                        emit(node.startOffset, "Single space expected between colon and return type", true)
-                            .ifAutocorrectAllowed {
-                                node.upsertWhitespaceAfterMe(" ")
-                            }
+                        emit(startOffset, "Single space expected between colon and return type") {
+                            upsertWhitespaceAfterMe(" ")
+                        }
                     }
                 }
             }

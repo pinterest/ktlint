@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
@@ -26,7 +25,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasModifier
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.lastChildLeafOrSelf
@@ -61,81 +59,71 @@ public class StatementWrappingRule :
             )
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         when (node.elementType) {
             BLOCK -> {
                 if (node.parent?.elementType == FUNCTION_LITERAL) {
                     // LBRACE and RBRACE are outside of BLOCK
-                    visitBlock(node.parent!!, emit)
+                    node.parent!!.visitBlock()
                 } else {
-                    visitBlock(node, emit)
+                    node.visitBlock()
                 }
             }
 
             CLASS_BODY, WHEN -> {
-                visitBlock(node, emit)
+                node.visitBlock()
             }
 
             SEMICOLON -> {
-                visitSemiColon(node, emit)
+                node.visitSemiColon()
             }
         }
     }
 
-    private fun visitBlock(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        node
-            .takeUnless {
-                // Allow
-                //     val foo = {}
-                it.isBlockWithoutStatements
-            }?.takeUnless {
-                // Allow
-                //     val foo = { /* no-op */ }
-                //     val foo = { a, b -> println(a + b) }
-                it.isFunctionLiteralWithSingleStatementOnSingleLine
-            }?.takeUnless {
-                // Allow
-                //     enum class FooBar { FOO, BAR }
-                // or
-                //     /** Some comment */
-                //     enum class FooBar { FOO, BAR }
-                it.parent!!.isEnumClassOnSingleLine
-            }?.findChildByType(LBRACE)
-            ?.applyIf(node.isFunctionLiteralWithParameterList) {
+    private fun ASTNode.visitBlock() {
+        takeUnless {
+            // Allow
+            //     val foo = {}
+            it.isBlockWithoutStatements
+        }?.takeUnless {
+            // Allow
+            //     val foo = { /* no-op */ }
+            //     val foo = { a, b -> println(a + b) }
+            it.isFunctionLiteralWithSingleStatementOnSingleLine
+        }?.takeUnless {
+            // Allow
+            //     enum class FooBar { FOO, BAR }
+            // or
+            //     /** Some comment */
+            //     enum class FooBar { FOO, BAR }
+            it.parent!!.isEnumClassOnSingleLine
+        }?.findChildByType(LBRACE)
+            ?.applyIf(isFunctionLiteralWithParameterList) {
                 // Allow:
                 // val foobar =
                 //     foo { bar ->
                 //         doSomething()
                 //     }
-                node.findChildByType(ARROW)
+                this@visitBlock.findChildByType(ARROW)
             }?.let { lbraceOrArrow ->
                 val nextCodeLeaf = lbraceOrArrow.nextCodeLeaf
                 if (nextCodeLeaf != null && noNewLineInClosedRange(lbraceOrArrow, nextCodeLeaf)) {
-                    emit(nextCodeLeaf.startOffset, "Missing newline after '${lbraceOrArrow.text}'", true)
-                        .ifAutocorrectAllowed {
-                            if (node.elementType == WHEN) {
-                                lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsChild)
-                            } else {
-                                lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsSibling)
-                            }
+                    emit(nextCodeLeaf.startOffset, "Missing newline after '${lbraceOrArrow.text}'") {
+                        if (elementType == WHEN) {
+                            lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsChild)
+                        } else {
+                            lbraceOrArrow.upsertWhitespaceAfterMe(lbraceOrArrow.indentAsSibling)
                         }
+                    }
                 }
 
-                node
-                    .findChildByType(RBRACE)
+                findChildByType(RBRACE)
                     ?.let { rbrace ->
                         val prevCodeLeaf = rbrace.prevCodeLeaf
                         if (prevCodeLeaf != null && noNewLineInClosedRange(prevCodeLeaf, rbrace)) {
-                            emit(rbrace.startOffset, "Missing newline before '}'", true)
-                                .ifAutocorrectAllowed {
-                                    rbrace.upsertWhitespaceBeforeMe(rbrace.indentAsParent)
-                                }
+                            emit(rbrace.startOffset, "Missing newline before '}'") {
+                                rbrace.upsertWhitespaceBeforeMe(rbrace.indentAsParent)
+                            }
                         }
                     }
             }
@@ -196,12 +184,9 @@ public class StatementWrappingRule :
     private inline val ASTNode.indentAsParent: String
         get() = parent!!.indent
 
-    private fun visitSemiColon(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        val previousCodeLeaf = node.prevCodeLeaf
-        val nextCodeLeaf = node.nextCodeLeaf
+    private fun ASTNode.visitSemiColon() {
+        val previousCodeLeaf = prevCodeLeaf
+        val nextCodeLeaf = nextCodeLeaf
         if (previousCodeLeaf != null && nextCodeLeaf != null) {
             when {
                 previousCodeLeaf.parent?.elementType == ENUM_ENTRY && nextCodeLeaf.elementType == RBRACE -> {
@@ -210,10 +195,9 @@ public class StatementWrappingRule :
                 }
 
                 noNewLineInClosedRange(previousCodeLeaf, nextCodeLeaf) -> {
-                    emit(node.startOffset + 1, """Missing newline after '${node.text}'""", true)
-                        .ifAutocorrectAllowed {
-                            node.upsertWhitespaceAfterMe(previousCodeLeaf.indent)
-                        }
+                    emit(startOffset + 1, """Missing newline after '$text'""") {
+                        upsertWhitespaceAfterMe(previousCodeLeaf.indent)
+                    }
                 }
             }
         }

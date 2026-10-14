@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUN
 import io.github.ktlint.core.rule.engine.core.api.ElementType.NULLABLE_TYPE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_REFERENCE
@@ -9,7 +8,6 @@ import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.EXPERIMENTAL
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint.Status.STABLE
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.remove
@@ -19,10 +17,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 @SinceKtlint("0.45", EXPERIMENTAL)
 @SinceKtlint("1.0", STABLE)
 public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-reference-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == FUN) {
             node
                 .findFunctionReceiverTypeReference()
@@ -30,12 +25,11 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
                     typeReference
                         .firstChildNode
                         .takeIf { it.elementType == NULLABLE_TYPE }
-                        ?.let { nullableTypeElement ->
-                            visitNodesUntilStartOfValueParameterList(nullableTypeElement.firstChildNode, emit)
-                        }
+                        ?.firstChildNode
+                        ?.visitNodesUntilStartOfValueParameterList()
 
                     if (typeReference.elementType != NULLABLE_TYPE) {
-                        visitNodesUntilStartOfValueParameterList(typeReference, emit)
+                        typeReference.visitNodesUntilStartOfValueParameterList()
                     }
                 }
         }
@@ -53,25 +47,18 @@ public class FunctionTypeReferenceSpacingRule : StandardRule("function-type-refe
         return null
     }
 
-    private fun visitNodesUntilStartOfValueParameterList(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        var currentNode: ASTNode? = node
+    private fun ASTNode.visitNodesUntilStartOfValueParameterList() {
+        var currentNode: ASTNode? = this
         while (currentNode != null && currentNode.elementType != VALUE_PARAMETER_LIST) {
             val nextNode = currentNode.nextSibling
-            removeIfNonEmptyWhiteSpace(currentNode, emit)
+            currentNode.removeIfNonEmptyWhiteSpace()
             currentNode = nextNode
         }
     }
 
-    private fun removeIfNonEmptyWhiteSpace(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        if (node.isWhiteSpace && node.text.isNotEmpty()) {
-            emit(node.startOffset, "Unexpected whitespace", true)
-                .ifAutocorrectAllowed { node.remove() }
+    private fun ASTNode.removeIfNonEmptyWhiteSpace() {
+        if (isWhiteSpace && text.isNotEmpty()) {
+            emit(startOffset, "Unexpected whitespace") { remove() }
         }
     }
 }

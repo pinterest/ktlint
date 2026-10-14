@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LBRACE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RBRACE
@@ -12,7 +11,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_SIZE_PROPE
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNewLineInClosedRange
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.indent
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithoutNewline
@@ -38,10 +36,7 @@ public class CommentWrappingRule :
                 INDENT_STYLE_PROPERTY,
             ),
     ) {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == BLOCK_COMMENT) {
             val beforeBlockComment =
                 node
@@ -68,7 +63,6 @@ public class CommentWrappingRule :
                         node.startOffset,
                         "A block comment starting on same line as another element and ending on another line before another element is " +
                             "disallowed",
-                        false,
                     )
                 } else if (beforeBlockComment.prevLeaf?.elementType == LBRACE &&
                     afterBlockComment.nextLeaf?.elementType == RBRACE
@@ -79,7 +73,7 @@ public class CommentWrappingRule :
                 } else {
                     // Do not try to fix constructs like below:
                     //    val foo /* some comment */ = "foo"
-                    emit(node.startOffset, "A block comment in between other elements on the same line is disallowed", false)
+                    emit(node.startOffset, "A block comment in between other elements on the same line is disallowed")
                 }
                 return
             }
@@ -90,11 +84,7 @@ public class CommentWrappingRule :
                 ?.let {
                     if (node.textContains('\n')) {
                         // It can not be autocorrected as it might depend on the situation and code style what is preferred.
-                        emit(
-                            node.startOffset,
-                            "A block comment after any other element on the same line must be separated by a new line",
-                            false,
-                        )
+                        emit(node.startOffset, "A block comment after any other element on the same line must be separated by a new line")
                     }
                 }
 
@@ -102,11 +92,7 @@ public class CommentWrappingRule :
                 .nextLeaf
                 .takeIf { !it.isWhitespaceWithNewlineOrNull() }
                 ?.let { nextLeaf ->
-                    emit(
-                        nextLeaf.startOffset,
-                        "A block comment may not be followed by any other element on that same line",
-                        true,
-                    ).ifAutocorrectAllowed {
+                    emit(nextLeaf.startOffset, "A block comment may not be followed by any other element on that same line") {
                         nextLeaf.upsertWhitespaceBeforeMe(node.indent)
                     }
                 }

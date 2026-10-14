@@ -1,6 +1,5 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ANNOTATION_ENTRY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CALL_EXPRESSION
@@ -49,10 +48,7 @@ public class FunctionNamingRule :
         ignoreWhenAnnotatedWith = editorConfig[IGNORE_WHEN_ANNOTATED_WITH_PROPERTY]
     }
 
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (!isTestClass && node.elementType == IMPORT_DIRECTIVE) {
             (node.psi as KtImportDirective)
                 .importPath
@@ -76,7 +72,6 @@ public class FunctionNamingRule :
                 emit(
                     identifier.startOffset,
                     "Function name should start with a lowercase letter (except factory methods) and use camel case",
-                    false,
                 )
             }
     }

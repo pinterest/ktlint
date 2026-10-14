@@ -1,10 +1,8 @@
 package io.github.ktlint.core.ruleset.standard.rules
 
-import io.github.ktlint.core.rule.engine.core.api.AutocorrectDecision
 import io.github.ktlint.core.rule.engine.core.api.ElementType.EOL_COMMENT
 import io.github.ktlint.core.rule.engine.core.api.RuleId
 import io.github.ktlint.core.rule.engine.core.api.SinceKtlint
-import io.github.ktlint.core.rule.engine.core.api.ifAutocorrectAllowed
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.prevLeaf
 import io.github.ktlint.core.rule.engine.core.api.remove
@@ -16,28 +14,23 @@ import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiCommentImpl
 
 @SinceKtlint("0.23", SinceKtlint.Status.STABLE)
 public class CommentSpacingRule : StandardRule("comment-spacing") {
-    override fun beforeVisitChildNodes(
-        node: ASTNode,
-        emit: (offset: Int, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
+    override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == EOL_COMMENT) {
             val prevLeaf = node.prevLeaf
             if (!prevLeaf.isWhiteSpace && prevLeaf is LeafPsiElement) {
-                emit(node.startOffset, "Missing space before //", true)
-                    .ifAutocorrectAllowed {
-                        node.upsertWhitespaceBeforeMe(" ")
-                    }
+                emit(node.startOffset, "Missing space before //") {
+                    node.upsertWhitespaceBeforeMe(" ")
+                }
             }
             val text = node.text
             if (text.isMissingSpaceAfterDoubleSlash()) {
-                emit(node.startOffset, "Missing space after //", true)
-                    .ifAutocorrectAllowed {
-                        // Simply replacing the text of node can result in a nullpointer exception in a rule that run after this rule as the
-                        // reference to the prev leaf, and the parent node are lost
-                        val newEolComment = PsiCommentImpl(EOL_COMMENT, "// ${text.removePrefix("//")}")
-                        (node as LeafPsiElement).rawInsertBeforeMe(newEolComment)
-                        node.remove()
-                    }
+                emit(node.startOffset, "Missing space after //") {
+                    // Simply replacing the text of node can result in a nullpointer exception in a rule that run after this rule as the
+                    // reference to the prev leaf, and the parent node are lost
+                    val newEolComment = PsiCommentImpl(EOL_COMMENT, "// ${text.removePrefix("//")}")
+                    (node as LeafPsiElement).rawInsertBeforeMe(newEolComment)
+                    node.remove()
+                }
             }
         }
     }
