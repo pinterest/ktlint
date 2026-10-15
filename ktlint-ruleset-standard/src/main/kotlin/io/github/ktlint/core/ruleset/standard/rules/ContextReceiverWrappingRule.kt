@@ -4,6 +4,7 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_PARAMETER_
 import io.github.ktlint.core.rule.engine.core.api.ElementType.CONTEXT_RECEIVER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_TYPE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.GT
+import io.github.ktlint.core.rule.engine.core.api.ElementType.PROPERTY
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RPAR
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_ARGUMENT_LIST
 import io.github.ktlint.core.rule.engine.core.api.ElementType.TYPE_PROJECTION
@@ -83,8 +84,8 @@ public class ContextReceiverWrappingRule :
     }
 
     private fun ASTNode.visitContextReceiverList() {
-        // Context receiver must be followed by new line or comment unless it is a type reference of a parameter
-        takeUnless { it.isFunctionTypeReferenceInValueParameterList() }
+        // Context receiver must be followed by new line or comment unless it is a type reference of a parameter or property
+        takeUnless { it.isFunctionTypeReferenceForParameterOrProperty() }
             ?.lastChildLeafOrSelf
             ?.nextLeaf { !it.isWhiteSpaceWithoutNewline && !it.isPartOfComment }
             ?.takeIf { !it.isWhiteSpaceWithNewline }
@@ -116,17 +117,23 @@ public class ContextReceiverWrappingRule :
         }
     }
 
-    private fun ASTNode.isFunctionTypeReferenceInValueParameterList() =
+    private fun ASTNode.isFunctionTypeReferenceForParameterOrProperty(): Boolean =
         takeIf { it.elementType == CONTEXT_PARAMETER_LIST }
             ?.parent
             ?.takeIf { it.elementType == FUNCTION_TYPE }
             ?.parent
             ?.takeIf { it.elementType == TYPE_REFERENCE }
             ?.parent
-            ?.takeIf { it.elementType == VALUE_PARAMETER }
+            ?.let { it.isValueParameter() || it.isFunctionTypeReferenceForProperty() }
+            ?: false
+
+    private fun ASTNode.isValueParameter() =
+        takeIf { it.elementType == VALUE_PARAMETER }
             ?.parent
             ?.let { it.elementType == VALUE_PARAMETER_LIST }
             ?: false
+
+    private fun ASTNode.isFunctionTypeReferenceForProperty() = elementType == PROPERTY
 
     private fun ASTNode.visitContextReceiverTypeArgumentList() {
         val contextReceiverText = parent?.text.orEmpty()

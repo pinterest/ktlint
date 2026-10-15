@@ -276,4 +276,15 @@ class ContextReceiverWrappingRuleTest {
             // Find violations on the context receivers, but skip the context parameters
             .hasNoLintViolations()
     }
+
+    @Test
+    fun `Issue 3414 - Given a property with a context receiver in the reference type then do not wrap context receivers to a newline`() {
+        val code =
+            """
+            val bar: context(String) () -> Unit = { foo() }
+            """.trimIndent()
+        contextReceiverWrappingRuleAssertThat(code)
+            // Find violations on the context receivers, but skip the context parameters
+            .hasNoLintViolations()
+    }
 }
