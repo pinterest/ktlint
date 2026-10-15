@@ -646,4 +646,57 @@ class FunctionLiteralRuleTest {
                 LintViolation(line = 3, col = 73, detail = "Newline expected before closing brace"),
             ).isFormattedAs(formattedCode)
     }
+
+    @Test
+    fun `Issue 3415 - Given a functional literal without a parameter list, and last code child after arrow equals 'Unit' then do not remove the arrow`() {
+        val code =
+            """
+            fun <T> resolver(function: suspend () -> T) {}
+            fun <T, R> resolver(function: suspend (R) -> T) {}
+
+            fun foo1() {
+                // Arrow in lambda below may not be removed as resolver otherwise can not be resolved correctly
+                resolver { -> Unit }
+            }
+            fun foo2() {
+                resolver { -> /* NO-OP to prevent arrow from being removed */ }
+            }
+            fun foo3() {
+                resolver { -> // NO-OP to prevent arrow from being removed
+                }
+            }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Issue 3415 - Given a functional literal without a parameter list, and 'Unit' keyword after arrow is followed by another code element, not 'Unit', then do remove the arrow`() {
+        val code =
+            """
+            fun <T> resolver(function: suspend () -> T) {}
+            fun <T, R> resolver(function: suspend (R) -> T) {}
+
+            fun foo1() {
+                resolver { ->
+                    Unit
+                    "foo"
+                }
+            }
+            """.trimIndent()
+        val formattedCode =
+            """
+            fun <T> resolver(function: suspend () -> T) {}
+            fun <T, R> resolver(function: suspend (R) -> T) {}
+
+            fun foo1() {
+                resolver {
+                    Unit
+                    "foo"
+                }
+            }
+            """.trimIndent()
+        functionLiteralRuleAssertThat(code)
+            .hasLintViolation(5, 16, "Arrow is redundant when parameter list is empty")
+            .isFormattedAs(formattedCode)
+    }
 }

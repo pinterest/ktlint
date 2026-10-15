@@ -5,10 +5,12 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ELSE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_LITERAL
+import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LBRACE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RBRACE
+import io.github.ktlint.core.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.THEN
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
@@ -28,6 +30,7 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_P
 import io.github.ktlint.core.rule.engine.core.api.findParentByType
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
+import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -44,7 +47,6 @@ import io.github.ktlint.core.rule.engine.core.api.parent
 import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.prevLeaf
 import io.github.ktlint.core.rule.engine.core.api.prevSibling
-import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceAfterMe
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
 import io.github.ktlint.core.ruleset.standard.StandardRule
@@ -110,16 +112,29 @@ public class FunctionLiteralRule :
 
     override fun beforeVisitChildNodes(node: ASTNode) {
         if (node.elementType == FUNCTION_LITERAL) {
-            node
-                .findChildByType(VALUE_PARAMETER_LIST)
-                ?.visitValueParameterList()
-            node
-                .findChildByType(ARROW)
-                ?.visitArrow()
-            node
-                .findChildByType(BLOCK)
-                ?.visitBlock()
+            node.visitFunctionLiteral()
         }
+    }
+
+    private fun ASTNode.visitFunctionLiteral() {
+        require(elementType == FUNCTION_LITERAL)
+        if (hasRedundantArrow()) {
+            removeAllBetweenLBraceAndArrow()
+        } else {
+            findChildByType(VALUE_PARAMETER_LIST)
+                ?.visitValueParameterList()
+        }
+        findChildByType(BLOCK)
+            ?.visitBlock()
+    }
+
+    private fun ASTNode.removeAllBetweenLBraceAndArrow() {
+        findChildByType(ARROW)
+            ?.let { arrow ->
+                emit(arrow.startOffset, "Arrow is redundant when parameter list is empty") {
+                    removeRange(findChildByType(LBRACE)!!.nextSibling!!, arrow.nextSibling)
+                }
+            }
     }
 
     private fun ASTNode.visitValueParameterList() {
@@ -128,7 +143,7 @@ public class FunctionLiteralRule :
             if (textContains('\n') || doesNotFitOnSameLineAsStartOfFunctionLiteral()) {
                 rewriteToMultilineParameterList()
             } else {
-                rewriteToSingleLineFunctionLiteral()
+                rewriteToSingleLineParameterList()
             }
         } else {
             if (textContains('\n')) {
@@ -150,7 +165,7 @@ public class FunctionLiteralRule :
                 //        ->
                 //        bar()
                 //    }
-                rewriteToSingleLineFunctionLiteral()
+                rewriteToSingleLineParameterList()
             }
         }
     }
@@ -294,7 +309,7 @@ public class FunctionLiteralRule :
             }
     }
 
-    private fun ASTNode.rewriteToSingleLineFunctionLiteral() {
+    private fun ASTNode.rewriteToSingleLineParameterList() {
         require(elementType == VALUE_PARAMETER_LIST)
         takeUnless { it.isPrecededByComment() }
             ?.prevSibling { it.isWhiteSpaceWithNewline }
@@ -314,20 +329,13 @@ public class FunctionLiteralRule :
 
     private fun ASTNode.isPrecededByComment() = siblings(forward = false).any { it.isPartOfComment }
 
-    private fun ASTNode.visitArrow() {
-        require(elementType == ARROW)
-        prevSibling { it.elementType == VALUE_PARAMETER_LIST }
-            ?.takeIf { it.hasEmptyParameterList() }
-            ?.takeUnless { isLambdaExpressionNotWrappedInBlock() }
-            ?.takeIf { isFollowedByNonEmptyBlock() }
-            ?.let {
-                emit(startOffset, "Arrow is redundant when parameter list is empty") {
-                    nextSibling
-                        .takeIf { it.isWhiteSpace }
-                        ?.remove()
-                    remove()
-                }
-            }
+    private fun ASTNode.hasRedundantArrow(): Boolean {
+        require(elementType == FUNCTION_LITERAL)
+        return findChildByType(VALUE_PARAMETER_LIST)?.hasEmptyParameterList() == true &&
+            findChildByType(ARROW)
+                ?.takeUnless { it.isLambdaExpressionNotWrappedInBlock() }
+                ?.isFollowedByBlockContainingCodeChildAndNotEndingWithUnitKeyword()
+                ?: false
     }
 
     private fun ASTNode.hasEmptyParameterList(): Boolean {
@@ -353,10 +361,20 @@ public class FunctionLiteralRule :
             ?: false
     }
 
-    private fun ASTNode.isFollowedByNonEmptyBlock(): Boolean {
+    private fun ASTNode.isFollowedByBlockContainingCodeChildAndNotEndingWithUnitKeyword(): Boolean {
         require(elementType == ARROW)
-        return nextSibling { it.elementType == BLOCK }?.firstChildNode != null
+        return null !=
+            nextSibling { it.elementType == BLOCK }
+                ?.children
+                ?.lastOrNull { it.isCode }
+                ?.takeIf { it.isNotUnitKeyword() }
     }
+
+    private fun ASTNode.isNotUnitKeyword() =
+        null ==
+            takeIf { it.elementType == REFERENCE_EXPRESSION }
+                ?.firstChildNode
+                ?.takeIf { it.elementType == IDENTIFIER && it.text == "Unit" }
 
     private fun ASTNode.visitBlock() {
         require(elementType == BLOCK)
