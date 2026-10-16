@@ -26,10 +26,10 @@ import io.github.ktlint.core.rule.engine.core.api.prevLeaf
 import io.github.ktlint.core.rule.engine.core.api.prevSibling
 import io.github.ktlint.core.rule.engine.core.api.remove
 import io.github.ktlint.core.rule.engine.core.api.replaceTextWith
-import io.github.ktlint.core.rule.engine.core.api.replaceWith
 import io.github.ktlint.core.rule.engine.core.api.upsertWhitespaceBeforeMe
 import io.github.ktlint.core.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 
 /**
  * Checks that a KDoc comment is delimited consistently:
@@ -82,6 +82,8 @@ public class KdocDelimiterRule :
             KDOC_TEXT -> {
                 if (node.isPartOfMultiLineKdoc()) {
                     node.visitKdocTextInMultiLineKdoc()
+                } else {
+                    node.visitKdocTextInSingleLineKdoc()
                 }
             }
 
@@ -108,7 +110,7 @@ public class KdocDelimiterRule :
                     .takeUnless { it.length == 1 }
                     ?.let {
                         emit(leafAfterKdocStart.startOffset, "Expected a single space after '/**' in a single-line KDoc comment") {
-                            leafAfterKdocStart.replaceTextWith(" " + leafAfterKdocStart.text.trimStart(' '))
+                            leafAfterKdocStart.replaceKDocText(' ' + leafAfterKdocStart.text.trimStart(' '))
                         }
                     }
             }
@@ -273,6 +275,70 @@ public class KdocDelimiterRule :
         return this == parent { it.elementType == KDOC_SECTION }!!.firstChildNode
     }
 
+    private fun ASTNode.visitKdocTextInSingleLineKdoc() {
+        require(elementType == KDOC_TEXT)
+
+        nextLeaf
+            ?.takeIf { it.elementType == KDOC_END && it.text.endsWith("**/") }
+            ?.let { kdocEnd ->
+                // The Kotlin parser adds all asterisks, but no other characters, directly preceding the closing delimiter '*/' to the
+                // KDOC_END token. Ktlint considers those to be part of the actual content. For example the KDoc `/***Foo***/` is parsed
+                // into following three tokens:
+                // - KDOC_START = `/**`
+                // - KDOC_SECTION = `*Foo`
+                // - KDOC_END = `***/`
+                // Those extra leading asterisks are actual content (typically the closing asterisk of Markdown emphasis) and are treated as
+                // such below.
+                val extraClosingAsterisks = kdocEnd.text.dropLast(VALID_KDOC_END.length)
+                if (extraClosingAsterisks == "*") {
+                    // Check whether additional asterisk is the closing asterisk of a Markdown section
+                    if (text.lastOrNull() != ' ' && text.count { it == '*' }.mod(2) == 1) {
+                        // When an uneven number of asterisk are found in the node, the additional star in the closing delimiter is most likely
+                        // the closing asterisk of a Markdown section.
+                        // Fixes /** Text *emphasized**/ to /** Text *emphasized* */
+                        // Fixes /** Text *emphasized1* or *emphasized2**/ to /** Text *emphasized1* or *emphasize2* */
+                        emit(
+                            kdocEnd.endOffset - VALID_KDOC_END.length,
+                            "Expected a single space before '*/' in a single-line KDoc comment",
+                        ) {
+                            replaceKDocText(this.text.trimEnd(' ') + "$extraClosingAsterisks ")
+                        }
+                    } else {
+                        // The additional asterisk is unneeded and should not be moved to KDOC_TEXT
+                        Unit
+                    }
+                } else {
+                    val kdocSectionContent = text + extraClosingAsterisks
+                    kdocSectionContent
+                        .takeLastWhile { it == ' ' }
+                        .takeUnless { it.length == 1 }
+                        ?.let {
+                            emit(
+                                kdocEnd.endOffset - VALID_KDOC_END.length,
+                                "Expected a single space before '*/' in a single-line KDoc comment",
+                            ) {
+                                replaceKDocText(this.text.trimEnd(' ') + "$extraClosingAsterisks ")
+                            }
+                        }
+                }
+            }
+    }
+
+    private fun ASTNode.replaceKDocText(text: String) {
+        require(elementType == KDOC_TEXT)
+        val newKdocText =
+            KtlintKotlinCompiler
+                .createASTNodeFromText(
+                    """
+                    /**$text*/
+                    """.trimIndent(),
+                )?.findChildByType(KDOC)
+                ?.findChildByType(KDOC_SECTION)
+                ?.findChildByType(KDOC_TEXT)
+                ?: error("Cannot create Kdoc")
+        parent!!.replaceChild(this, newKdocText)
+    }
+
     private fun ASTNode.visitKdocEndInMultiLineKdoc() {
         require(elementType == KDOC_END)
         val siblingBeforeKdocEnd = prevSibling!!
@@ -333,45 +399,18 @@ public class KdocDelimiterRule :
                     emit(startOffset, "Expected a single space before '*/' in a single-line KDoc comment") {
                         prevSibling!!
                             .lastChildLeafOrSelf
-                            .let { it.replaceTextWith(it.text.trimEnd(' ') + " ") }
+                            .let { kdocText -> kdocText.replaceKDocText(kdocText.text.trimEnd(' ') + " ") }
                     }
                 }
         } else {
-            // The Kotlin parser adds all asterisks, but no other characters, directly preceding the closing delimiter '*/' to the KDOC_END
-            // token. Ktlint considers those to be part of the actual content. For example the KDoc `/***Foo***/` is parsed into following three
-            // tokens:
-            // - KDOC_START = `/**`
-            // - KDOC_SECTION = `*Foo`
-            // - KDOC_END = `***/`
-            // Those extra leading asterisks are actual content (typically the closing asterisk of Markdown emphasis) and are treated as such
-            // below.
-            val extraClosingAsterisks = text.dropLast(2)
-            val kdocSectionContent = prevSibling!!.text + extraClosingAsterisks
-            kdocSectionContent
-                .takeLastWhile { it == ' ' }
-                .takeUnless { it.length == 1 }
-                ?.let {
-                    emit(startOffset, "Expected a single space before '*/' in a single-line KDoc comment") {
-                        prevSibling!!
-                            .lastChildLeafOrSelf
-                            .let { it.replaceTextWith(it.text.trimEnd(' ') + "$extraClosingAsterisks ") }
-
-                        // Simply replacing the text inside the KDOC_END element results in an exception in the IndentationRule. So
-                        // recreate a completely new KDOC_END element to replace the existing.
-                        val newKdocEnd =
-                            KtlintKotlinCompiler
-                                .createASTNodeFromText(
-                                    """
-                                    /**
-                                     */
-                                    """.trimIndent(),
-                                )?.findChildByType(KDOC)
-                                ?.findChildByType(KDOC_END)
-                                ?: error("Cannot create KdocEnd")
-                        replaceWith(newKdocEnd)
-                    }
-                }
+            emit(startOffset, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment") {
+                (this as LeafPsiElement).rawReplaceWithText(VALID_KDOC_END)
+            }
         }
+    }
+
+    private companion object {
+        const val VALID_KDOC_END = "*/"
     }
 }
 

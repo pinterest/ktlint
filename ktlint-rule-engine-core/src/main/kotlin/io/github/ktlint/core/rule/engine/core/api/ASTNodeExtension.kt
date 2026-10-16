@@ -17,6 +17,7 @@ import org.jetbrains.kotlin.com.intellij.lang.ASTNode
 import org.jetbrains.kotlin.com.intellij.psi.PsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.CompositeElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafElement
+import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.LeafPsiElement
 import org.jetbrains.kotlin.com.intellij.psi.impl.source.tree.PsiWhiteSpaceImpl
 import org.jetbrains.kotlin.com.intellij.psi.tree.IElementType
 import org.jetbrains.kotlin.com.intellij.psi.tree.TokenSet
@@ -360,14 +361,20 @@ public fun ASTNode.upsertWhitespaceBeforeMe(text: String) {
 }
 
 /**
- * Replace text [ASTNode] with [text]. [ASTNode] must be a [LeafElement].
+ * Replace text [ASTNode] with [text]. [ASTNode] must be a [LeafPsiElement].
  */
 public fun ASTNode.replaceTextWith(text: String) {
-    require(this is LeafElement)
+    require(this is LeafPsiElement)
     if (this.text != text) {
-        // Since Kotlin 2.4.20 the "rawReplaceWithText" sometimes result in messing up the reference to the previous and next leaf/siblings.
-        rawInsertBeforeMe(PsiWhiteSpaceImpl(text))
-        remove()
+        rawReplaceWithText(text).also {
+            require(it.elementType == this.elementType) {
+                // Changing the element type can lead to unexpected, and hard to debug problems. Malforming the AST can lead to a problem in
+                // any other rule while unit tests typically only test with a limited set of rules. During integration testing all rules are
+                // run together. When violations are fixed in the first run, the format automatically runs another format run to catch
+                // follow-up problems. It is usually in this second run that the malformed AST results in problems with other rules.
+                "After replacing text in element with type '${this.elementType}' the element type was unexpectedly changed to '${it.elementType}'"
+            }
+        }
     }
 }
 
@@ -653,7 +660,7 @@ public val ASTNode.endOffset: Int
 private val elementTypeCache = hashMapOf<IElementType, PsiElement>()
 
 /**
- * Checks if the [AstNode] extends the [KtAnnotated] interface. Using this function to check the interface is more performant than checking
+ * Checks if the [ASTNode] extends the [KtAnnotated] interface. Using this function to check the interface is more performant than checking
  * whether `psi is KtAnnotated` as the psi does not need to be derived from [ASTNode].
  */
 public val ASTNode.isKtAnnotated: Boolean
@@ -662,7 +669,7 @@ public val ASTNode.isKtAnnotated: Boolean
 private inline fun ASTNode.psiType(predicate: (psiElement: PsiElement) -> Boolean): Boolean = predicate(dummyPsiElement())
 
 /**
- * Checks if the [AstNode] extends the [T] interface which implements [KtElement]. Call this function like:
+ * Checks if the [ASTNode] extends the [T] interface which implements [KtElement]. Call this function like:
  * ```
  * astNode.isPsiType<KtAnnotated>()
  * ```
