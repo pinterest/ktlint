@@ -2,6 +2,7 @@ package io.github.ktlint.core.ruleset.standard.rules
 
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.EOL_CHAR
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.MAX_LINE_LENGTH_MARKER
+import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRule
 import io.github.ktlint.core.test.KtLintAssertThat.Companion.assertThatRuleBuilder
 import io.github.ktlint.core.test.KtlintDocumentationTest
 import io.github.ktlint.core.test.LintViolation
@@ -202,5 +203,18 @@ class CallExpressionWrappingRuleTest {
                 }
             """.trimIndent()
         callExpressionWrappingRuleAssertThat(code).hasNoLintViolations()
+    }
+
+    @Test
+    fun `Given a call expression exceeding max-line-length, but the max-line-length rule is not enabled, then do not wrap`() {
+        val code =
+            """
+            // $MAX_LINE_LENGTH_MARKER      $EOL_CHAR
+            fun foo() = bar("barrrrrrrrrrrrr")
+            """.trimIndent()
+        val callExpressionWrappingRuleAssertThat = assertThatRule { CallExpressionWrappingRule() }
+        callExpressionWrappingRuleAssertThat(code)
+            .setMaxLineLength()
+            .hasNoLintViolations()
     }
 }
