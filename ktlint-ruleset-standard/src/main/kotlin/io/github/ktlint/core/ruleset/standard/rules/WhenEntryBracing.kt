@@ -18,9 +18,9 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.INDENT_STYLE_PROP
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
+import io.github.ktlint.core.rule.engine.core.api.leavesForwardsIncludingSelf
 import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
-import io.github.ktlint.core.rule.engine.core.api.prevCodeSibling
 import io.github.ktlint.core.rule.engine.core.api.prevSibling
 import io.github.ktlint.core.ruleset.standard.StandardRule
 import org.jetbrains.kotlin.com.intellij.lang.ASTNode
@@ -112,6 +112,13 @@ public class WhenEntryBracing :
         require(elementType == ARROW)
         val whenEntryIndent = indentConfig.parentIndentOf(this).removePrefix("\n")
         val whenEntry = parent!!
+        val textBeforeArrow =
+            whenEntry
+                .firstChildLeafOrSelf
+                .leavesForwardsIncludingSelf
+                .takeWhile { it.elementType != ARROW }
+                .joinToString(separator = "") { it.text }
+                .trimEnd(' ')
         // Find the anchor node, e.g. the last node before the current when-entry which is not altered
         val siblingBeforeWhenEntry = whenEntry.prevSibling!!
         // Find the first leaf after the when-entry (including the EOL comment after it) that not has to be enclosed within the braces
@@ -124,7 +131,7 @@ public class WhenEntryBracing :
                 .firstChildLeafOrSelf
         val whenEntryNode =
             createWhenEntryNode(
-                "${whenEntryIndent}${prevCodeSibling!!.text} -> {" +
+                "$whenEntryIndent$textBeforeArrow -> {" +
                     // Replace the whitespaces (possibly this could be a proper indent) at the beginning of the body with an indent. In case
                     // the body was already a multiline statement, then the second and following lines should already be properly indented.
                     indentConfig.childIndentOf(this) +
