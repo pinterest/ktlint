@@ -59,6 +59,7 @@ internal class CodeFormatter(
             // documented and not risk changing this well-tested control flow for a style metric.
             @Suppress("LoopWithTooManyJumpStatements")
             do {
+                LOGGER.trace { "Start formatting round ${formatRunCount + 1} on file '${code.fileNameOrStdin()}'" }
                 val newErrors = format(autocorrectHandler, code)
                 errors.addAll(newErrors)
                 if (newErrors.none { it.first.canBeAutoCorrected && it.second }) {
@@ -84,7 +85,7 @@ internal class CodeFormatter(
             if (mutated && formatRunCount == maxFormatRunsPerFile && autocorrectHandler !is NoneAutocorrectHandler) {
                 // It is unknown if the last format run introduces new lint violations which can be autocorrected. So run lint once more
                 // so that the user can be informed about this correctly.
-                lintAfterFormat().also {
+                if (hasLintErrorsAfterFormat()) {
                     LOGGER.warn {
                         "Format was not able to resolve all violations which (theoretically) can be autocorrected in file " +
                             "${code.filePathOrStdin()} in $maxFormatRunsPerFile consecutive runs of format."
@@ -111,7 +112,7 @@ internal class CodeFormatter(
         return errors
     }
 
-    private fun RuleExecutionContext.lintAfterFormat(): Boolean {
+    private fun RuleExecutionContext.hasLintErrorsAfterFormat(): Boolean {
         var hasErrorsWhichCanBeAutocorrected = false
         executeRules(VisitorProvider(ruleProviders).rules, NoneAutocorrectHandler) { _, _, _, canBeAutoCorrected ->
             if (canBeAutoCorrected) {
