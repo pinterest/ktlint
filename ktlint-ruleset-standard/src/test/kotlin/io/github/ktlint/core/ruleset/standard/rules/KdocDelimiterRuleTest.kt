@@ -167,7 +167,8 @@ class KdocDelimiterRuleTest {
                 class Foo
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
         }
 
         @Test
@@ -180,7 +181,8 @@ class KdocDelimiterRuleTest {
                 class Foo
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
         }
 
         @Test
@@ -197,7 +199,6 @@ class KdocDelimiterRuleTest {
                 /** *foo */
                 class Foo
                 """.trimIndent()
-            @Suppress("ktlint:standard:max-line-length")
             kdocDelimiterRuleAssertThat(code)
                 .hasLintViolations(
                     LintViolation(1, 4, "Expected a single space after '/**' in a single-line KDoc comment"),
@@ -215,7 +216,8 @@ class KdocDelimiterRuleTest {
                 class Foo
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
         }
 
         @Test
@@ -228,7 +230,8 @@ class KdocDelimiterRuleTest {
                 class Foo
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(3, 71, "Closing '*/' of a multi-line KDoc comment should not be preceded by any other text on the same line")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(3, 71, "Closing '*/' of a multi-line KDoc comment should not be preceded by any other text on the same line")
         }
 
         @Test
@@ -240,7 +243,8 @@ class KdocDelimiterRuleTest {
                 class Foo
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
         }
 
         @Test
@@ -252,7 +256,8 @@ class KdocDelimiterRuleTest {
                 class Foo
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
         }
 
         @Test
@@ -264,7 +269,8 @@ class KdocDelimiterRuleTest {
                 class Foo
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(1, 4, "Opening '/**' of a multi-line KDoc comment should not be followed by any other text on the same line")
         }
     }
 
@@ -324,40 +330,6 @@ class KdocDelimiterRuleTest {
         }
 
         @Test
-        fun `Given a single-line KDoc comment missing both the leading and trailing space then reformat`() {
-            val code =
-                """
-                /**A group of members*/
-                class Foo
-                """.trimIndent()
-            val formattedCode =
-                """
-                /** A group of members */
-                class Foo
-                """.trimIndent()
-            kdocDelimiterRuleAssertThat(code)
-                .hasLintViolations(
-                    LintViolation(1, 4, "Expected a single space after '/**' in a single-line KDoc comment"),
-                    LintViolation(1, 22, "Expected a single space before '*/' in a single-line KDoc comment"),
-                ).isFormattedAs(formattedCode)
-        }
-
-        @Test
-        fun `Given a single-line KDoc comment ending with an extra closing asterisk then only report the violation`() {
-            // The extra asterisk is real content (e.g. the closing asterisk of Markdown emphasis) that needs to be
-            // moved out of the KDOC_END token. As that requires replacing that token, which would conflict with
-            // rules (such as IndentationRule) that may already be tracking a reference to it when run in the same
-            // pass, this specific case is reported without autocorrect.
-            val code =
-                """
-                /** A group of *members**/
-                class Foo
-                """.trimIndent()
-            @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(1, 24, "Expected a single space before '*/' in a single-line KDoc comment")
-        }
-
-        @Test
         fun `Given a single-line KDoc comment ending with an extra closing asterisk then format but avoid conflict with indentation`() {
             // The extra asterisk is real content (e.g. the closing asterisk of Markdown emphasis) that needs to be
             // moved out of the KDOC_END token. As that requires replacing that token, which would conflict with
@@ -375,8 +347,10 @@ class KdocDelimiterRuleTest {
                 """.trimIndent()
             kdocDelimiterRuleAssertThat(code)
                 .addAdditionalRuleProvider { IndentationRule() }
-                .hasLintViolation(1, 24, "Expected a single space before '*/' in a single-line KDoc comment")
-                .isFormattedAs(formattedCode)
+                .hasLintViolations(
+                    LintViolation(1, 24, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+                    LintViolation(1, 25, "Expected a single space before '*/' in a single-line KDoc comment"),
+                ).isFormattedAs(formattedCode)
         }
     }
 
@@ -437,7 +411,8 @@ class KdocDelimiterRuleTest {
                 }
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(4, 9, "Each line of a multi-line KDoc comment should start with a leading asterisk")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(4, 9, "Each line of a multi-line KDoc comment should start with a leading asterisk")
         }
 
         @Test
@@ -453,7 +428,8 @@ class KdocDelimiterRuleTest {
                 }
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(4, 1, "Each line of a multi-line KDoc comment should start with a leading asterisk")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(4, 1, "Each line of a multi-line KDoc comment should start with a leading asterisk")
         }
 
         @Test
@@ -469,7 +445,8 @@ class KdocDelimiterRuleTest {
                 }
                 """.trimIndent()
             @Suppress("ktlint:standard:max-line-length")
-            kdocDelimiterRuleAssertThat(code).hasLintViolationWithoutAutoCorrect(4, 3, "Each line of a multi-line KDoc comment should start with a leading asterisk")
+            kdocDelimiterRuleAssertThat(code)
+                .hasLintViolationWithoutAutoCorrect(4, 3, "Each line of a multi-line KDoc comment should start with a leading asterisk")
         }
 
         @Test
@@ -508,7 +485,6 @@ class KdocDelimiterRuleTest {
                     fun bar() {}
                 }
                 """.trimIndent()
-            @Suppress("ktlint:standard:max-line-length")
             kdocDelimiterRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(4, 13, "Leading asterisk is not properly aligned with the first asterisk of the KDoc opening '/**'"),
@@ -532,7 +508,6 @@ class KdocDelimiterRuleTest {
                 ${TAB}fun bar() {}
                 }
                 """.trimIndent()
-            @Suppress("ktlint:standard:max-line-length")
             kdocDelimiterRuleAssertThat(code)
                 .hasLintViolationsWithoutAutoCorrect(
                     LintViolation(4, 4, "Leading asterisk is not properly aligned with the first asterisk of the KDoc opening '/**'"),
@@ -837,7 +812,10 @@ class KdocDelimiterRuleTest {
                 """.trimIndent()
             kdocDelimiterRuleAssertThat(code)
                 .addAdditionalRuleProviders({ IndentationRule() })
-                .hasLintViolationWithoutAutoCorrect(2, 28, "Expected a single space before '*/' in a single-line KDoc comment")
+                .hasLintViolations(
+                    LintViolation(2, 28, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+                    LintViolation(2, 29, "Expected a single space before '*/' in a single-line KDoc comment"),
+                )
         }
     }
 
@@ -865,5 +843,83 @@ class KdocDelimiterRuleTest {
             .withEditorConfigOverride(KDOC_DELIMITER_RULE_ID.createRuleExecutionEditorConfigProperty() to RuleExecution.ENABLED)
             .hasLintViolation(1, 4, "Expected a single space after '/**' in a single-line KDoc comment")
             .isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a single line KDoc with one additional star before closing delimiter`() {
+        val code =
+            """
+            /** Foo**/
+            /** Foo **/
+            /** Foo  **/
+            """.trimIndent()
+        val formattedCode =
+            """
+            /** Foo */
+            /** Foo */
+            /** Foo */
+            """.trimIndent()
+        kdocDelimiterRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 8, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+                LintViolation(2, 9, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+                LintViolation(3, 10, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a single line KDoc possibly ending with a Markdown emphasize with one additional star before closing delimiter`() {
+        val code =
+            """
+            /** *Foo**/
+            """.trimIndent()
+        val formattedCode =
+            """
+            /** *Foo* */
+            """.trimIndent()
+        kdocDelimiterRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 9, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+                LintViolation(1, 10, "Expected a single space before '*/' in a single-line KDoc comment"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a single line KDoc with multiple additional stars before closing delimiter`() {
+        val code =
+            """
+            /** **Foo***/
+            """.trimIndent()
+        val formattedCode =
+            """
+            /** **Foo** */
+            """.trimIndent()
+        kdocDelimiterRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 10, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+                LintViolation(1, 12, "Expected a single space before '*/' in a single-line KDoc comment"),
+            ).isFormattedAs(formattedCode)
+    }
+
+    @Test
+    fun `Given a single line KDoc having a KDOC_TAG followed by a closing delimiter preceded by one additional star`() {
+        val code =
+            """
+            /** @suppress Dokka**/
+            /** @suppress Dokka **/
+            /** @suppress Dokka  **/
+            """.trimIndent()
+        val formattedCode =
+            """
+            /** @suppress Dokka */
+            /** @suppress Dokka */
+            /** @suppress Dokka */
+            """.trimIndent()
+        kdocDelimiterRuleAssertThat(code)
+            .hasLintViolations(
+                LintViolation(1, 20, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+                LintViolation(2, 21, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+                LintViolation(3, 22, "Unexpected '*' before closing delimiter '*/' in a single-line KDoc comment"),
+            ).isFormattedAs(formattedCode)
     }
 }

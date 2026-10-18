@@ -15,7 +15,9 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.CODE_STYLE_PROPER
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.EditorConfig
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.RuleExecution
 import io.github.ktlint.core.rule.engine.core.api.editorconfig.createRuleExecutionEditorConfigProperty
+import io.github.ktlint.core.rule.engine.core.api.nextSibling
 import io.github.ktlint.core.rule.engine.core.api.parent
+import io.github.ktlint.core.rule.engine.core.api.prevSibling
 import io.github.ktlint.core.rule.engine.internal.rulefilter.InternalRuleProvidersFilter
 import io.github.ktlint.core.rule.engine.internal.rulefilter.RuleExecutionRuleFilter
 import io.github.ktlint.core.rule.engine.internal.rulefilter.applyRuleFilters
@@ -61,14 +63,17 @@ internal class RuleExecutionContext private constructor(
                 rule.startTraversalOfAST(emitAndApprove)
                 rule.execute { it.beforeFirstNode(it.editorConfig()) }
             }
-            this.executeRulesOnNodeRecursively(
-                rootNode,
-                rules.filter { it.shouldContinueTraversalOfAST() },
-                autocorrectHandler,
-                emitAndApprove,
-            )
-            rules.forEach { rule ->
-                rule.execute { it.afterLastNode() }
+            val visitChildNodesResult =
+                executeRulesOnNodeRecursively(
+                    rootNode,
+                    rules.filter { it.shouldContinueTraversalOfAST() },
+                    autocorrectHandler,
+                    emitAndApprove,
+                )
+            if (visitChildNodesResult == VisitChildNodesResult.CONTINUE) {
+                rules.forEach { rule ->
+                    rule.execute { it.afterLastNode() }
+                }
             }
         } catch (
             // e itself (the internal-only RuleExecutionException wrapper) is intentionally not chained; e.cause below is
@@ -138,35 +143,79 @@ internal class RuleExecutionContext private constructor(
         rules: List<RuleV2>,
         autocorrectHandler: AutocorrectHandler,
         emitAndApprove: (offset: Int, ruleId: RuleId, errorMessage: String, canBeAutoCorrected: Boolean) -> AutocorrectDecision,
-    ) {
-        rules.forEach { rule ->
-            val visitChildNodesResult =
-                visitChildNodes(node, rule, autocorrectHandler) {
-                    rule.beforeVisitChildNodes(node)
-                }
-            if (visitChildNodesResult == VisitChildNodesResult.STOP) {
-                return
+    ): VisitChildNodesResult =
+        if (visitBeforeChildNodesForAllRules(rules, node, autocorrectHandler) == VisitChildNodesResult.CONTINUE &&
+            visitChildrenRecursively(node, rules, autocorrectHandler, emitAndApprove) == VisitChildNodesResult.CONTINUE &&
+            visitAfterChildNodesForAllRules(rules, node, autocorrectHandler) == VisitChildNodesResult.CONTINUE
+        ) {
+            VisitChildNodesResult.CONTINUE
+        } else {
+            VisitChildNodesResult.STOP
+        }
+
+    private fun visitBeforeChildNodesForAllRules(
+        rules: List<RuleV2>,
+        node: ASTNode,
+        autocorrectHandler: AutocorrectHandler,
+    ): VisitChildNodesResult {
+        // Do not replace the "for" loop with "forEach" as the latter cannot return from the function.
+        for (rule in rules) {
+            visitChildNodes(node, rule, autocorrectHandler) {
+                rule.beforeVisitChildNodes(node)
+            }
+            if (node.hasBeenReplaced()) {
+                // Immediate stop processing other rules on the same node.
+                return VisitChildNodesResult.STOP
             }
         }
+        return VisitChildNodesResult.CONTINUE
+    }
+
+    private fun visitChildrenRecursively(
+        node: ASTNode,
+        rules: List<RuleV2>,
+        autocorrectHandler: AutocorrectHandler,
+        emitAndApprove: (Int, RuleId, String, Boolean) -> AutocorrectDecision,
+    ): VisitChildNodesResult {
+        // Process all children (recursively). In case processing of a childNode has stopped, keep on processing the other child nodes.
+        var childNodesResult = VisitChildNodesResult.CONTINUE
         node
             .getChildren(null)
             .forEach { childNode ->
-                executeRulesOnNodeRecursively(
-                    childNode,
-                    rules.filter { it.shouldContinueTraversalOfAST() },
-                    autocorrectHandler,
-                    emitAndApprove,
-                )
-            }
-        rules.forEach { rule ->
-            val visitChildNodesResult =
-                visitChildNodes(node, rule, autocorrectHandler) {
-                    rule.afterVisitChildNodes(node)
+                if (childNode.hasBeenReplaced()) {
+                    // Child was replaced with a new AST node while processing an earlier child node. Keep on processing the other child
+                    // nodes
+                    childNodesResult = VisitChildNodesResult.STOP
+                } else {
+                    // In case processing of a childNode has stopped, keep on processing the other child nodes.
+                    childNodesResult +=
+                        executeRulesOnNodeRecursively(
+                            childNode,
+                            rules.filter { it.shouldContinueTraversalOfAST() },
+                            autocorrectHandler,
+                            emitAndApprove,
+                        )
                 }
-            if (visitChildNodesResult == VisitChildNodesResult.STOP) {
-                return
+            }
+        return childNodesResult
+    }
+
+    private fun visitAfterChildNodesForAllRules(
+        rules: List<RuleV2>,
+        node: ASTNode,
+        autocorrectHandler: AutocorrectHandler,
+    ): VisitChildNodesResult {
+        // Do not replace the "for" loop with "forEach" as the latter cannot return from the function.
+        for (rule in rules) {
+            visitChildNodes(node, rule, autocorrectHandler) {
+                rule.afterVisitChildNodes(node)
+            }
+            if (node.hasBeenReplaced()) {
+                // Immediate stop processing other rules on the same node.
+                return VisitChildNodesResult.STOP
             }
         }
+        return VisitChildNodesResult.CONTINUE
     }
 
     private fun visitChildNodes(
@@ -174,20 +223,7 @@ internal class RuleExecutionContext private constructor(
         rule: RuleV2,
         autocorrectHandler: AutocorrectHandler,
         childNodesVisitor: () -> Unit,
-    ): VisitChildNodesResult {
-        if (node.parent == null && node.elementType != FILE) {
-            // In commit 729a0fe23c34a8d03fd06854484fe24571b92bd6 the rule execution order has been changed to process all rules on an
-            // ASTNode before proceeding to the next node. Only when testing the Ktlint 2.0 SNAPSHOT with the Ktlint IntelliJ Plugin it
-            // was found this in a particular case led to a regression error when running the plugin with an older Ktlint ruleset
-            // version. Similar problems could also occur with custom rulesets.
-            // In case the entire node has been replaced by a previous rule, for example by using function rawReplaceWithText(text) on a
-            // LeafElement then the reference to the parent element of that element is set to null. Also, other fields of the node may
-            // be initialized to a default value. This could result for example result in Null Pointer Exception whenever a next rule is
-            // inspecting the element type of the parent of the node. Normally this would be resolved by fixing that rule to check for a
-            // non-null parent. However, older Ktlint rulesets are not maintained, and can therefore not be fixed.
-            // Hack solution is to stop processing of the node once it is identified that it is likely that the node has been replaced.
-            return VisitChildNodesResult.STOP
-        }
+    ) {
         try {
             if (!suppressionLocator.suppress(rootNode, node.startOffset, rule)) {
                 childNodesVisitor()
@@ -210,10 +246,25 @@ internal class RuleExecutionContext private constructor(
                 t.cause ?: t,
             )
         }
-        return VisitChildNodesResult.CONTINUE
     }
 
-    private enum class VisitChildNodesResult { STOP, CONTINUE }
+    private fun ASTNode.hasBeenReplaced() =
+        // When references below are set to null this means that the node in the original AST has been replaced with a new node. Any further
+        // processing of this node might result in unexpected problems.
+        elementType != FILE && nextSibling == null && prevSibling == null && parent == null
+
+    private enum class VisitChildNodesResult {
+        STOP,
+        CONTINUE,
+        ;
+
+        operator fun plus(other: VisitChildNodesResult): VisitChildNodesResult =
+            if (this == CONTINUE && other == CONTINUE) {
+                CONTINUE
+            } else {
+                STOP
+            }
+    }
 
     companion object {
         internal fun createRuleExecutionContext(
