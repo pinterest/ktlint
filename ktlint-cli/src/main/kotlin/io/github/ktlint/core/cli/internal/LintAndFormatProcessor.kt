@@ -203,7 +203,22 @@ internal class LintAndFormatProcessor(
             try {
                 ktLintRuleEngine.lint(Code.fromSnippet(formattedFileContent, code.script))
             } catch (e: KtLintParseException) {
-                logger.error(e) { "After formatting code in file '${code.filePath}' it cannot be successfully parsed anymore." }
+                logger.error(e) {
+                    "After formatting code in file '${code.filePath}' it cannot be successfully parsed anymore.\n"
+                        .plus(
+                            if (logger.isDebugEnabled()) {
+                                """
+                                Content of file which cannot be parsed:
+                                ---
+                                $formattedFileContent
+                                ---
+                                """.trimIndent()
+                                // .prependIndent("    ")
+                            } else {
+                                "Run again with '--log-level=trace' to log the formatting result which cannot be parsed."
+                            },
+                        )
+                }
                 // Intentionally stop formatting other files. The '--force-lint-after-format' is only supposed to be used during
                 // release testing of Ktlint CLI. An immediate exit forces to fix the issue immediately as release test can
                 // otherwise not be completed.

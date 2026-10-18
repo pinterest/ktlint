@@ -82,6 +82,10 @@ class WhenEntryBracingTest {
                     BAR2 -> "bar2"
                         .plus("bar3")
                         .plus("bar4")
+                    BAR_TOO_LONGGGGGGGGGGGGGGGG,
+                    -> "bar2"
+                        .plus("bar3")
+                        .plus("bar4")
                     else -> null
                 }
             """.trimIndent()
@@ -93,6 +97,12 @@ class WhenEntryBracingTest {
                         "bar1"
                     }
                     BAR2 -> {
+                        "bar2"
+                            .plus("bar3")
+                            .plus("bar4")
+                    }
+                    BAR_TOO_LONGGGGGGGGGGGGGGGG,
+                    -> {
                         "bar2"
                             .plus("bar3")
                             .plus("bar4")
@@ -112,7 +122,8 @@ class WhenEntryBracingTest {
                 IndentationRule()
             }.hasLintViolations(
                 LintViolation(4, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
-                LintViolation(7, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
+                LintViolation(8, 12, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
+                LintViolation(11, 17, "Body of when entry should be surrounded by braces if any when entry body is surrounded by braces or has a multiline body"),
             ).isFormattedAs(formattedCode)
     }
 
