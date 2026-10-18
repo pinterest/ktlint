@@ -483,21 +483,6 @@ class FunctionLiteralRuleTest {
     }
 
     @Test
-    fun `Issue 2331 - Given a function literal with redundant arrow`() {
-        val code =
-            """
-            fun foo(block: () -> Unit): Unit = foo { -> block() }
-            """.trimIndent()
-        val formattedCode =
-            """
-            fun foo(block: () -> Unit): Unit = foo { block() }
-            """.trimIndent()
-        functionLiteralRuleAssertThat(code)
-            .hasLintViolation(1, 42, "Arrow is redundant when parameter list is empty")
-            .isFormattedAs(formattedCode)
-    }
-
-    @Test
     fun `Issue 2465 - Given a function literal without parameters and with an empty block then do not remove the arrow`() {
         val code =
             """
@@ -648,55 +633,33 @@ class FunctionLiteralRuleTest {
     }
 
     @Test
-    fun `Issue 3415 - Given a functional literal without a parameter list, and last code child after arrow equals 'Unit' then do not remove the arrow`() {
+    fun `Issue 3415 - Given a lambda argument having a functional literal without a parameter list then do not remove the arrow as it can not be determined whether it is redundant`() {
         val code =
             """
-            fun <T> resolver(function: suspend () -> T) {}
-            fun <T, R> resolver(function: suspend (R) -> T) {}
+            fun <T> resolver(function: () -> T) {}
+            fun <T, R> resolver(function: (R) -> T) {}
 
-            fun foo1() {
-                // Arrow in lambda below may not be removed as resolver otherwise can not be resolved correctly
-                resolver { -> Unit }
-            }
-            fun foo2() {
-                resolver { -> /* NO-OP to prevent arrow from being removed */ }
-            }
-            fun foo3() {
-                resolver { -> // NO-OP to prevent arrow from being removed
-                }
+            fun foo() {
+                // Lambda with empty parameter list and body has no explicit return type as it is empty
+                // (e.g. has no code elements)
+                resolver<Unit> { -> } // OK, but either arrow or explicit type should (?) be removed
+                resolver<Unit> { } // OK
+                resolver { -> } // OK
+                // resolver { } // WRONG, without arrow it results in function ambiguity error
+
+                // Lambda with empty parameter list and body has explicit return type "Unit"
+                resolver<Unit> { -> Unit } // OK
+                resolver<Unit> { Unit } // OK
+                resolver { -> Unit } // OK
+                // resolver { Unit } // WRONG, without arrow it results in function ambiguity error
+
+                // Lambda with empty parameter list and body has explicit return type other than "Unit"
+                resolver<Int> { -> 1 } // OK (arrow is still removed by Ktlint fix of #3415 but does not cause a problem because of explicit type)
+                resolver<Int> { 1 } // OK
+                resolver { -> 1 } // OK
+                // resolver { 1 } // WRONG, arrow may not be removed as it results in function ambiguity error
             }
             """.trimIndent()
         functionLiteralRuleAssertThat(code).hasNoLintViolations()
-    }
-
-    @Test
-    fun `Issue 3415 - Given a functional literal without a parameter list, and 'Unit' keyword after arrow is followed by another code element, not 'Unit', then do remove the arrow`() {
-        val code =
-            """
-            fun <T> resolver(function: suspend () -> T) {}
-            fun <T, R> resolver(function: suspend (R) -> T) {}
-
-            fun foo1() {
-                resolver { ->
-                    Unit
-                    "foo"
-                }
-            }
-            """.trimIndent()
-        val formattedCode =
-            """
-            fun <T> resolver(function: suspend () -> T) {}
-            fun <T, R> resolver(function: suspend (R) -> T) {}
-
-            fun foo1() {
-                resolver {
-                    Unit
-                    "foo"
-                }
-            }
-            """.trimIndent()
-        functionLiteralRuleAssertThat(code)
-            .hasLintViolation(5, 16, "Arrow is redundant when parameter list is empty")
-            .isFormattedAs(formattedCode)
     }
 }
