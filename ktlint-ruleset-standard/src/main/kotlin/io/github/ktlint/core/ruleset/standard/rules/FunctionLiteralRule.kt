@@ -5,12 +5,10 @@ import io.github.ktlint.core.rule.engine.core.api.ElementType.ARROW
 import io.github.ktlint.core.rule.engine.core.api.ElementType.BLOCK
 import io.github.ktlint.core.rule.engine.core.api.ElementType.ELSE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.FUNCTION_LITERAL
-import io.github.ktlint.core.rule.engine.core.api.ElementType.IDENTIFIER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LAMBDA_ARGUMENT
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LAMBDA_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.LBRACE
 import io.github.ktlint.core.rule.engine.core.api.ElementType.RBRACE
-import io.github.ktlint.core.rule.engine.core.api.ElementType.REFERENCE_EXPRESSION
 import io.github.ktlint.core.rule.engine.core.api.ElementType.THEN
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER
 import io.github.ktlint.core.rule.engine.core.api.ElementType.VALUE_PARAMETER_LIST
@@ -30,7 +28,6 @@ import io.github.ktlint.core.rule.engine.core.api.editorconfig.MAX_LINE_LENGTH_P
 import io.github.ktlint.core.rule.engine.core.api.findParentByType
 import io.github.ktlint.core.rule.engine.core.api.firstChildLeafOrSelf
 import io.github.ktlint.core.rule.engine.core.api.hasNoMaxLineLengthSuppression
-import io.github.ktlint.core.rule.engine.core.api.isCode
 import io.github.ktlint.core.rule.engine.core.api.isPartOfComment
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpace
 import io.github.ktlint.core.rule.engine.core.api.isWhiteSpaceWithNewline
@@ -118,8 +115,10 @@ public class FunctionLiteralRule :
 
     private fun ASTNode.visitFunctionLiteral() {
         require(elementType == FUNCTION_LITERAL)
-        if (hasRedundantArrow()) {
-            removeAllBetweenLBraceAndArrow()
+        if (findChildByType(VALUE_PARAMETER_LIST)?.hasEmptyParameterList() == true) {
+            if (hasRedundantArrow()) {
+                removeAllBetweenLBraceAndArrow()
+            }
         } else {
             findChildByType(VALUE_PARAMETER_LIST)
                 ?.visitValueParameterList()
@@ -331,11 +330,8 @@ public class FunctionLiteralRule :
 
     private fun ASTNode.hasRedundantArrow(): Boolean {
         require(elementType == FUNCTION_LITERAL)
-        return findChildByType(VALUE_PARAMETER_LIST)?.hasEmptyParameterList() == true &&
-            findChildByType(ARROW)
-                ?.takeUnless { it.isLambdaExpressionNotWrappedInBlock() }
-                ?.isFollowedByBlockContainingCodeChildAndNotEndingWithUnitKeyword()
-                ?: false
+        return isNotLambdaArgument() &&
+            isLambdaExpressionWrappedInBlock()
     }
 
     private fun ASTNode.hasEmptyParameterList(): Boolean {
@@ -343,12 +339,22 @@ public class FunctionLiteralRule :
         return findChildByType(VALUE_PARAMETER) == null
     }
 
-    private fun ASTNode.isLambdaExpressionNotWrappedInBlock(): Boolean {
-        require(elementType == ARROW)
-        return findParentByType(LAMBDA_EXPRESSION)
+    private fun ASTNode.isNotLambdaArgument(): Boolean =
+        // For a lambda argument it can not be determined without resolving the return type of the reference expression whether the arrow is
+        // needed or not (see #3415). Removing the arrow could result in a compilation error.
+        parent
+            ?.takeIf { it.elementType == LAMBDA_EXPRESSION }
+            ?.let { parent?.elementType != LAMBDA_ARGUMENT }
+            ?: true
+
+    private fun ASTNode.isLambdaExpressionWrappedInBlock(): Boolean {
+        require(elementType == FUNCTION_LITERAL)
+        return findChildByType(ARROW)
+            ?.findParentByType(LAMBDA_EXPRESSION)
             ?.parent
-            ?.elementType
-            ?.let { parentElementType ->
+            ?.takeIf { it.elementType == BLOCK }
+            ?.parent
+            ?.let {
                 // Allow:
                 //     val foo = when {
                 //         1 == 2 -> { -> "hi" }
@@ -356,25 +362,10 @@ public class FunctionLiteralRule :
                 //     }
                 // or
                 //     val foo = if (cond) { -> "hi" } else { -> "ho" } parent ->
-                parentElementType == WHEN_ENTRY || parentElementType == THEN || parentElementType == ELSE
+                it.elementType == WHEN_ENTRY || it.elementType == THEN || it.elementType == ELSE
             }
             ?: false
     }
-
-    private fun ASTNode.isFollowedByBlockContainingCodeChildAndNotEndingWithUnitKeyword(): Boolean {
-        require(elementType == ARROW)
-        return null !=
-            nextSibling { it.elementType == BLOCK }
-                ?.children
-                ?.lastOrNull { it.isCode }
-                ?.takeIf { it.isNotUnitKeyword() }
-    }
-
-    private fun ASTNode.isNotUnitKeyword() =
-        null ==
-            takeIf { it.elementType == REFERENCE_EXPRESSION }
-                ?.firstChildNode
-                ?.takeIf { it.elementType == IDENTIFIER && it.text == "Unit" }
 
     private fun ASTNode.visitBlock() {
         require(elementType == BLOCK)
