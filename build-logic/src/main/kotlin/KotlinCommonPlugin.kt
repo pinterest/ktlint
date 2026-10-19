@@ -26,6 +26,8 @@ abstract class KotlinCommonPlugin : Plugin<Project> {
             pluginManager.apply("org.jetbrains.kotlin.jvm")
             pluginManager.apply("dev.drewhamilton.poko")
 
+            // Support composite builds by setting project group
+            // https://docs.gradle.org/current/userguide/composite_builds.html#included_build_declaring_substitutions
             group = localGradleProperty("POM_GROUP_ID").get()
 
             configureJavaCompilationAndTargetVersion()
