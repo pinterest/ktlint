@@ -17,7 +17,7 @@ kotlin-sam-with-receiver = { id = "org.jetbrains.kotlin.plugin.sam.with.receiver
 shadow = "com.gradleup.shadow:9.6.1"
 
 [libraries]
-kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler-embeddable", version.ref = "kotlin" }
+kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-compiler", version.ref = "kotlin" }
 kotlin-plugin = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlin" }
 kotlin-plugin-dev = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin", version.ref = "kotlinDev" }
 kotlin-reflect = { module = "org.jetbrains.kotlin:kotlin-reflect", version.ref = "kotlin" }
